@@ -1,0 +1,66 @@
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+This is a Documentation of the project for me (thunder) to understand what the hell this project's architecture is
+Because I can already smell that in a year it'll be impossible to understand
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+
+=-=-=-=-= SummoningModule.cs =-=-=-=-= 
+- IS A MODULE SCRIPT
+- Parent script for AllmightySinnoh.cs and IndividualPlateModule.cs
+- Receives information (Strikes, Solve, Logging) from PlateBase and handles it.
+- Transmits Bomb Info (KMBombModule, KMBombInfo, KMAudio, etc.) to the PlateBase
+
+Children:
+> AllmightySinnoh.cs		(module Allmighty Sinnoh)
+> IndividualPlateModule.cs	(all 18 other Modules in one .cs, configured on the Prefab)
+
+
+ReceiveStrike() and ReceiveSolve() are to be created in Children, and to be called by PlateBases
+
+PlateBases can call summoningModule.ModuleLog("message {0}", arg1)
+
+
+=-=-=-=-= PlateBase.cs =-=-=-=-= 
+- NOT A MODULE SCRIPT
+- Contained on the Plate itself
+- Base for the 18 individual Plates so they have a common pool of Methods and Variables
+- Designed to be summoned by either its own Module, or Allmighty Sinnoh.
+- Reports information (Strikes, Solve, Logging, etc.) back to the SummoningModule, not to the bomb directly
+- Receives Bomb Info (KMBombModule, KMBombInfo, KMAudio, etc.) from the SummoningModule
+
+Children:
+> BlankPlate.cs
+> FistPlate.cs
+> SkyPlate.cs
+> ToxicPlate.cs
+> EarthPlate.cs
+> StonePlate.cs
+> InsectPlate.cs
+> SpookyPlate.cs
+> IronPlate.cs
+> FlamePlate.cs
+> SplashPlate.cs
+> MeadowPlate.cs
+> ZapPlate.cs
+> MindPlate.cs
+> IciclePlate.cs
+> DracoPlate.cs
+> DreadPlate.cs
+> PixiePlate.cs
+
+
+=-=-=-=-= OtherStuff =-=-=-=-= 
+
+- PixiePlate will need to Read/Write data from a JSON, so expect a file for that
+- Common Helper Functions will probably be in the PlateBase, but maybe an external library will be used
+
+
+
+=-=-=-=-= Pixie Plate Architecture & JSON =-=-=-=-=
+
+> A bunch of different starting playfields will be pre-designed by hand, so they have at least one validated intended solution.
+> Each puzzle will contain
+	> An Array of Demon IDs [0-8] and their Location [0-7 for Column and 0-3 for Row]
+	> An Array of Pixie IDs [0-9]
+	> An array of VoidCell Locations [0-7 for Column and 0-3 for Row]

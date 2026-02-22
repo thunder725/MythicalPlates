@@ -1,0 +1,50 @@
+[
+  {
+    "puzzleID": 0, // 3v6? Easy!
+    "demonIDs": [ 0, 3, 8, 0, 7 ],
+    "demonLocations": [ "72", "63", "70", "61", "53" ],
+    "pixieIDs": [ 0, 3, 4 ],
+    "voidCellLocations": [ "40", "32" ],
+    "intendedPixiePlacementSolution": [ "03", "52", "30" ]
+  },
+  {
+    "puzzleID": 1, // Last-Minute Mancie Saves the Day
+    "demonIDs": [ 1, 8, 0, 6 ],
+    "demonLocations": [ "61", "72", "60", "52" ],
+    "pixieIDs": [ 7, 1, 9, 0 ],
+    "voidCellLocations": [ "42" ],
+    "intendedPixiePlacementSolution": [ "11", "32", "62", "00" ]
+  },
+  {
+    "puzzleID": 2, // High-Speed Demon, Low-Speed Demon
+    "demonIDs": [ 2, 5, 1, 0, 2 ],
+    "demonLocations": [ "63", "41", "51", "52", "70" ],
+    "pixieIDs": [ 0, 5, 6 ],
+    "voidCellLocations": [ "11", "43", "33" ],
+    "intendedPixiePlacementSolution": [ "00", "02", "01" ]
+  },
+  {
+    "puzzleID": 3, // Sabnlock hell, with double Vale-Fort Glomie stall usage
+    "demonIDs": [ 7, 6, 7, 6, 7 ],
+    "demonLocations": [ "50", "61", "43", "71", "72" ],
+    "pixieIDs": [ 3, 9, 6, 5 ],
+    "voidCellLocations": [ "22", "40", "63" ],
+    "intendedPixiePlacementSolution": [ "32", "53", "01", "00" ]
+  },
+  {
+    "puzzleID": 4, // Tryptophamia and its Imhullu army vs negating Demons
+    "demonIDs": [ 0, 0, 4, 3, 5 ],
+    "demonLocations": [ "71", "53", "32", "62", "60" ],
+    "pixieIDs": [ 2, 4, 4, 4, 4 ],
+    "voidCellLocations": [ "31", "52", "61" ],
+    "intendedPixiePlacementSolution": [ "02", "30", "21", "23", "72" ]
+  },
+  {
+    "puzzleID": 5, // Singular Glomie against 6 Demons, in one Timestep
+    "demonIDs": [ 0, 3, 2, 0, 2, 3 ],
+    "demonLocations": [ "60", "53", "61", "52", "43", "31" ],
+    "pixieIDs": [ 3 ],
+    "voidCellLocations": [ "00", "13", "41" ],
+    "intendedPixiePlacementSolution": [ "32" ]
+  }
+]
