@@ -119,6 +119,7 @@ public class ZapPlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         platePressableButtons[0].AddInteractionPunch();
+        summoningModule.PlaySound(platePressedSound);
 
         char _pressedSecond = bombInfo.GetFormattedTime().Last();
         if (CharToInt(_pressedSecond) == secondsToPressOn)

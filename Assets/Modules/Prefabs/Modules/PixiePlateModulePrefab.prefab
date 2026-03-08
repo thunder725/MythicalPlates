@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 114597791596211882}
   - component: {fileID: 114352172102094114}
   m_Layer: 0
-  m_Name: BottomMovementButton
+  m_Name: PixieCasingResetButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

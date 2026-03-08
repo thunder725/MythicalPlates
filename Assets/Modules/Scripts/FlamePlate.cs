@@ -87,6 +87,7 @@ public class FlamePlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         button.AddInteractionPunch();
+        summoningModule.PlaySound(platePressedSound);
 
         if (CharToInt(finalPasscode[nextPasscodeDigitToSubmit]) == sentIndex)
         {

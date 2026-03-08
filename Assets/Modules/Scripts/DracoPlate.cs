@@ -69,6 +69,7 @@ public class DracoPlate : PlateBase
         if (summoningModule.isModuleSolved) { return; }
 
         platePressableButtons[0].AddInteractionPunch();
+        summoningModule.PlaySound(platePressedSound);
 
         // Save the input
         submittedLine += buttonColor;

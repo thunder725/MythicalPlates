@@ -17,6 +17,7 @@ public abstract class PlateBase : MonoBehaviour {
     protected List<int> voidedCellsIndices;
     [SerializeField] protected string customTwitchHelpMessage = "“!{0}”";
     public string fullPlateName;
+    [SerializeField] protected AudioClip platePressedSound;
 
 
     // Information that gets transmitted by the Summoning Module

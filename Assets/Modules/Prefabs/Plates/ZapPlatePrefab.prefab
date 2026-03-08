@@ -151,6 +151,7 @@ MonoBehaviour:
   customTwitchHelpMessage: "Press the Plate on a specific time using \u201C!{0} Press
     3\u201D."
   fullPlateName: Zap Plate
+  platePressedSound: {fileID: 8300000, guid: 985b4dad7352a2c409d56f191ebbb1f7, type: 3}
   thisModule: {fileID: 0}
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}

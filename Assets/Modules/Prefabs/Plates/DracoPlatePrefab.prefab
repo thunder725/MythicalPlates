@@ -133,7 +133,7 @@ Transform:
   m_GameObject: {fileID: 1984561921535992}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.0051, z: 0.04185}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.9, y: 1.2, z: 1}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 2
@@ -146,7 +146,7 @@ Transform:
   m_GameObject: {fileID: 1384200165065454}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.0051, z: -0.02775}
-  m_LocalScale: {x: 0.99999994, y: 1.0000004, z: 1.0000004}
+  m_LocalScale: {x: 0.9, y: 1.2, z: 1}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 3
@@ -300,13 +300,13 @@ TextMesh:
   m_GameObject: {fileID: 1984561921535992}
   m_Text: '227 122 214 9
 
-    106 12 41 170'
+    206 212 241 270'
   m_OffsetZ: 0
   m_CharacterSize: 0.001
   m_LineSpacing: 0.78
   m_Anchor: 4
   m_Alignment: 1
-  m_TabSize: 4
+  m_TabSize: 5.08
   m_FontSize: 160
   m_FontStyle: 0
   m_RichText: 1
@@ -365,6 +365,7 @@ MonoBehaviour:
   customTwitchHelpMessage: "Submit the line with \u201C!{0} Submit wkkwkwwk\u201D.
     K for black and W for white."
   fullPlateName: Draco Plate
+  platePressedSound: {fileID: 8300000, guid: 985b4dad7352a2c409d56f191ebbb1f7, type: 3}
   thisModule: {fileID: 0}
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}

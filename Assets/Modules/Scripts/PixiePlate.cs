@@ -189,6 +189,7 @@ public class PixiePlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         pressedButton.AddInteractionPunch();
+        summoningModule.PlaySound(platePressedSound);
 
         // Button Type Indicator:
         // 0123 is Up Down Left Right Movement to coincide with MovementDirection enum
@@ -2133,9 +2134,6 @@ public class PixiePlate : PlateBase {
             yield return "sendtochat {0} Received empty command!";
             yield break;
         }
-
-
-        List<KMSelectable> _ButtonsToPress = new List<KMSelectable>();
 
         // Put to lowercase and remove spaces
         command = command.ToLowerInvariant().Replace(" ", "").Replace(",","");
