@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114847863158399170}
   - component: {fileID: 114772345341299902}
   m_Layer: 0
-  m_Name: UpMovementButton
+  m_Name: UpAmpButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,7 +59,7 @@ GameObject:
   - component: {fileID: 114447296627949740}
   - component: {fileID: 114737622146227014}
   m_Layer: 0
-  m_Name: LeftMovementButton
+  m_Name: LeftPercentButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -94,7 +94,7 @@ GameObject:
   - component: {fileID: 114742485134897530}
   - component: {fileID: 114468327609540500}
   m_Layer: 0
-  m_Name: DownMovementButton
+  m_Name: DownExclamationButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,7 +129,7 @@ GameObject:
   - component: {fileID: 114593095010983724}
   - component: {fileID: 114887503757137732}
   m_Layer: 0
-  m_Name: CentralApplyButton
+  m_Name: CenterHashButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -164,7 +164,7 @@ GameObject:
   - component: {fileID: 114982224898339572}
   - component: {fileID: 114269740353552552}
   m_Layer: 0
-  m_Name: RightMovementButton
+  m_Name: RightAtButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -212,7 +212,7 @@ Transform:
   m_GameObject: {fileID: 1491927880346720}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0.006, z: 0}
-  m_LocalScale: {x: 0.049999997, y: 0.0009999999, z: 0.099999994}
+  m_LocalScale: {x: 0.13, y: 0.0009999999, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 4
@@ -250,8 +250,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1032981646327986}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.006, z: 0.0625}
-  m_LocalScale: {x: 0.049999997, y: 0.0009999999, z: 0.02}
+  m_LocalPosition: {x: 0, y: 0.006, z: 0.0475}
+  m_LocalScale: {x: 0.13, y: 0.0009999999, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 2
@@ -276,8 +276,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1396656596015944}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.037500024, y: 0.006, z: 0}
-  m_LocalScale: {x: 0.0175, y: 0.0009999999, z: 0.099999994}
+  m_LocalPosition: {x: -0.03175, y: 0.006, z: 0}
+  m_LocalScale: {x: 0.13, y: 0.0009999999, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 0
@@ -315,8 +315,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1677347188412262}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.037500024, y: 0.006, z: 0}
-  m_LocalScale: {x: 0.0175, y: 0.0009999999, z: 0.099999994}
+  m_LocalPosition: {x: 0.03175, y: 0.006, z: 0}
+  m_LocalScale: {x: 0.13, y: 0.0009999999, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 1
@@ -351,8 +351,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1468951109913090}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.006, z: -0.0625}
-  m_LocalScale: {x: 0.049999997, y: 0.0009999999, z: 0.02}
+  m_LocalPosition: {x: 0, y: 0.006, z: -0.0475}
+  m_LocalScale: {x: 0.13, y: 0.0009999999, z: 0.2}
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 3
@@ -567,14 +567,14 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1491927880346720}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 40c918bc67d041f4c944a268fc38ad38, type: 3}
 --- !u!33 &33138055782278244
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1468951109913090}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 15e562c59da39554fad02f08d010813a, type: 3}
 --- !u!33 &33697501557912562
 MeshFilter:
   m_ObjectHideFlags: 1
@@ -588,21 +588,21 @@ MeshFilter:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1396656596015944}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 3f9c2589c919f864d8729126acd06b37, type: 3}
 --- !u!33 &33846758606340386
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1677347188412262}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: b6f8521dbbee9fe4b8c3901a0383f4bc, type: 3}
 --- !u!33 &33936297749768396
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1032981646327986}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 4300000, guid: 61eb43aa8a1adfb47bf9409786b896aa, type: 3}
 --- !u!102 &102038688830240866
 TextMesh:
   serializedVersion: 3
@@ -719,10 +719,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66fcfc94ef541cd4bbd526a80393c3f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platePressableButtons: []
-  customTwitchHelpMessage: "\u201C!{0} submit %\u201D"
+  platePressableButtons:
+  - {fileID: 114593095010983724}
+  - {fileID: 114847863158399170}
+  - {fileID: 114447296627949740}
+  - {fileID: 114982224898339572}
+  - {fileID: 114742485134897530}
+  customTwitchHelpMessage: "\u201C!{0} submit %\u201D to submit a character"
   fullPlateName: Dread Plate
-  platePressedSound: {fileID: 8300000, guid: 985b4dad7352a2c409d56f191ebbb1f7, type: 3}
+  platePressedSounds:
+  - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
+  - {fileID: 8300000, guid: 814e43f9538828b469760662f4765440, type: 3}
+  - {fileID: 8300000, guid: 1aedbcd9f3b21514e8e37bc7c2be2d8c, type: 3}
+  - {fileID: 8300000, guid: 73efe079dbc6611489424ed1bf343c1b, type: 3}
   thisModule: {fileID: 0}
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}

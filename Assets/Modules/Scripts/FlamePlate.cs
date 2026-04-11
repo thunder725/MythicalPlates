@@ -87,7 +87,7 @@ public class FlamePlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         button.AddInteractionPunch();
-        summoningModule.PlaySound(platePressedSound);
+        PlayPlatePressSound();
 
         if (CharToInt(finalPasscode[nextPasscodeDigitToSubmit]) == sentIndex)
         {
@@ -169,12 +169,12 @@ public class FlamePlate : PlateBase {
         // Do movements, but since this returns a Struct with the data, just gather the Number of Passed Cells
         for (int _x = 0; _x < xMovement; _x++)
         {
-            numberOfVoidLinesPassed += MoveAroundGridWithVoid(directionForX, magmaTable, ref currentLocation, 10, true).NumberOfPassedVoidCells;
+            numberOfVoidLinesPassed += MoveAroundGridWithVoid(directionForX, 100, ref currentLocation, 10, true).NumberOfPassedVoidCells;
         }
 
         for (int _y = 0; _y < yMovement; _y++)
         {
-            numberOfVoidLinesPassed += MoveAroundGridWithVoid(directionForY, magmaTable, ref currentLocation, 10, true).NumberOfPassedVoidCells;
+            numberOfVoidLinesPassed += MoveAroundGridWithVoid(directionForY, 100, ref currentLocation, 10, true).NumberOfPassedVoidCells;
         }
 
 
@@ -268,7 +268,11 @@ public class FlamePlate : PlateBase {
     }
 
 
-    protected override void CasingTextButtonGetsPressed() { }
+    protected override void CasingTextButtonGetsPressed() 
+    {
+        nextPasscodeDigitToSubmit = 0;
+        summoningModule.ModuleLog(moduleId, "Casing text pressed. The currently input digits have been reset and forgotten.");
+    }
 
 
 

@@ -69,7 +69,7 @@ public class DracoPlate : PlateBase
         if (summoningModule.isModuleSolved) { return; }
 
         platePressableButtons[0].AddInteractionPunch();
-        summoningModule.PlaySound(platePressedSound);
+        PlayPlatePressSound();
 
         // Save the input
         submittedLine += buttonColor;
@@ -95,6 +95,12 @@ public class DracoPlate : PlateBase
             summoningModule.ModuleLog(moduleId, "You pressed {0}, which is correct.", buttonColor == "w" ? "White" : "Black");
         }
 
+    }
+
+    protected override void CasingTextButtonGetsPressed() 
+    {
+        summoningModule.ModuleLog(moduleId, "Casing text pressed. Currently entered sequence reset.");
+        submittedLine = string.Empty;
     }
 
     void GenerateVoidCellsFromBombData()
@@ -759,7 +765,7 @@ public class DracoPlate : PlateBase
         }
     }
 
-    protected override void CasingTextButtonGetsPressed() { }
+    
 }
 
 

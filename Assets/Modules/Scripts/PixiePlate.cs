@@ -16,9 +16,6 @@ public class PixiePlate : PlateBase {
       {"10000", "Q"}, {"10001", "R"}, {"10010", "S"}, {"10011", "T"}, {"10100", "U"}, {"10101", "V"}, {"10110", "W"}, {"10111", "X"},
       {"11000", "Y"}, {"11001", "Z"}, {"11010", "+"}, {"11011", "/"}, {"11100", "?"}, {"11101", "&"}, {"11110", "#"}, {"11111", "%"}};
 
-    /// <summary> Dictionary to convert an integer representing an UTC Offset to a string containing Country Code Pairs </summary>
-    Dictionary<int, string> UtcOffsetToCountryCodes = new Dictionary<int, string>()
-    { {0, "IEIS"}, {1, "ALADBEDKLI"}, {2, "BGGRCYRO"}, {3, "UGTRQA"}, {4, "LCGDDMTT"}, {5, "JMUZMVBS"}, {6, "CRNIBD"}, {7, "KHTHVN"}, {8, "CNMOPHSG"}};
 
     /// <summary> Structure to represent the starting states of Preset Playfield Puzzles </summary>
     [System.Serializable] public struct PresetPlayfieldPuzzle
@@ -115,6 +112,9 @@ public class PixiePlate : PlateBase {
     [SerializeField] TextMesh bottomPlatePixieInscription;
     [SerializeField] TextMesh middlePlateVoidInscription;
 
+    // Sounds for player feedback
+    [SerializeField] AudioClip incorrectWarningSound, readyToSubmitSound;
+
     // Preset Puzzles
     [SerializeField] TextAsset puzzleListJson;
     PresetPlayfieldPuzzle[] presetPuzzleLists;
@@ -189,7 +189,7 @@ public class PixiePlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         pressedButton.AddInteractionPunch();
-        summoningModule.PlaySound(platePressedSound);
+        PlayPlatePressSound();
 
         // Button Type Indicator:
         // 0123 is Up Down Left Right Movement to coincide with MovementDirection enum
@@ -233,10 +233,18 @@ public class PixiePlate : PlateBase {
 
                 // Go to the next Pixie
                 currentPixieIndexToPlace++;
+
+                // If we just placed the last pixie
+                if (currentPixieIndexToPlace ==  currentPlayfield.pixies.Length)
+                {
+                    summoningModule.PlaySound(readyToSubmitSound);
+                }
             }
             else
             {
-                summoningModule.ModuleLog(moduleId, "PLAY SOUND: CAN'T PLACE PIXIE HERE!!");
+                summoningModule.ModuleLog(moduleId, "Can't place Pixie at location {0} because something's already there!",
+                    ConvertGridIndexToPresetPuzzleLocation(currentPlayerPointerLocation));
+                summoningModule.PlaySound(incorrectWarningSound);
             }
         }
         // Or sumbit everything and run the simulation
@@ -266,7 +274,7 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.ModuleLog(moduleId, "PLAY SOUND: CAN'T MOVE UP");
+                    summoningModule.PlaySound(incorrectWarningSound);
                 }
 
                 break;
@@ -279,7 +287,7 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.ModuleLog(moduleId, "PLAY SOUND: CAN'T MOVE DOWN");
+                    summoningModule.PlaySound(incorrectWarningSound);
                 }
 
                 break;
@@ -292,7 +300,7 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.ModuleLog(moduleId, "PLAY SOUND: CAN'T MOVE LEFT");
+                    summoningModule.PlaySound(incorrectWarningSound);
                 }
 
                 break;
@@ -305,7 +313,7 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.ModuleLog(moduleId, "PLAY SOUND: CAN'T MOVE RIGHT");
+                    summoningModule.PlaySound(incorrectWarningSound);
                 }
 
                 break;
@@ -852,7 +860,7 @@ public class PixiePlate : PlateBase {
 
         // Move left, ignoring Void, and see what we land on
         // If .ranIntoGridEdges is true, the Demon left the playfield and we lost
-        if (MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation, ref _newDemonCellIndex, 8, false).ranIntoGridEdges)
+        if (MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation.Length, ref _newDemonCellIndex, 8, false).ranIntoGridEdges)
         {
             summoningModule.ModuleLog(moduleId, "Demon with Creature Number {0} just left the grid from the left. Your solution is therefore incorrect. STRIKE!!",
                 demonToMove.demonPlayfieldNumber);
@@ -1024,7 +1032,7 @@ public class PixiePlate : PlateBase {
         int _attackTargetCellIndex = _demon.gridLocationIndex;
 
         // Move left until we reach a valid cell
-        MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation, ref _attackTargetCellIndex, 8, false);
+        MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation.Length, ref _attackTargetCellIndex, 8, false);
 
         // If this is empty, or a Demon, ignore
         if (DoesPlayfieldCellContainPixie(_attackTargetCellIndex) == false)
@@ -1103,7 +1111,7 @@ public class PixiePlate : PlateBase {
                     _attackTargetCellIndices = pixie.gridLocationIndex;
 
                     // Move around
-                    MoveAroundGridWithVoid((MovementDirection)_direction, currentPlayfield.playfieldRepresentation, ref _attackTargetCellIndices, 8, false);
+                    MoveAroundGridWithVoid((MovementDirection)_direction, currentPlayfield.playfieldRepresentation.Length, ref _attackTargetCellIndices, 8, false);
 
                     // Is the landed cell occupied by a Demon?
                     if (DoesPlayfieldCellContainDemon(_attackTargetCellIndices))
@@ -1133,7 +1141,7 @@ public class PixiePlate : PlateBase {
                     int _imhulluFinalMovementCellIndex = pixie.gridLocationIndex;
 
                     // If didn't hit edges
-                    if (MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation, ref _imhulluFinalMovementCellIndex, 8, false).ranIntoGridEdges == false)
+                    if (MoveAroundGridWithVoid(MovementDirection.Left, currentPlayfield.playfieldRepresentation.Length, ref _imhulluFinalMovementCellIndex, 8, false).ranIntoGridEdges == false)
                     {
                         // If cell is empty and available
                         if (IsPlayfieldCellEmpty(_imhulluFinalMovementCellIndex))
@@ -1187,7 +1195,7 @@ public class PixiePlate : PlateBase {
                     _attackTargetCellIndices = pixie.gridLocationIndex;
 
                     // Move around
-                    MoveAroundGridWithVoid((MovementDirection)_direction, currentPlayfield.playfieldRepresentation, ref _attackTargetCellIndices, 8, false);
+                    MoveAroundGridWithVoid((MovementDirection)_direction, currentPlayfield.playfieldRepresentation.Length, ref _attackTargetCellIndices, 8, false);
 
                     // Is the landed cell occupied by a Demon?
                     if (DoesPlayfieldCellContainDemon(_attackTargetCellIndices))
@@ -1245,7 +1253,7 @@ public class PixiePlate : PlateBase {
         for (int i = 0; i < maximumRange; i++)
         {
             // At each step, if it got out of the edges just cancel attack
-            if (MoveAroundGridWithVoid(direction, currentPlayfield.playfieldRepresentation, ref _attackTargetCellLocation, 8, false).ranIntoGridEdges)
+            if (MoveAroundGridWithVoid(direction, currentPlayfield.playfieldRepresentation.Length, ref _attackTargetCellLocation, 8, false).ranIntoGridEdges)
             { return false; }
 
 
@@ -1314,7 +1322,7 @@ public class PixiePlate : PlateBase {
         int _temporaryLocation = pixieLocation;
 
         // Check one cell up...
-        MoveAroundGridWithVoid(MovementDirection.Up, currentPlayfield.playfieldRepresentation, ref _temporaryLocation, 8, false);
+        MoveAroundGridWithVoid(MovementDirection.Up, currentPlayfield.playfieldRepresentation.Length, ref _temporaryLocation, 8, false);
         if (DoesPlayfieldCellContainPixie(_temporaryLocation))
         {
             if (GetPixieFromPlayfieldCellIndex(_temporaryLocation).pixieArchetypeId == 6)
@@ -1326,7 +1334,7 @@ public class PixiePlate : PlateBase {
 
         // ...and one cell down!
         _temporaryLocation = pixieLocation;
-        MoveAroundGridWithVoid(MovementDirection.Down, currentPlayfield.playfieldRepresentation, ref _temporaryLocation, 8, false);
+        MoveAroundGridWithVoid(MovementDirection.Down, currentPlayfield.playfieldRepresentation.Length, ref _temporaryLocation, 8, false);
         if (DoesPlayfieldCellContainPixie(_temporaryLocation))
         {
             if (GetPixieFromPlayfieldCellIndex(_temporaryLocation).pixieArchetypeId == 6)
@@ -1435,7 +1443,7 @@ public class PixiePlate : PlateBase {
             _temporaryLocation = DemonLocation;
 
             // Move once in the direction
-            MoveAroundGridWithVoid((MovementDirection)i, currentPlayfield.playfieldRepresentation, ref _temporaryLocation, 8, false);
+            MoveAroundGridWithVoid((MovementDirection)i, currentPlayfield.playfieldRepresentation.Length, ref _temporaryLocation, 8, false);
 
             // Is this a Demon?
             if (DoesPlayfieldCellContainDemon(_temporaryLocation))
@@ -1478,7 +1486,7 @@ public class PixiePlate : PlateBase {
 
             // Move to the left until we find something that is non-Void!
             // Also, ignore if we left of the Playfield
-            if (MoveAroundGridWithVoid(MovementDirection.Right, currentPlayfield.playfieldRepresentation, ref _potentialSpawningCellIndex, 8, false).ranIntoGridEdges)
+            if (MoveAroundGridWithVoid(MovementDirection.Right, currentPlayfield.playfieldRepresentation.Length, ref _potentialSpawningCellIndex, 8, false).ranIntoGridEdges)
             {
                 continue;
             }
@@ -1570,7 +1578,7 @@ public class PixiePlate : PlateBase {
             _finalCell = GlomieCellIndex;
 
             // Move in direction
-            MoveAroundGridWithVoid((MovementDirection)_directions, currentPlayfield.playfieldRepresentation, ref _finalCell, 8, false);
+            MoveAroundGridWithVoid((MovementDirection)_directions, currentPlayfield.playfieldRepresentation.Length, ref _finalCell, 8, false);
 
             // Do we land on a Demon?
             if (DoesPlayfieldCellContainDemon(_finalCell))
@@ -1664,45 +1672,36 @@ public class PixiePlate : PlateBase {
     void CompressAndShowDemonDataOnPlate()
     {
         // Demon data is its ID and starting Location
-        // It ends up as 3 character per Demon, first two being ID and last being position
+        // It ends up as 2 character per Demon, first being ID and second being encrypted position
 
         // Decompression:
-        // First two character, get the country shown by the ISO two-letter code
-        // Take the UTC time offset of that country, removing minus sign
-        // This is the ID of the Demon
+        // First character is the uncompressed ID of the Demon
         // Take the third character, decompress into a 5-bit number
-        // Add all Serial Number digits together, convert to binary and take only the 5 least significant digits
-        // XOR the two 5-bit numbers together.
         // First 3 bits is the column index, last 2 is the row index
 
         // Compression then becomes:
-        // ID of the Demon converted to a two-letter code based on a curated dictionary of possibilities
         // Location as described in the Preset Playfield Puzzle is combined into a 5-bit binary number
-        // Sum of SN Digits is used to XOR the binary number
         // Convert that binary number to a character using the dictionary
 
+
         string _compressedDemonData = "";
-        string _scratchStringValue = string.Empty;
+        string _binaryDemonLocation = string.Empty;
+        string _encryptedLocationCharacter = string.Empty;
 
 
         for (int i = 0; i < selectedPresetPuzzle.demonIds.Length; i ++)
         {
             // 3 Demons per line, so the 4th data starts at a new line
             if (i == 3) { _compressedDemonData += "\n"; }
+            // Else, add a space for readability
+            else if (i > 0) { _compressedDemonData += " "; }
 
 
+            // Add the Demon's ID
+            _compressedDemonData += selectedPresetPuzzle.demonIds[i];
 
-            // Convert the Demon ID to a country code based on the curated dictionary
-            UtcOffsetToCountryCodes.TryGetValue(selectedPresetPuzzle.demonIds[i], out _scratchStringValue);
-
-            // We get multiple country codes, only keep one of them (a pair of 2 characters)
-            // Initial Index is 0, 2, 4, 6, etc. So that's Random [0; x] * 2  where x is the number of Pairs (because inclusive)
-            int _countryCodeStartingIndex = UnityEngine.Random.Range(0, _scratchStringValue.Length / 2) * 2;
-            _scratchStringValue = _scratchStringValue.Substring(_countryCodeStartingIndex, 2);
-            _compressedDemonData += _scratchStringValue;
-
-            summoningModule.ModuleLog(moduleId, "Next Demon has ID {0}, it is a {1}. Compressed into a Country Code {2}",
-                selectedPresetPuzzle.demonIds[i], GetDemonDebugFriendlyName(selectedPresetPuzzle.demonIds[i]), _scratchStringValue);
+            summoningModule.ModuleLog(moduleId, "Next Demon has ID {0}, it is a {1}.",
+                selectedPresetPuzzle.demonIds[i], GetDemonDebugFriendlyName(selectedPresetPuzzle.demonIds[i]));
 
 
 
@@ -1710,35 +1709,19 @@ public class PixiePlate : PlateBase {
             // Take the location and convert it to a 5-bit binary puzzle in format cccrr for Column and Row
             // "numbersAsBinary" contains the first 5-bit digits
             // Column
-            _scratchStringValue = numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][0])].Substring(2, 3);
+            _binaryDemonLocation = numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][0])].Substring(2, 3);
             // Row
-            _scratchStringValue += numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][1])].Substring(3, 2);
-            summoningModule.ModuleLog(moduleId, "It has Location {0}. This is compressed as binary {1}",
-                selectedPresetPuzzle.demonLocations[i][0] + "-" + selectedPresetPuzzle.demonLocations[i][1], _scratchStringValue);
-
-            // XOR with the SN Digits sum
-            for (int _bit = 0; _bit < 5; _bit++)
-            {
-                if (_scratchStringValue[_bit] == fiveDigitBinarySumOfSerialNumber[_bit])
-                {
-                    // Instead of overwriting, add the bits to the end, and we'll only keep the last 5 bits after the XOR
-                    _scratchStringValue += '0';
-                }
-                else
-                {
-                    _scratchStringValue += '1';
-                }
-            }
-            // Only get the last 5 bits
-            _scratchStringValue = _scratchStringValue.Substring(5, 5);
-
+            _binaryDemonLocation += numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][1])].Substring(3, 2);
+            
             // Convert to a single character
-            ConversionTableBelow.TryGetValue(_scratchStringValue, out _scratchStringValue);
+            ConversionTableBelow.TryGetValue(_binaryDemonLocation, out _encryptedLocationCharacter);
 
             // Add it to the Demon Data
-            _compressedDemonData += _scratchStringValue;
+            _compressedDemonData += _encryptedLocationCharacter;
 
-            summoningModule.ModuleLog(moduleId, "After XOR with Sum of Serial Number Digits, this converts to character {0}", _scratchStringValue);
+            // Log
+            summoningModule.ModuleLog(moduleId, "It has Location {0}. This is compressed as binary {1} and converted to character {2}",
+                selectedPresetPuzzle.demonLocations[i][0] + "-" + selectedPresetPuzzle.demonLocations[i][1], _binaryDemonLocation, _encryptedLocationCharacter);
         }
 
 
@@ -1750,63 +1733,25 @@ public class PixiePlate : PlateBase {
         // Pixie data is its ID only
         // It ends up as 1 character per Pixie
 
-        // Decompression:
-        // Convert character into 5-digit binary using The Table Below
-        // Add all Serial Number digits together, convert to binary and take only the 5 least significant digits
-        // XOR the two 5-bit numbers together.
-        // 0s become dots, 1s become dashes
-        // Convert to a number using Morse Code
-
-        // Compression then becomes:
-        // ID of the Pixie is transformed to Morse Code
-        // Dots are changed to 0, dashes to 1
-        // XOR with the binary SN sum
-        // Convert into character
+        // There is no Compression/Decompression, it's just a string of numbers
 
 
         string _compressedPixieData = "";
-        string _scratchStringValue = string.Empty;
 
 
         for (int i = 0; i < selectedPresetPuzzle.pixieIds.Length; i++)
         {
-            // 6 Pixies per line, so the 7th data starts at a new line
-            if (i == 6) { _compressedPixieData += "\n"; }
+            // 4 Pixies per line, so the 5th data starts at a new line
+            if (i == 4) { _compressedPixieData += "\n"; }
+            // Else, add a space for readability
+            else if (i > 0) { _compressedPixieData += " "; }
 
 
+            // Add it to the Pixie Data
+            _compressedPixieData += selectedPresetPuzzle.pixieIds[i];
 
-            // Convert the Pixie ID to morse
-            _scratchStringValue = morseCodeNumbers[selectedPresetPuzzle.pixieIds[i]];
-
-            // Convert Dots to 0 and Dashes to 1
-            _scratchStringValue = _scratchStringValue.Replace('.', '0').Replace('-', '1');
-
-            summoningModule.ModuleLog(moduleId, "Next Pixie has ID {0}, it is a {1}. Compressed into Binary {2} after Morse Transformation",
-                selectedPresetPuzzle.pixieIds[i], GetPixieDebugFriendlyName(selectedPresetPuzzle.pixieIds[i]), _scratchStringValue);
-
-            // XOR with the SN Digits sum
-            for (int _bit = 0; _bit < 5; _bit++)
-            {
-                if (_scratchStringValue[_bit] == fiveDigitBinarySumOfSerialNumber[_bit])
-                {
-                    // Instead of overwriting, add the bits to the end, and we'll only keep the last 5 bits after the XOR
-                    _scratchStringValue += '0';
-                }
-                else
-                {
-                    _scratchStringValue += '1';
-                }
-            }
-            // Only get the last 5 bits
-            _scratchStringValue = _scratchStringValue.Substring(5, 5);
-
-            // Convert to a single character
-            ConversionTableBelow.TryGetValue(_scratchStringValue, out _scratchStringValue);
-
-            // Add it to the Demon Data
-            _compressedPixieData += _scratchStringValue;
-
-            summoningModule.ModuleLog(moduleId, "After XOR with Sum of Serial Number Digits, this converts to character {0}", _scratchStringValue);
+            summoningModule.ModuleLog(moduleId, "Next Pixie has ID {0}, it is a {1}.",
+                selectedPresetPuzzle.pixieIds[i], GetPixieDebugFriendlyName(selectedPresetPuzzle.pixieIds[i]));
         }
 
 
@@ -2197,8 +2142,6 @@ public class PixiePlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        summoningModule.ModuleLog(moduleId, "Received Force Solve from Twitch Plays");
-
         // There could be a way to write an auto-solver that clears the Playfield and then
         // depending on the selected PresetPuzzle moves around and places Pixies... But I can't be bothered at this point in time :D
         ModuleShouldSolve();
@@ -2207,3 +2150,173 @@ public class PixiePlate : PlateBase {
     }
 
 }
+
+
+/*
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+           THE SHADOW REALM
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    Here lies code that was removed from nerfs and changes.
+    It is still kept as a note on how to code them if I need those mechanics for future modules;
+    and for history's sake too.
+
+
+
+
+
+    // DEMON ID ENCRYPTION //
+
+    /// <summary> Dictionary to convert an integer representing an UTC Offset to a string containing Country Code Pairs </summary>
+    Dictionary<int, string> UtcOffsetToCountryCodes = new Dictionary<int, string>()
+    { {0, "IEIS"}, {1, "ALADBEDKLI"}, {2, "BGGRCYRO"}, {3, "UGTRQA"}, {4, "LCGDDMTT"}, {5, "JMUZMVBS"}, {6, "CRNIBD"}, {7, "KHTHVN"}, {8, "CNMOPHSG"}};
+
+    // Demon data is its ID and starting Location
+    // It ends up as 3 character per Demon, first two being ID and last being position
+
+    // Decompression:
+    // First two character, get the country shown by the ISO two-letter code
+    // Take the UTC time offset of that country, removing minus sign
+    // This is the ID of the Demon
+    // Take the third character, decompress into a 5-bit number
+    // Add all Serial Number digits together, convert to binary and take only the 5 least significant digits
+    // XOR the two 5-bit numbers together.
+    // First 3 bits is the column index, last 2 is the row index
+
+    // Compression then becomes:
+    // ID of the Demon converted to a two-letter code based on a curated dictionary of possibilities
+    // Location as described in the Preset Playfield Puzzle is combined into a 5-bit binary number
+    // Sum of SN Digits is used to XOR the binary number
+    // Convert that binary number to a character using the dictionary
+   
+    string _compressedDemonData = "";
+    string _scratchStringValue = string.Empty;
+
+
+    for (int i = 0; i < selectedPresetPuzzle.demonIds.Length; i ++)
+    {
+        // 3 Demons per line, so the 4th data starts at a new line
+        if (i == 3) { _compressedDemonData += "\n"; }
+
+
+
+        // Convert the Demon ID to a country code based on the curated dictionary
+        UtcOffsetToCountryCodes.TryGetValue(selectedPresetPuzzle.demonIds[i], out _scratchStringValue);
+
+        // We get multiple country codes, only keep one of them (a pair of 2 characters)
+        // Initial Index is 0, 2, 4, 6, etc. So that's Random [0; x] * 2  where x is the number of Pairs (because inclusive)
+        int _countryCodeStartingIndex = UnityEngine.Random.Range(0, _scratchStringValue.Length / 2) * 2;
+        _scratchStringValue = _scratchStringValue.Substring(_countryCodeStartingIndex, 2);
+        _compressedDemonData += _scratchStringValue;
+
+        summoningModule.ModuleLog(moduleId, "Next Demon has ID {0}, it is a {1}. Compressed into a Country Code {2}",
+            selectedPresetPuzzle.demonIds[i], GetDemonDebugFriendlyName(selectedPresetPuzzle.demonIds[i]), _scratchStringValue);
+
+
+
+
+        // Take the location and convert it to a 5-bit binary puzzle in format cccrr for Column and Row
+        // "numbersAsBinary" contains the first 5-bit digits
+        // Column
+        _scratchStringValue = numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][0])].Substring(2, 3);
+        // Row
+        _scratchStringValue += numbersAsBinary[CharToInt(selectedPresetPuzzle.demonLocations[i][1])].Substring(3, 2);
+        summoningModule.ModuleLog(moduleId, "It has Location {0}. This is compressed as binary {1}",
+            selectedPresetPuzzle.demonLocations[i][0] + "-" + selectedPresetPuzzle.demonLocations[i][1], _scratchStringValue);
+
+        // XOR with the SN Digits sum
+        for (int _bit = 0; _bit < 5; _bit++)
+        {
+            if (_scratchStringValue[_bit] == fiveDigitBinarySumOfSerialNumber[_bit])
+            {
+                // Instead of overwriting, add the bits to the end, and we'll only keep the last 5 bits after the XOR
+                _scratchStringValue += '0';
+            }
+            else
+            {
+                _scratchStringValue += '1';
+            }
+        }
+        // Only get the last 5 bits
+        _scratchStringValue = _scratchStringValue.Substring(5, 5);
+
+        // Convert to a single character
+        ConversionTableBelow.TryGetValue(_scratchStringValue, out _scratchStringValue);
+
+        // Add it to the Demon Data
+        _compressedDemonData += _scratchStringValue;
+
+        summoningModule.ModuleLog(moduleId, "After XOR with Sum of Serial Number Digits, this converts to character {0}", _scratchStringValue);
+    }
+
+
+
+
+
+    // PIXIE ID ENCRYPTION //
+        // Pixie data is its ID only
+        // It ends up as 1 character per Pixie
+
+        // Decompression:
+        // Convert character into 5-digit binary using The Table Below
+        // Add all Serial Number digits together, convert to binary and take only the 5 least significant digits
+        // XOR the two 5-bit numbers together.
+        // 0s become dots, 1s become dashes
+        // Convert to a number using Morse Code
+
+        // Compression then becomes:
+        // ID of the Pixie is transformed to Morse Code
+        // Dots are changed to 0, dashes to 1
+        // XOR with the binary SN sum
+        // Convert into character
+
+
+        string _compressedPixieData = "";
+        string _scratchStringValue = string.Empty;
+
+
+        for (int i = 0; i < selectedPresetPuzzle.pixieIds.Length; i++)
+        {
+            // 6 Pixies per line, so the 7th data starts at a new line
+            if (i == 6) { _compressedPixieData += "\n"; }
+
+
+
+            // Convert the Pixie ID to morse
+            _scratchStringValue = morseCodeNumbers[selectedPresetPuzzle.pixieIds[i]];
+
+            // Convert Dots to 0 and Dashes to 1
+            _scratchStringValue = _scratchStringValue.Replace('.', '0').Replace('-', '1');
+
+            summoningModule.ModuleLog(moduleId, "Next Pixie has ID {0}, it is a {1}. Compressed into Binary {2} after Morse Transformation",
+                selectedPresetPuzzle.pixieIds[i], GetPixieDebugFriendlyName(selectedPresetPuzzle.pixieIds[i]), _scratchStringValue);
+
+            // XOR with the SN Digits sum
+            for (int _bit = 0; _bit < 5; _bit++)
+            {
+                if (_scratchStringValue[_bit] == fiveDigitBinarySumOfSerialNumber[_bit])
+                {
+                    // Instead of overwriting, add the bits to the end, and we'll only keep the last 5 bits after the XOR
+                    _scratchStringValue += '0';
+                }
+                else
+                {
+                    _scratchStringValue += '1';
+                }
+            }
+            // Only get the last 5 bits
+            _scratchStringValue = _scratchStringValue.Substring(5, 5);
+
+            // Convert to a single character
+            ConversionTableBelow.TryGetValue(_scratchStringValue, out _scratchStringValue);
+
+            // Add it to the Demon Data
+            _compressedPixieData += _scratchStringValue;
+
+            summoningModule.ModuleLog(moduleId, "After XOR with Sum of Serial Number Digits, this converts to character {0}", _scratchStringValue);
+        }
+
+
+        bottomPlatePixieInscription.text = _compressedPixieData;
+
+ */

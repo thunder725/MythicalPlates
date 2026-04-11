@@ -218,7 +218,7 @@ public class SkyPlate : PlateBase {
         { return; }
 
         platePressableButtons[0].AddInteractionPunch();
-        summoningModule.PlaySound(platePressedSound);
+        PlayPlatePressSound();
 
         switch (buttonType)
         {
@@ -297,6 +297,14 @@ public class SkyPlate : PlateBase {
             }
         }
         
+    }
+
+    protected override void CasingTextButtonGetsPressed() 
+    {
+        currentCity = GetCityFromName(startingCityName);
+        currentTimer = finalTimerToSolve;
+
+        summoningModule.ModuleLog(moduleId, "Resetting you to your Starting City {0} and your Starting Timer {1}", currentCity.cityName, currentTimer);
     }
 
 
@@ -595,7 +603,7 @@ public class SkyPlate : PlateBase {
         summoningModule.ModuleLog(moduleId, "Internal Data Integrity successfully Verified.");
     }
 
-    protected override void CasingTextButtonGetsPressed() { }
+    
 
     void ModuleShouldStrike()
     {

@@ -17,7 +17,7 @@ public abstract class PlateBase : MonoBehaviour {
     protected List<int> voidedCellsIndices;
     [SerializeField] protected string customTwitchHelpMessage = "“!{0}”";
     public string fullPlateName;
-    [SerializeField] protected AudioClip platePressedSound;
+    [SerializeField] protected AudioClip[] platePressedSounds;
 
 
     // Information that gets transmitted by the Summoning Module
@@ -31,6 +31,9 @@ public abstract class PlateBase : MonoBehaviour {
     float plateIdleRotationFrequency = 0.2f;
     float plateIdleRotationIntensity = 1.0f;
     float startingPlateIdleRotationOffset;
+
+    /// <summary> For child classes to add a shake or rotation on top of the idle one </summary>
+    protected Vector3 additivePlateRotation = Vector3.zero;
 
     // Universal Logging Data
     [HideInInspector] public int moduleId;
@@ -90,7 +93,7 @@ public abstract class PlateBase : MonoBehaviour {
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    //    Visual Methods
+    //    Visual & Sound Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     void UpdatePlateIdleRotation()
@@ -102,16 +105,34 @@ public abstract class PlateBase : MonoBehaviour {
         float cos1 = Mathf.Cos(scaledTime + 2);
         float cos2 = Mathf.Cos(scaledTime + 1);
 
-        transform.localEulerAngles = new Vector3(sin1 * cos2 - cos1, cos1 + cos2, sin1 * cos1 + sin2) * plateIdleRotationIntensity;
+        transform.localEulerAngles = additivePlateRotation + new Vector3(sin1 * cos2 - cos1, cos1 + cos2, sin1 * cos1 + sin2) * plateIdleRotationIntensity;
     }
 
+    public void PlayPlatePressSound()
+    {
+        summoningModule.PlaySound(platePressedSounds.PickRandom());
+    }
 
+    protected IEnumerator VibratePlate(float intensity)
+    {
+        float timer = 0;
+
+        while (timer < 0.4f)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+
+            additivePlateRotation = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(-1f, 1f)) * intensity;
+        }
+
+        additivePlateRotation = Vector3.zero;
+    }
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Global Table Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    
+
     /// <summary> Gets a Row (topmost = 0) from a cell index and the number of elements in a row of the grid </summary>
     protected int GetRowFromCellIndex(int cellIndex, int rowSize) { return cellIndex / rowSize; }
     /// <summary> Gets a Column (leftmost = 0) from a cell index and the number of elements in a row of the grid </summary>
@@ -128,7 +149,7 @@ public abstract class PlateBase : MonoBehaviour {
 
     /// <summary> Move around a grid while taking into account Void cells. All 8 directions are supported for movements. 
     /// Returns the number of Voided Cells crossed. </summary>
-    protected VoidMovementData MoveAroundGridWithVoid(MovementDirection movementDirection, Array grid, ref int currentIndexInGrid, int rowSize, bool shouldLoopAround)
+    protected VoidMovementData MoveAroundGridWithVoid(MovementDirection movementDirection, int gridLength, ref int currentIndexInGrid, int rowSize, bool shouldLoopAround)
     {
         VoidMovementData _voidMovementData = new VoidMovementData();
         int _whileFailsafe = 0;
@@ -171,7 +192,7 @@ public abstract class PlateBase : MonoBehaviour {
                     // Else, if we can, loop around to the bottom row
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += grid.Length - rowSize;
+                        currentIndexInGrid += gridLength - rowSize;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -184,14 +205,14 @@ public abstract class PlateBase : MonoBehaviour {
 
                 case MovementDirection.Down:
                     // Verify Looping: We aren't at the bottommost row
-                    if (currentIndexInGrid + rowSize < grid.Length)
+                    if (currentIndexInGrid + rowSize < gridLength)
                     {
                         currentIndexInGrid += rowSize;
                     }
                     // Else, if we can, loop around to the top row
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += rowSize - grid.Length;
+                        currentIndexInGrid += rowSize - gridLength;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -252,7 +273,7 @@ public abstract class PlateBase : MonoBehaviour {
                     }
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += grid.Length - rowSize;
+                        currentIndexInGrid += gridLength - rowSize;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -285,7 +306,7 @@ public abstract class PlateBase : MonoBehaviour {
                     }
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += grid.Length - rowSize;
+                        currentIndexInGrid += gridLength - rowSize;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -312,13 +333,13 @@ public abstract class PlateBase : MonoBehaviour {
 
                     // Copy of Down and Left sequences
 
-                    if (currentIndexInGrid + rowSize < grid.Length)
+                    if (currentIndexInGrid + rowSize < gridLength)
                     {
                         currentIndexInGrid += rowSize;
                     }
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += rowSize - grid.Length;
+                        currentIndexInGrid += rowSize - gridLength;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -345,13 +366,13 @@ public abstract class PlateBase : MonoBehaviour {
 
                     // Copy of Down and Right sequences
 
-                    if (currentIndexInGrid + rowSize < grid.Length)
+                    if (currentIndexInGrid + rowSize < gridLength)
                     {
                         currentIndexInGrid += rowSize;
                     }
                     else if (shouldLoopAround)
                     {
-                        currentIndexInGrid += rowSize - grid.Length;
+                        currentIndexInGrid += rowSize - gridLength;
                         _voidMovementData.ranIntoGridEdges = true;
                     }
                     else
@@ -384,6 +405,16 @@ public abstract class PlateBase : MonoBehaviour {
             else // Else we ARE on a Voided cell, keep going but increment!
             {
                 _voidMovementData.NumberOfPassedVoidCells ++;
+            }
+
+
+            // If we ran into the Grid Edges but we can't loop, just return immediately
+            if (_voidMovementData.ranIntoGridEdges)
+            {
+                if (shouldLoopAround == false)
+                {
+                    return _voidMovementData;
+                }
             }
         }
 

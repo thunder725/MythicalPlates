@@ -83,7 +83,7 @@ public class ZapPlate : PlateBase {
 
             while (sixDigitStageValues[currentStage].Length < 6)
             {
-                MoveAroundGridWithVoid(MovementDirection.Down, tableDynamo, ref currentLocation, 10, true);
+                MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true);
                 sixDigitStageValues[currentStage] += tableDynamo[currentLocation].ToString();
             }
             summoningModule.ModuleLog(moduleId, "Six-digit number for n = {0} is {1}", 6 - currentStage, sixDigitStageValues[currentStage]);
@@ -119,7 +119,7 @@ public class ZapPlate : PlateBase {
         if (summoningModule.isModuleSolved) { return; }
 
         platePressableButtons[0].AddInteractionPunch();
-        summoningModule.PlaySound(platePressedSound);
+        PlayPlatePressSound();
 
         char _pressedSecond = bombInfo.GetFormattedTime().Last();
         if (CharToInt(_pressedSecond) == secondsToPressOn)

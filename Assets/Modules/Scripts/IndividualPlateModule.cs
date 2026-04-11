@@ -7,6 +7,7 @@ using System.Linq;
 public class IndividualPlateModule : SummoningModule {
 
     [SerializeField] GameObject PlateToSummon;
+    [SerializeField] AudioClip SolveClip;
 
     Vector3 plateSpawnLocalPosition = new Vector3 (0, 0.04f, 0.008f);
 
@@ -80,6 +81,7 @@ public class IndividualPlateModule : SummoningModule {
     public override void ReceiveSolve()
     {
         ModuleLog(currentSummonedPlateScript.moduleId, "Module Solved");
+        PlaySound(SolveClip);
         isModuleSolved = true;
         thisModule.HandlePass();
     }

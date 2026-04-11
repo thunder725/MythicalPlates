@@ -55,6 +55,7 @@ GameObject:
   - component: {fileID: 4879016110899108}
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
+  - component: {fileID: 114571586953179872}
   m_Layer: 0
   m_Name: StonePlatePrefab
   m_TagString: Untagged
@@ -453,6 +454,38 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114571586953179872
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 276b1f990a58a99478bc620bebab9f6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  platePressableButtons:
+  - {fileID: 114847863158399170}
+  - {fileID: 114742485134897530}
+  - {fileID: 114447296627949740}
+  - {fileID: 114982224898339572}
+  - {fileID: 114593095010983724}
+  customTwitchHelpMessage: "\u201C!{0} Press rrrdrcrcddc\u201D to press directions
+    (Up Down Left Right) or drill with Center. Use \u201Cs\u201D alone to press the
+    STONE on the casing and reset the puzzle."
+  fullPlateName: Stone Plate
+  platePressedSounds:
+  - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
+  - {fileID: 8300000, guid: 814e43f9538828b469760662f4765440, type: 3}
+  - {fileID: 8300000, guid: 1aedbcd9f3b21514e8e37bc7c2be2d8c, type: 3}
+  - {fileID: 8300000, guid: 73efe079dbc6611489424ed1bf343c1b, type: 3}
+  thisModule: {fileID: 0}
+  bombInfo: {fileID: 0}
+  summoningModule: {fileID: 0}
+  casingPressableButton: {fileID: 0}
+  moduleId: 0
+  startingCoordinateTextMesh: {fileID: 102038688830240866}
 --- !u!114 &114593095010983724
 MonoBehaviour:
   m_ObjectHideFlags: 1

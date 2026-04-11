@@ -481,7 +481,11 @@ MonoBehaviour:
   - {fileID: 114625123676530820}
   customTwitchHelpMessage: "Submit using \u201C!{0} submit .-. -.-- -.. ...- -.-.\u201D"
   fullPlateName: Sky Plate
-  platePressedSound: {fileID: 8300000, guid: 985b4dad7352a2c409d56f191ebbb1f7, type: 3}
+  platePressedSounds:
+  - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
+  - {fileID: 8300000, guid: 814e43f9538828b469760662f4765440, type: 3}
+  - {fileID: 8300000, guid: 1aedbcd9f3b21514e8e37bc7c2be2d8c, type: 3}
+  - {fileID: 8300000, guid: 73efe079dbc6611489424ed1bf343c1b, type: 3}
   thisModule: {fileID: 0}
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}

@@ -505,6 +505,7 @@ MonoBehaviour:
   isModuleSolved: 0
   PlateToSummon: {fileID: 1115473799074938, guid: f8f1fa7d1b5a95f45b99341f6055b60f,
     type: 2}
+  SolveClip: {fileID: 8300000, guid: e07a1976c2ccff74d98e001c00190003, type: 3}
 --- !u!114 &114766087948012328
 MonoBehaviour:
   m_ObjectHideFlags: 1
