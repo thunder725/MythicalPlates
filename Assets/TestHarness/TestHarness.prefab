@@ -25,7 +25,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 101964}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 5.27, y: -7.384149, z: 6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4979762138353258}
@@ -20158,12 +20158,20 @@ MonoBehaviour:
   CustomWidget: {fileID: 114213089377510072}
   HighlightPrefab: {fileID: 100000, guid: d78a484c6e87f1b47b6596ac080fe942, type: 2}
   AudioVolume: 0.25
-  AudioClips: []
+  AudioClips:
+  - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
+  - {fileID: 8300000, guid: 814e43f9538828b469760662f4765440, type: 3}
+  - {fileID: 8300000, guid: 1aedbcd9f3b21514e8e37bc7c2be2d8c, type: 3}
+  - {fileID: 8300000, guid: 73efe079dbc6611489424ed1bf343c1b, type: 3}
+  - {fileID: 8300000, guid: e07a1976c2ccff74d98e001c00190003, type: 3}
+  - {fileID: 8300000, guid: 18aa463545479e349bf447e41f428ef4, type: 3}
+  - {fileID: 8300000, guid: 62516f99acf95c540a8f2d8d4a4418d8, type: 3}
   StrikeCount: 3
-  TimeLimit: 6000
+  TimeLimit: 600
   BombSize: 1
   FrontFaceOnly: 1
-  EdgeworkConfiguration: {fileID: 0}
+  EdgeworkConfiguration: {fileID: 11400000, guid: af4b7b1451993c748b99309ef4c45cc1,
+    type: 2}
   TwitchPlaysActive: 1
   TwitchPlaysMode: 0
   turnSpeed: 128
