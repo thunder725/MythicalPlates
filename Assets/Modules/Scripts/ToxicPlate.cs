@@ -1,5 +1,4 @@
-﻿using NUnit.Framework.Constraints;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +24,7 @@ public class ToxicPlate : PlateBase {
         new int[]{12, 0, 1, 6, 8},
         new int[]{13, 9, 10, 14, 11, 18},
         new int[]{14, 10, 5, 4, 11},
-        new int[]{15, 19, 22, 17, 21, 16, 8, 12, 0, 1, 2, 3, 5, 4, 11},
+        new int[]{15, 19, 22, 13, 18, 11},
         new int[]{16, 8, 6, 7, 9, 13, 20, 17},
         new int[]{17, 22, 19, 15, 11, 4, 5, 3, 2, 1, 0, 12, 8, 16, 21},
         new int[]{18, 11, 15, 19, 22, 13},
@@ -116,7 +115,11 @@ public class ToxicPlate : PlateBase {
 
     void PressedMovementInput(MovementDirection direction)
     {
-        if (summoningModule.isModuleSolved) { return; }
+        platePressableButtons[0].AddInteractionPunch(0.5f);
+        PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved)
+        { return; }
 
         summoningModule.ModuleLog(moduleId, "Pressed button {0}.", direction.ToString());
 
@@ -302,7 +305,7 @@ public class ToxicPlate : PlateBase {
 
 
 
-        return startingRoom;
+        return _currentTargetRoom;
     }
 
     void MovePlayerToNewRoom(int newRoomIndex)
@@ -363,31 +366,22 @@ public class ToxicPlate : PlateBase {
 
             // Increment to get to the next room in the Paths.
             // Starting room is index 0 in the Path, so the first movement brings us to index 1, as wanted
-            currentIndexInPathForVoids[i]++;
-            // will be replaced by this code:
-            // currentIndexInPathForVoids[i] = (currentIndexInPathForVoids[i] + 1) % (VoidPathsFromStartingLocation[_voidStartingLocation].Length);
-            // but I'm trying to bugfix so I'm simplifying it as much as possible
+            currentIndexInPathForVoids[i] = (currentIndexInPathForVoids[i] + 1) % (VoidPathsFromStartingLocation[_voidStartingLocation].Length);
 
             // Update the rooms for all Voids.
             voidedCellsIndices[i] = VoidPathsFromStartingLocation[_voidStartingLocation][currentIndexInPathForVoids[i]];
-            
-            
-            
-            summoningModule.ModuleLog(moduleId, "Void that started in {0} is on its {1}th room on its path: {2}",
-                _voidStartingLocation, currentIndexInPathForVoids[i], voidedCellsIndices[i]);
 
             // Check player location to send strike
-            
-            // if (voidedCellsIndices[i] == currentPlayerLocationIndex)
-            // {
-            //     summoningModule.ModuleLog(moduleId, "The Void that started in room {0} moved to cell {1}, which is where you currently stand. Strike given. Reset module",
-            //         _voidStartingLocation, currentPlayerLocationIndex);
-            // 
-            //     summoningModule.ReceiveStrike();
-            // 
-            //     ResetValuesToStart();
-            //     return;
-            // }
+           if (voidedCellsIndices[i] == currentPlayerLocationIndex)
+           {
+               summoningModule.ModuleLog(moduleId, "The Void that started in room {0} moved to cell {1}, which is where you currently stand. Strike given. Reset module",
+                   _voidStartingLocation, currentPlayerLocationIndex);
+           
+               summoningModule.ReceiveStrike();
+           
+               ResetValuesToStart();
+               return;
+           }
 
 
         }
@@ -509,13 +503,17 @@ public class ToxicPlate : PlateBase {
 
     void ResetValuesToStart()
     {
+        // doing ListA = ListB actually makes both Lists behave the exact same way, as in they both become one and the same
+        // So doing ListA = new List<T>(ListB) is necessary to make a copy
+
+
         // Reset Void
-        voidedCellsIndices = startingVoidLocationsIndices;
+        voidedCellsIndices = new List<int>(startingVoidLocationsIndices);
         // Initialize at index 0, and we increment before every movement so it ends up correct
         currentIndexInPathForVoids = new int[4] { 0, 0, 0, 0 };
 
         // Reset Crystals
-        currentCrystalsLocationIndices = startingCrystalsLocationIndices;
+        currentCrystalsLocationIndices = new List<int>(startingCrystalsLocationIndices);
 
         // Reset Player
         currentPlayerLocationIndex = startingPlayerLocationIndex;
@@ -558,12 +556,75 @@ public class ToxicPlate : PlateBase {
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+        if (commandParts.Length == 0)
+        {
+            yield return "sendtochaterror {0} Received an empty command.";
+            yield break;
+        }
+
+        // Either TOXIC
+        if (commandParts[0] == "toxic")
+        {
+            yield return "sendtochat {0} Successfully pressed TOXIC and reset the module.";
+            CasingTextButtonGetsPressed();
+            yield break;
+        }
+
+        // Accept the words "submit", "move", "press", or their initials
+        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "move" && commandParts[0] != "m" && commandParts[0] != "press" && commandParts[0] != "p")
+        {
+            yield return "sendtochaterror {0} Unrecognized command. Please use 'toxic' to reset module, or 'move', 'submit' or 'press' to move around.";
+            yield break;
+        }
+
+
+        // or Submit / Move + directions
+        if (commandParts.Length == 1)
+        {
+            yield return "sendtochaterror {0} Please send a movement when submitting.";
+            yield break;
+        }
+        else if (commandParts.Length > 2)
+        {
+            yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account." ;
+        }
+
+
+        foreach (char _movementDirection in commandParts[1])
+        {
+            yield return new WaitForSeconds(0.15f);
+
+            switch (_movementDirection)
+            {
+                case 'u': case 'n':
+                    platePressableButtons[0].OnInteract();
+                    break;
+
+                case 'r': case 'e':
+                    platePressableButtons[3].OnInteract();
+                    break;
+
+                case 'd': case 's':
+                    platePressableButtons[1].OnInteract();
+                    break;
+
+                case 'l': case 'w':
+                    platePressableButtons[2].OnInteract();
+                    break;
+            }
+        }
+
+
+
         yield return null;
     }
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        // An Auto-solver could be done, but it's a complex non-grid pathfinding
+        // and I don't feel like spending days to find a solution, for now.
+        summoningModule.ReceiveSolve();
 
-        yield return null;
+        yield break;
     }
 }

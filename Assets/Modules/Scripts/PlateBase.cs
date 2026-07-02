@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,8 +27,8 @@ public abstract class PlateBase : MonoBehaviour {
 
 
     // Visual Data
-    float plateIdleRotationFrequency = 0.2f;
-    float plateIdleRotationIntensity = 1.0f;
+    float plateIdleRotationFrequency = 0.25f;
+    float plateIdleRotationIntensity = 1.2f;
     float startingPlateIdleRotationOffset;
 
     /// <summary> For child classes to add a shake or rotation on top of the idle one </summary>
@@ -73,7 +72,6 @@ public abstract class PlateBase : MonoBehaviour {
     /// <summary> Called by the Module after Start() is called. Used for puzzle initialization. </summary>
     public virtual void InitializeModuleStart()
     {
-        summoningModule.ModuleLog(moduleId, "Initializing Module");
         voidedCellsIndices = new List<int>();
         startingPlateIdleRotationOffset = UnityEngine.Random.Range(0f, 10f);
     }
@@ -421,30 +419,49 @@ public abstract class PlateBase : MonoBehaviour {
         return _voidMovementData;
     }
 
+    protected MovementDirection GetOppositeMovementDirection(MovementDirection inputMovementDirection)
+    {
+        switch (inputMovementDirection)
+        {
+            case MovementDirection.Up:
+                return MovementDirection.Down;
+
+            case MovementDirection.Down:
+                return MovementDirection.Up;
+
+            case MovementDirection.Left:
+                return MovementDirection.Right;
+
+            case MovementDirection.Right:
+                return MovementDirection.Left;
+
+            case MovementDirection.UpLeft:
+                return MovementDirection.DownRight;
+
+            case MovementDirection.UpRight:
+                return MovementDirection.DownLeft;
+
+            case MovementDirection.DownLeft:
+                return MovementDirection.UpRight;
+
+            case MovementDirection.DownRight:
+                return MovementDirection.UpLeft;
+        }
+
+        return MovementDirection.Up;
+    }
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Global Math Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    // Digital Root code from FaultyDigitalRoot's module, credit to eXish
+    // Digital Root is apparently exactly equivalent to taking the %9 of the number!!
+    // But be careful to return a 9 if you get a 0 (18 digital root is 9, not 0)
     protected int DigitalRoot(int number)
     {
-        string _stringResult = "" + number;
-        int _result;
-        int i;
-
-        while (_stringResult.Length > 1)
-        {
-            _result = 0;
-            for (i = 0; i < _stringResult.Length; i++)
-            {
-                _result += int.Parse(_stringResult.Substring(i, 1));
-            }
-
-            _stringResult = "" + _result;
-        }
-
-        return int.Parse(_stringResult);
+        int _result = number % 9;
+        return _result == 0 ? 9 : _result;
     }
 
     /// <summary> Converts a character into an Int. For String, try int.Parse(string) </summary>

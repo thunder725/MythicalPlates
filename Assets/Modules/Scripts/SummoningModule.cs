@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -36,7 +37,7 @@ public abstract class SummoningModule : MonoBehaviour {
     // Buttons gathering and GetComponents
     protected virtual void Awake()
     {
-        GatherBombComponents();
+        GatherModuleComponents();
     }
 
     // Puzzle Initialization
@@ -44,22 +45,25 @@ public abstract class SummoningModule : MonoBehaviour {
     { }
 
     protected virtual void Update()
-    {
-
-    }
+    { }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Setup
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     /// <summary> Gather Components dynamically </summary>
-    void GatherBombComponents()
+    void GatherModuleComponents()
     {
         bombInfo = GetComponent<KMBombInfo>();
         thisModule = GetComponent<KMBombModule>();
         audioSubsystem = GetComponent<KMAudio>();
         moduleSelectable = GetComponent<KMSelectable>();
+
+        thisModule.OnActivate += OnModuleActivate;
     }
+
+    protected virtual void OnModuleActivate()
+    {   }
 
 
 
@@ -90,7 +94,26 @@ public abstract class SummoningModule : MonoBehaviour {
 
     /// <summary> Receive an ordered array of all Buttons on the Plate.
     /// Each Plate is responsible for its sorting. They just get appended after the casing Button if it exists. </summary>
-    public abstract void ReceivePlateButtons(KMSelectable[] plateButtons);
+    public void ReceivePlateButtons(KMSelectable[] plateButtons)
+    {
+        List<KMSelectable> _tempButtons = new List<KMSelectable>();
+
+        // Add the Casing Pressable Button if it exists
+        if (casingPressableButton != null) { _tempButtons.Add(casingPressableButton); }
+
+        // But then add the Plate Buttons
+        _tempButtons.AddRange(plateButtons);
+
+        // Apply the Parents since there should be no chain
+        foreach (KMSelectable _button in _tempButtons)
+        {
+            _button.Parent = moduleSelectable;
+        }
+
+        // Apply
+        moduleSelectable.Children = _tempButtons.ToArray();
+        moduleSelectable.UpdateChildren();
+    }
 
 
     /// <summary> Simplified method to just play a sound from an AudioClip </summary>
@@ -107,17 +130,17 @@ public abstract class SummoningModule : MonoBehaviour {
 
     /// <summary> Called by the PlateBase when a message should get Logged </summary>
     // Credit for this formatting to UltimateCipher's github
-    public void ModuleLog(int moduleId, string message, params object[] args)
+    public virtual void ModuleLog(int moduleId, string message, params object[] args)
     {
         Debug.LogFormat("[{0} #{1}] " + (string.Format(message, args)), displayModuleName, moduleId);
     }
 
-    public void ModuleLogWarning(int moduleId, string message, params object[] args)
+    public virtual void ModuleLogWarning(int moduleId, string message, params object[] args)
     {
         Debug.LogWarningFormat("[{0} #{1}] " + (string.Format(message, args)), displayModuleName, moduleId);
     }
 
-    public void ModuleLogError(int moduleId, string message, params object[] args)
+    public virtual void ModuleLogError(int moduleId, string message, params object[] args)
     {
         Debug.LogErrorFormat("[{0} #{1}] " + (string.Format(message, args)), displayModuleName, moduleId);
     }

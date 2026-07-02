@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 
 public class IndividualPlateModule : SummoningModule {
@@ -9,11 +8,16 @@ public class IndividualPlateModule : SummoningModule {
     [SerializeField] GameObject PlateToSummon;
     [SerializeField] AudioClip SolveClip;
 
-    Vector3 plateSpawnLocalPosition = new Vector3 (0, 0.04f, 0.008f);
+    readonly Vector3 plateSpawnLocalPosition = new Vector3 (0, 0.04f, 0.008f);
 
 
 
 
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Vanilla Unity Methods
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     // Buttons gathering and GetComponents
     protected override void Awake()
@@ -90,27 +94,6 @@ public class IndividualPlateModule : SummoningModule {
     {
         ModuleLog(currentSummonedPlateScript.moduleId, "!! STRIKE !!");
         thisModule.HandleStrike();
-    }
-
-    public override void ReceivePlateButtons(KMSelectable[] plateButtons)
-    {
-        List<KMSelectable> _tempButtons = new List<KMSelectable>();
-
-        // Add the Casing Pressable Button if it exists
-        if (casingPressableButton != null) { _tempButtons.Add(casingPressableButton); }
-
-        // But then add the Plate Buttons
-        _tempButtons.AddRange(plateButtons);
-
-        // Apply the Parents since there should be no chain
-        foreach (KMSelectable _button in _tempButtons)
-        {
-            _button.Parent = moduleSelectable;
-        }
-
-        // Apply
-        moduleSelectable.Children = _tempButtons.ToArray();
-        moduleSelectable.UpdateChildren();
     }
 
 

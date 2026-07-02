@@ -182,6 +182,8 @@ public class ZapPlate : PlateBase {
     // Code from Tenpins. Credit goes to TasThiluna
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        summoningModule.ModuleLog(moduleId, "Will solve automatically on {0} seconds.", secondsToPressOn);
+
         while (!summoningModule.isModuleSolved)
         {
             yield return null;

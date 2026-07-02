@@ -113,7 +113,8 @@ public class PixiePlate : PlateBase {
     [SerializeField] TextMesh middlePlateVoidInscription;
 
     // Sounds for player feedback
-    [SerializeField] AudioClip incorrectWarningSound, readyToSubmitSound;
+    [SerializeField] AudioClip readyToSubmitSound;
+    Coroutine warningVibrationCoroutine;
 
     // Preset Puzzles
     [SerializeField] TextAsset puzzleListJson;
@@ -238,13 +239,17 @@ public class PixiePlate : PlateBase {
                 if (currentPixieIndexToPlace ==  currentPlayfield.pixies.Length)
                 {
                     summoningModule.PlaySound(readyToSubmitSound);
+                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                    warningVibrationCoroutine = StartCoroutine(VibratePlate(0.5f));
                 }
             }
             else
             {
                 summoningModule.ModuleLog(moduleId, "Can't place Pixie at location {0} because something's already there!",
                     ConvertGridIndexToPresetPuzzleLocation(currentPlayerPointerLocation));
-                summoningModule.PlaySound(incorrectWarningSound);
+                
+                if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
             }
         }
         // Or sumbit everything and run the simulation
@@ -262,6 +267,13 @@ public class PixiePlate : PlateBase {
 
     void PressedMovementButton(MovementDirection movementDirection)
     {
+        platePressableButtons[0].AddInteractionPunch(0.5f);
+        PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved)
+        { return; }
+
+
         // Movement
         // We can't use MoveAroundGridWithVoid because we shouldn't use Voided Cells for moving the pointer cell
         switch (movementDirection)
@@ -274,7 +286,8 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.PlaySound(incorrectWarningSound);
+                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
                 }
 
                 break;
@@ -287,7 +300,8 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.PlaySound(incorrectWarningSound);
+                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
                 }
 
                 break;
@@ -300,7 +314,8 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.PlaySound(incorrectWarningSound);
+                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
                 }
 
                 break;
@@ -313,7 +328,8 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {
-                    summoningModule.PlaySound(incorrectWarningSound);
+                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
                 }
 
                 break;

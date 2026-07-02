@@ -18,7 +18,7 @@ Children:
 
 ReceiveStrike() and ReceiveSolve() are to be created in Children, and to be called by PlateBases
 
-PlateBases can call summoningModule.ModuleLog("message {0}", arg1)
+PlateBases can call (and SHOULD) summoningModule.ModuleLog(moduleId, "message {0}", args)
 
 
 =-=-=-=-= PlateBase.cs =-=-=-=-= 
@@ -53,7 +53,7 @@ Children:
 =-=-=-=-= OtherStuff =-=-=-=-= 
 
 - PixiePlate will need to Read/Write data from a JSON, so expect a file for that
-- Common Helper Functions will probably be in the PlateBase, but maybe an external library will be used
+- Common Helper Functions are in the PlateBase.cs file
 
 
 
