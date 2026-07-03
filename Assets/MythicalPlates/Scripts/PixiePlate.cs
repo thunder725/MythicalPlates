@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Linq;
-using static PixiePlate;
 
 
 public class PixiePlate : PlateBase {
@@ -910,7 +909,8 @@ public class PixiePlate : PlateBase {
         // If the movement was successful and a DoubleMove is allowed, double move!
         if (canDoubleMove)
         {
-            MoveSingularDemonLeft(ref demonToMove);
+            if (MoveSingularDemonLeft(ref demonToMove))
+            { return true; }
         }
 
         return false;
@@ -1671,11 +1671,13 @@ public class PixiePlate : PlateBase {
 
     void ModuleShouldStrike()
     {
-        LogPlayfield();
+        // No need to Log the Playfield because it is in the same state as at the start of the current Timestep.
+        // LogPlayfield();
 
         isSimulatingPlay = false;
-        ResetGridAndPlayerInputs();
         summoningModule.ReceiveStrike();
+
+        ResetGridAndPlayerInputs();
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1781,18 +1783,7 @@ public class PixiePlate : PlateBase {
 
     void ShowVoidCellLocationsOnPlate()
     {
-        string _compressedVoidLocations = "";
-
-        for (int i = 0; i < selectedPresetPuzzle.voidCellLocations.Length; i ++)
-        {
-            // Just make it slightly more readable
-            if (i != 0) { _compressedVoidLocations += " "; }
-
-            // Double conversion, but the work's already done so might as well use the methods!
-            _compressedVoidLocations += GetCoordinateFromCellIndex(ConvertPresetPuzzleLocationToGridIndex(selectedPresetPuzzle.voidCellLocations[i]), 8);
-        }
-
-        middlePlateVoidInscription.text = _compressedVoidLocations;
+        middlePlateVoidInscription.text = selectedPresetPuzzle.voidCellLocations.Join();
     }
 
 
@@ -2051,8 +2042,8 @@ public class PixiePlate : PlateBase {
 
             for (int _col = 0; _col < 8;  _col ++)
             {
-                _lineToLog += currentPlayfield.playfieldRepresentation[4 * _row + _col];
-                if (_col % 8 != 0)
+                _lineToLog += currentPlayfield.playfieldRepresentation[8 * _row + _col];
+                if (_col != 7)
                 {
                     _lineToLog += " | ";
                 }

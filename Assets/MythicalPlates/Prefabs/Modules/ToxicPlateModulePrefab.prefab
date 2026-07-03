@@ -355,7 +355,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1148720734020780}
-  m_Text: SPLASH
+  m_Text: TOXIC
   m_OffsetZ: 0
   m_CharacterSize: 0.0008
   m_LineSpacing: 1

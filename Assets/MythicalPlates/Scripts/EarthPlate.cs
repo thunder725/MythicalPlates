@@ -145,7 +145,7 @@ public class EarthPlate : PlateBase {
 
         // If we reach this point, both failed, so that is a Strike!!
         summoningModule.ModuleLog(moduleId, "That movement brought you outside the bounds of the grid, so it is invalid. Movement has been cancelled");
-        summoningModule.ReceiveSolve();
+        summoningModule.ReceiveStrike();
         return;
     }
 
@@ -291,37 +291,40 @@ public class EarthPlate : PlateBase {
         else
         {
             int[] _cellsToVoid = new int[0];
+            int _portLineNumber = 0;
 
             foreach (string port in allPorts)
             {
                 switch (port)
                 {
                     case "Serial":
-                        voidLines.TryGetValue(1, out _cellsToVoid);
+                        _portLineNumber = 1;
                         break;
 
                     case "StereoRCA":
-                        voidLines.TryGetValue(2, out _cellsToVoid);
+                        _portLineNumber = 2;
                         break;
 
                     case "PS2":
-                        voidLines.TryGetValue(3, out _cellsToVoid);
+                        _portLineNumber = 3;
                         break;
 
                     case "DVI":
-                        voidLines.TryGetValue(4, out _cellsToVoid);
+                        _portLineNumber = 4;
                         break;
 
                     case "RJ45":
-                        voidLines.TryGetValue(5, out _cellsToVoid);
+                        _portLineNumber = 5;
                         break;
 
                     case "Parallel":
-                        voidLines.TryGetValue(6, out _cellsToVoid);
+                        _portLineNumber = 6;
                         break;
                 }
 
-                summoningModule.ModuleLog(moduleId, "Found a {0} port! Voiding the associated row and column.", port);
+                voidLines.TryGetValue(_portLineNumber, out _cellsToVoid);
+
+                summoningModule.ModuleLog(moduleId, "Found a {0} port! Voiding row and column number {1}.", port, _portLineNumber);
                 voidedCellsIndices.AddRange(_cellsToVoid);
             }
         }

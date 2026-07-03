@@ -322,53 +322,6 @@ public class BlankPlate : PlateBase {
 
         summoningModule.ModuleLog(moduleId, "Found {0} modules. Character chain now is {1}", _numberOfModules, _charactersForPathCreation);
 
-
-        // First character of mission name
-        // Code for this from Mission Control; credit to Espik
-        string _missionName = "";
-        try {
-            Component gameplayState = GameObject.Find("GameplayState(Clone)").GetComponent("GameplayState");
-            Type type = gameplayState.GetType();
-            FieldInfo fieldMission = type.GetField("MissionToLoad", BindingFlags.Public | BindingFlags.Static);
-            _missionName = fieldMission.GetValue(gameplayState).ToString();
-        }
-        catch (NullReferenceException)
-        {
-            _missionName = "";
-        }
-
-        // Trycatch errors in the mission name retrieving logic
-        if (_missionName.Length == 0)
-        {
-            // No mission found
-            _charactersForPathCreation += 'N';
-            summoningModule.ModuleLog(moduleId, "No mission name found. Using 'N' instead. Character chain now is {0}", _charactersForPathCreation);
-        }
-        // For some reason I found that logging with a } as single-character as input for format breaks stuff, probably because Format uses {}
-        // So an explicit checks helps avoiding nullexceptions
-        else if (_missionName[0] == '{' || _missionName[0] == '}')
-        {
-            _charactersForPathCreation += 'N';
-            summoningModule.ModuleLog(moduleId, "No Mission starts with a forbidden character . Using 'N' instead. Character chain now is {0}", _charactersForPathCreation);
-        }
-        // Make sure the first character is alphanumerical
-        else if (Regex.Match(_missionName[0].ToString(), "^[a-zA-Z0-9]").Success)
-        {
-            _charactersForPathCreation += _missionName[0];
-
-            summoningModule.ModuleLog(moduleId, "Gathered mission name '{0}'. First character is {1} which is valid. Character chain now is {2}",
-                _missionName, _missionName[0], _charactersForPathCreation);
-        }
-        else
-        {
-            _charactersForPathCreation += 'N';
-
-            summoningModule.ModuleLog(moduleId, "Gathered mission name '{0}'. First character is {1} which is not A-9. Using N instead. Character chain now is {2}",
-                _missionName, _missionName[0], _charactersForPathCreation);
-        }
-
-
-
         // Make everything uppercase just to be sure.
         _charactersForPathCreation = _charactersForPathCreation.ToUpper();
 
@@ -782,3 +735,91 @@ public class BlankPlate : PlateBase {
         yield break;
     }
 }
+
+
+
+/*
+ * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ * VEYARD  -  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE 
+ *  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE GRAVEYARD
+ * RD  -  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE GRAVEYARD  -  CODE GRA
+ * =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ * 
+ * 
+ * There was an idea to use the First Character of the Mission's Display name as
+ * part of the characters used for path creation
+ * 
+ * However, the code I found that does this (from Mission Control) gets values
+ * such as "custom" for freeplay, "undefined" sometimes, or stuff like
+ * "mod_missionpack_VFlyer_missionModuleCorruption"
+ * or "mod_jamMissions_Espik"
+ * or "mod_theBombsBlanMade_mountainBside"
+ * 
+ * There is no way to extract the correct name from that, especially with missing "The"
+ * and other formatting oddities
+ * 
+ * so nope!!
+ * 
+ * 
+ * // First character of mission name
+        // Code for this from Mission Control; credit to Espik
+        string _missionName = "";
+        try {
+            Component gameplayState = GameObject.Find("GameplayState(Clone)").GetComponent("GameplayState");
+            Type type = gameplayState.GetType();
+            FieldInfo fieldMission = type.GetField("MissionToLoad", BindingFlags.Public | BindingFlags.Static);
+            _missionName = fieldMission.GetValue(gameplayState).ToString();
+        }
+        catch (NullReferenceException)
+        {
+            _missionName = "";
+        }
+
+        // Trycatch errors in the mission name retrieving logic
+        if (_missionName.Length == 0)
+        {
+            // No mission found
+            _charactersForPathCreation += 'N';
+            summoningModule.ModuleLog(moduleId, "No mission name found. Using 'N' instead. Character chain now is {0}", _charactersForPathCreation);
+        }
+        // For some reason I found that logging with a } as single-character as input for format breaks stuff, probably because Format uses {}
+        // So an explicit checks helps avoiding nullexceptions
+        else if (_missionName[0] == '{' || _missionName[0] == '}')
+        {
+            _charactersForPathCreation += 'N';
+            summoningModule.ModuleLog(moduleId, "No Mission starts with a forbidden character . Using 'N' instead. Character chain now is {0}", _charactersForPathCreation);
+        }
+        // Explicit check for Freeplay because apparently the mission name is called "custom" and so is detected as valid
+        else if (_missionName == "custom")
+        {
+            summoningModule.ModuleLog(moduleId, "Freeplay / Dynamic Mission Generator mode (mission name 'custom') detected! Using 'N' as a character.");
+        }
+        // Explicite check for "undefined" since that also can happen according to Mission Control's code
+        else if (_missionName == "undefined")
+        {
+            summoningModule.ModuleLog(moduleId, "Unknown mission (mission name 'undefined') detected! Using 'N' as a character.");
+        }
+        // Make sure the first character is alphanumerical
+        else if (Regex.Match(_missionName[0].ToString(), "^[a-zA-Z0-9]").Success)
+        {
+            _charactersForPathCreation += _missionName[0];
+
+            summoningModule.ModuleLog(moduleId, "Gathered mission name '{0}'. First character is {1} which is valid. Character chain now is {2}",
+                _missionName, _missionName[0], _charactersForPathCreation);
+        }
+        else
+        {
+            _charactersForPathCreation += 'N';
+
+            summoningModule.ModuleLog(moduleId, "Gathered mission name '{0}'. First character is {1} which is not A-9. Using N instead. Character chain now is {2}",
+                _missionName, _missionName[0], _charactersForPathCreation);
+        }
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * */

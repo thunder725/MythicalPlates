@@ -1216,11 +1216,6 @@ Prefab:
       propertyPath: m_RootOrder
       value: 12
       objectReference: {fileID: 0}
-    - target: {fileID: 102033760961614694, guid: a6cbe98255274ff4f9832cf4460ba0b8,
-        type: 2}
-      propertyPath: m_Text
-      value: TOXIC
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a6cbe98255274ff4f9832cf4460ba0b8, type: 2}
   m_IsPrefabParent: 0

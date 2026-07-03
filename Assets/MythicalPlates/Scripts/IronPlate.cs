@@ -75,7 +75,7 @@ public class IronPlate : PlateBase {
         
         if (isPlayerSimulatingGame)
         {
-            summoningModule.ModuleLog(moduleId, "Time now flows again.");
+            summoningModule.ModuleLog(moduleId, "=-=-= Time now flows again =-=-=");
 
             previousSeenTimerSecond = Mathf.FloorToInt(bombInfo.GetTime());
 
@@ -287,13 +287,13 @@ public class IronPlate : PlateBase {
                 return isClockwise ? MovementDirection.UpLeft : MovementDirection.DownLeft;
 
             case MovementDirection.Right:
-                return isClockwise ? MovementDirection.DownRight : MovementDirection.Right;
+                return isClockwise ? MovementDirection.DownRight : MovementDirection.UpRight;
 
             case MovementDirection.UpLeft:
                 return isClockwise ? MovementDirection.UpRight : MovementDirection.Left;
 
             case MovementDirection.DownRight:
-                return isClockwise ? MovementDirection.DownLeft : MovementDirection.UpRight;
+                return isClockwise ? MovementDirection.DownLeft : MovementDirection.Right;
 
             case MovementDirection.UpRight:
                 return isClockwise ? MovementDirection.Right : MovementDirection.UpLeft;
