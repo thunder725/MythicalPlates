@@ -8,12 +8,19 @@ using UnityEngine;
 
 public class SplashPlate : PlateBase {
 
+    /// <summary> Not necessary for the runtime puzzle, but used for demo purposes in DeterminePermutationWithMostIntersections().
+    /// More info in that method. </summary>
     [SerializeField] TextAsset PermutationsOfEight;
     [SerializeField] TextMesh PlateTextMesh;
 
+    /// <summary> In the Lustrous Wheel, where to start. </summary>
     char startingLetter;
+
+    /// <summary> What movements should be done to move around the Plate </summary>
     int[] LustrousMovements;
     string finalPointsSequence = "";
+
+    /// <summary> Final expected answer: the number of Intersections obtained by the 7 segments </summary>
     int numberOfIntersections;
 
 
@@ -21,14 +28,18 @@ public class SplashPlate : PlateBase {
     string currentPlayerAnswer;
     Coroutine playerSubmissionTimerCoroutine;
 
+    /// <summary> Location of the 8 points in order ABCDEFGH </summary>
     readonly Vector2[] points = new Vector2[8] { new Vector2(-1, 2), new Vector2(1, 2), new Vector2(2, 1), new Vector2(2, -1),
         new Vector2(1, -2), new Vector2(-1, -2), new Vector2(-2, -1), new Vector2(-2, 1)};
 
-
+    /// <summary> The 8 points in the new order they must be connected in. </summary>
     int[] LustrousPointIndices;
 
+    /// <summary> Structure to represent a 2D segment between two points </summary>
     public struct Segment { public Vector2 p1; public Vector2 p2; };
 
+    /// <summary> Since submission is delayed by 2 seconds after the last press,
+    /// this boolean blocks commands from being received during that delay to avoid any submission issue. </summary>
     bool TpExclusiveAllowCommands;
 
 
@@ -56,8 +67,9 @@ public class SplashPlate : PlateBase {
 
         InitializePuzzle();
 
-        TpExclusiveAllowCommands = true;
 
+        // After puzzle initialization, allow TP commands
+        TpExclusiveAllowCommands = true;
     }
 
 
@@ -67,6 +79,7 @@ public class SplashPlate : PlateBase {
 
     void PressedBinaryButton(int buttonIndex)
     {
+        // Feedback
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
@@ -74,6 +87,7 @@ public class SplashPlate : PlateBase {
         { return; }
 
 
+        // Add a 1 to the current answer that wants to be submitted
         currentPlayerAnswer = currentPlayerAnswer.Remove(buttonIndex, 1).Insert(buttonIndex, "1");
 
         summoningModule.ModuleLog(moduleId, "Pressed the {0} button. Current answer is {1}",
@@ -150,11 +164,6 @@ public class SplashPlate : PlateBase {
     {
         // StartCoroutine(DeterminePermutationWithMostIntersections());
 
-        // Fun fact about that:
-        // The most amount of intersections is 13, using points A D G C H E B F in this order for example
-        // There's every mirror and rotation of this configuration, but there might even be another permutation with this value.
-        // It's just the first one the code saw when evaluating them all.
-        // It was found in the first 2,200 permutations; and there are over 40,000 of them... lol
 
         DeterminePlateText();
         ApplyLustrousWheelMovements();
@@ -275,6 +284,14 @@ public class SplashPlate : PlateBase {
 
     IEnumerator DeterminePermutationWithMostIntersections()
     {
+        // Fun fact about that:
+        // The most amount of intersections is 13, using points A D G C H E B F in this order for example
+        // There's every mirror and rotation of this configuration, but there might even be another permutation with this value.
+        // It's just the first one the code saw when evaluating them all.
+        // It was found in the first 2,200 permutations; and there are over 40,000 of them... lol
+
+
+
         // For every single possible random combination of the 8 points, find what the biggest number of intersection points is
 
         // This is going to use the mathematical concept of "Permutations", where a Permutation is a unique sequence of all 8 points, in order, without repeat.
@@ -288,6 +305,9 @@ public class SplashPlate : PlateBase {
 
 
         // To avoid Unity flagging this whole process as an infinite loop, it will be cut into chunks and done over several frames
+        // Actually Unity might not do that, that's why it can get stuck in infinite loops due to badly-done while() loops...
+        // I'm too used to Unreal Engine who has a failsafe to avoid infinite loops... woops!!
+        // It's still better practice to do it that way
         int _currentChunkNumber = 0; ;
         int _permutationsPerChunk = 40; // Use 40 for the real test
         int _totalPermutationsChunks = 1008; // 1008 for the real test
@@ -544,7 +564,7 @@ public class SplashPlate : PlateBase {
             yield break;
         }
 
-        if (commandParts[1].Any(x => x != '1' || x != '0'))
+        if (commandParts[1].Any(x => x != '1' && x != '0'))
         {
             yield return "sendtochaterror {0} Please submit a four-digit binary number, using only 0 and 1";
             yield break;
@@ -572,7 +592,7 @@ public class SplashPlate : PlateBase {
             }
             else
             {
-                yield return "sendtochat {0} Received unknown character: '" + _treatedCharacter + "'. The submission has been cancelled and player input has been reset.";
+                yield return "sendtochaterror {0} Received unknown character: '" + _treatedCharacter + "'. The submission has been cancelled and player input has been reset.";
                 StopAllCoroutines();
                 currentPlayerAnswer = "0000";
                 yield break;
@@ -603,6 +623,7 @@ public class SplashPlate : PlateBase {
         for (int i = 0; i < 4; i ++)
         {
             if (requiredPlayerAnswer[i] == '1') { PressedBinaryButton(i); }
+            yield return new WaitForSeconds(0.2f);
         }
 
         // Stop coroutines because I'm not sure how TP will like that

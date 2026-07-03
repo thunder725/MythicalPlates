@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114960562328686610}
+  - component: {fileID: 114766482241627944}
   m_Layer: 0
   m_Name: SkyPlatePrefab
   m_TagString: Untagged
@@ -47,6 +48,24 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1461972971511018
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4845405551135660}
+  - component: {fileID: 65505312318252850}
+  - component: {fileID: 114898060891430108}
+  - component: {fileID: 114109812503369324}
+  m_Layer: 0
+  m_Name: PlateCollisionBlocker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1630579188746390
 GameObject:
   m_ObjectHideFlags: 0
@@ -57,6 +76,7 @@ GameObject:
   - component: {fileID: 4993731101164394}
   - component: {fileID: 23604952959930144}
   - component: {fileID: 102963867555623184}
+  - component: {fileID: 114222755832948738}
   m_Layer: 0
   m_Name: TotalTimerText
   m_TagString: Untagged
@@ -92,6 +112,7 @@ GameObject:
   - component: {fileID: 4109477750961046}
   - component: {fileID: 23939709146217240}
   - component: {fileID: 102281995651975358}
+  - component: {fileID: 114136021059518662}
   m_Layer: 0
   m_Name: CitiesInformationText
   m_TagString: Untagged
@@ -169,6 +190,19 @@ Transform:
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4845405551135660
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1461972971511018}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4879016110899108}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4879016110899108
 Transform:
   m_ObjectHideFlags: 1
@@ -184,6 +218,7 @@ Transform:
   - {fileID: 4112219031714508}
   - {fileID: 4109477750961046}
   - {fileID: 4993731101164394}
+  - {fileID: 4845405551135660}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -330,6 +365,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1894820521232692}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &65505312318252850
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1461972971511018}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.1, y: 0.005, z: 0.15}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!102 &102281995651975358
 TextMesh:
   serializedVersion: 3
@@ -407,6 +454,55 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114109812503369324
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1461972971511018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114898060891430108}
+  SelectableColliders:
+  - {fileID: 65505312318252850}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
+--- !u!114 &114136021059518662
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1880267674336266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114222755832948738
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1630579188746390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114625123676530820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -429,6 +525,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114766482241627944
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114808982325109330
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -441,6 +550,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
+  OutlineAmount: 0
+--- !u!114 &114898060891430108
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1461972971511018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
   OutlineAmount: 0
 --- !u!114 &114941542682426096
 MonoBehaviour:
@@ -479,7 +601,9 @@ MonoBehaviour:
   - {fileID: 114941542682426096}
   - {fileID: 114034638919771690}
   - {fileID: 114625123676530820}
-  customTwitchHelpMessage: "Submit using \u201C!{0} submit .-. -.-- -.. ...- -.-.\u201D"
+  - {fileID: 114109812503369324}
+  customTwitchHelpMessage: "Submit morse letters using \u201C!{0} submit .-. -.--
+    -.. ...- -.-.\u201D. Use \u201C!{0} sky\u201D to press the SKY word on the casing."
   fullPlateName: Sky Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}

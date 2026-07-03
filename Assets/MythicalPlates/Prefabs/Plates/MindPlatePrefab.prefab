@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114324671021016852}
+  - component: {fileID: 114302505361346868}
   m_Layer: 0
   m_Name: MindPlatePrefab
   m_TagString: Untagged
@@ -42,6 +43,24 @@ GameObject:
   - component: {fileID: 114191591218227058}
   m_Layer: 0
   m_Name: CentralApplyButton
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1211619145812758
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4486354756722816}
+  - component: {fileID: 65355404525891294}
+  - component: {fileID: 114855559203927776}
+  - component: {fileID: 114626547929555310}
+  m_Layer: 0
+  m_Name: PlateCollisionBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,6 +148,7 @@ GameObject:
   - component: {fileID: 4587787885754946}
   - component: {fileID: 33835047835258980}
   - component: {fileID: 23465324129724464}
+  - component: {fileID: 114919472569608914}
   m_Layer: 0
   m_Name: ConstellationsViewer
   m_TagString: Untagged
@@ -161,6 +181,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4879016110899108}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4486354756722816
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211619145812758}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4879016110899108}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4587787885754946
 Transform:
@@ -230,6 +263,7 @@ Transform:
   - {fileID: 4726346116207162}
   - {fileID: 4367965724473322}
   - {fileID: 4587787885754946}
+  - {fileID: 4486354756722816}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -350,6 +384,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1761692072523086}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &65355404525891294
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211619145812758}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.1, y: 0.005, z: 0.15}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114029927560163386
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -437,6 +483,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114302505361346868
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114324671021016852
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -454,8 +513,9 @@ MonoBehaviour:
   - {fileID: 114368545413140778}
   - {fileID: 114029927560163386}
   - {fileID: 114838110285204022}
+  - {fileID: 114626547929555310}
   customTwitchHelpMessage: "\u201C!{0} move udlr\u201D to move Up Down Left Right.
-    Use \u201C!{0} mind\u201D to press the MIND casing text."
+    You can chain movements. Use \u201C!{0} mind\u201D to press the MIND casing text."
   fullPlateName: Mind Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -539,6 +599,29 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114626547929555310
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211619145812758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114855559203927776}
+  SelectableColliders:
+  - {fileID: 65355404525891294}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
 --- !u!114 &114838110285204022
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -561,3 +644,29 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114855559203927776
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1211619145812758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
+  OutlineAmount: 0
+--- !u!114 &114919472569608914
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1761692072523086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - KT/Transparent/Mobile Diffuse Underlay200

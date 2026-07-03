@@ -1,0 +1,10 @@
+{
+  "name": "MythicalPlates-Editor",
+  "references": [
+    "MythicalPlates"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}

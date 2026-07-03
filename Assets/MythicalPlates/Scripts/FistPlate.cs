@@ -3,25 +3,31 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using UnityEngine;
 
 public class FistPlate : PlateBase {
 
     [SerializeField] TextMesh voidedCoordinatesText;
-    readonly int[] redirectStationIndices = new int[29] { 0, 3, 5, 7, 9, 11, 14, 16, 19, 21, 23, 25, 28, 30, 32, 33, 35, 37, 39, 42, 44, 49, 51, 54, 56, 57, 60, 61, 62};
+    /// <summary> Location of all possible Redirection Station </summary>
+    readonly int[] redirectionStationIndices = new int[29] { 0, 3, 5, 7, 9, 11, 14, 16, 19, 21, 23, 25, 28, 30, 32, 33, 35, 37, 39, 42, 44, 49, 51, 54, 56, 57, 60, 61, 62};
 
-    Dictionary<int, int> redirectDirections;
+    /// <summary> Dictionary containing each ACTIVE Redirection Station's location, with its associated Redirect Direction. </summary>
+    Dictionary<int, int> redirectionDirections;
+
+    /// <summary> Redirection String created using edgework, to distribute Redirect Directions to Redirection Stations </summary>
     string RedirectionString;
 
+    // Data about the Unstoppable Force
     int unstoppableForceIndex;
     MovementDirection unstoppableForceDirection;
 
+    // Final result!
     bool isMesagozaSafe;
-
 
     // Universal Logging Data
     static int moduleIdCounter = 1;
+
+
 
     // Buttons gathering and GetComponents
     public override void InitializeModuleAwake()
@@ -30,10 +36,8 @@ public class FistPlate : PlateBase {
 
         moduleId = moduleIdCounter++;
 
-        // ButtonIndex is 0-11 but MonthNumbers are 1-12!!
         platePressableButtons[00].OnInteract += delegate () { PressedSafeButton(); return false; };
         platePressableButtons[01].OnInteract += delegate () { PressedEvacuateButton(); return false; };
-
     }
 
     // Puzzle Initialization
@@ -43,7 +47,6 @@ public class FistPlate : PlateBase {
         base.InitializeModuleStart();
 
         InitializePuzzle();
-
     }
 
 
@@ -53,7 +56,7 @@ public class FistPlate : PlateBase {
 
     void PressedSafeButton()
     {
-        platePressableButtons[0].AddInteractionPunch(0.5f);
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
@@ -61,7 +64,7 @@ public class FistPlate : PlateBase {
 
         if (isMesagozaSafe)
         {
-            summoningModule.ModuleLog(moduleId, "Pressed the SAFE button, which was correct!");
+            summoningModule.ModuleLog(moduleId, "Pressed the SAFE button, which is correct!");
             summoningModule.ReceiveSolve();
         }
         else
@@ -73,7 +76,7 @@ public class FistPlate : PlateBase {
 
     void PressedEvacuateButton()
     {
-        platePressableButtons[0].AddInteractionPunch(0.5f);
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
@@ -81,7 +84,7 @@ public class FistPlate : PlateBase {
 
         if (isMesagozaSafe == false)
         {
-            summoningModule.ModuleLog(moduleId, "Pressed the EVACUATE button, which was correct!");
+            summoningModule.ModuleLog(moduleId, "Pressed the EVACUATE button, which is correct!");
             summoningModule.ReceiveSolve();
         }
         else
@@ -108,7 +111,7 @@ public class FistPlate : PlateBase {
 
     void GenerateVoidTiles()
     {
-        summoningModule.ModuleLog(moduleId, "Generating Void Tiles.");
+        summoningModule.ModuleLog(moduleId, "Generating 6 Voided Tiles.");
 
         int _attemptedVoidIndex;
         while (voidedCellsIndices.Count < 6)
@@ -123,8 +126,17 @@ public class FistPlate : PlateBase {
             voidedCellsIndices.Add(_attemptedVoidIndex);
         }
 
-        summoningModule.ModuleLog(moduleId, "Void Tiles will get generated in tiles {0}", voidedCellsIndices.Select(x => GetCoordinateFromCellIndex(x, 8)).Join());
-        voidedCoordinatesText.text = voidedCellsIndices.Select(x => GetCoordinateFromCellIndex(x, 8)).Join().Remove(5, 1).Insert(5, "\n").Remove(11, 1).Insert(11, "\n");
+        // Cache the Coordinates of the tiles in string form
+        string[] voidedCellsCoordinates = new string[6] { GetCoordinateFromCellIndex(voidedCellsIndices[0], 8), GetCoordinateFromCellIndex(voidedCellsIndices[1], 8),
+        GetCoordinateFromCellIndex(voidedCellsIndices[2], 8), GetCoordinateFromCellIndex(voidedCellsIndices[3], 8),
+        GetCoordinateFromCellIndex(voidedCellsIndices[4], 8), GetCoordinateFromCellIndex(voidedCellsIndices[5], 8)};
+
+
+        summoningModule.ModuleLog(moduleId, "Voided Tiles will get generated in tiles {0}", voidedCellsCoordinates.Join());
+
+        // Cells will be shown 2 per line, so there is some transformation to be done!!
+        voidedCoordinatesText.text = voidedCellsCoordinates[0] + " " + voidedCellsCoordinates[1] + "\n" + voidedCellsCoordinates[2] + " "
+            + voidedCellsCoordinates[3] + "\n" + voidedCellsCoordinates[4] + " " + voidedCellsCoordinates[5];
     }
 
     void GenerateRedirectionString()
@@ -132,27 +144,28 @@ public class FistPlate : PlateBase {
         // Serial Number Digits
         int[] _serialNumberDigits = bombInfo.GetSerialNumberNumbers().ToArray();
 
+        // Concatenate them, mod 4
         RedirectionString = _serialNumberDigits.Select(x => x%4).Join("");
 
         summoningModule.ModuleLog(moduleId, "Redirection String gets the Serial Number Digits {0}; which when Modulo 4 and concatenated becomes {1}",
             _serialNumberDigits.Join(), RedirectionString);
 
 
-        // Number of Batteries
+        // Number of Batteries % 4
         int _numberOfBatteries = bombInfo.GetBatteryCount();
         RedirectionString += (_numberOfBatteries % 4).ToString();
         summoningModule.ModuleLog(moduleId, "There are {0} batteries; which when Modulo 4 and added to the Redirection String gives {1}",
             _numberOfBatteries, RedirectionString);
 
 
-        // Number of Indicators
+        // Number of Indicators % 4
         int _numberOfIndicators = bombInfo.GetIndicators().Count();
         RedirectionString += (_numberOfIndicators % 4).ToString();
         summoningModule.ModuleLog(moduleId, "There are {0} indicators; which when Modulo 4 and added to the Redirection String gives {1}",
             _numberOfIndicators, RedirectionString);
 
 
-        // Number of Ports
+        // Number of Ports % 4
         int _numberOfPorts = bombInfo.GetPortCount();
         RedirectionString += (_numberOfPorts % 4).ToString();
         summoningModule.ModuleLog(moduleId, "There are {0} ports; which when Modulo 4 and added to the Redirection String gives {1}",
@@ -168,19 +181,24 @@ public class FistPlate : PlateBase {
 
     void DistributeRedirectionToStations()
     {
-        redirectDirections = new Dictionary<int, int>();
+        redirectionDirections = new Dictionary<int, int>();
+
+        int _numberOfStationsWithDirections = 0;
 
         for (int i = 0; i < 29; i ++)
         {
             // Register to that dictionary every station with its associated integer direction
             // Ignore Voided Stations
-            if (voidedCellsIndices.Contains(redirectStationIndices[i]))
+            if (voidedCellsIndices.Contains(redirectionStationIndices[i]))
             { continue; }
+
 
             // Cannot directly gather the i-th value from the redirection string, because i might not be
             // "The i-th station to receive a direction" due to Void!
             // Instead we use the number of stations added up until now
-            redirectDirections.Add(redirectStationIndices[i], CharToInt(RedirectionString[redirectDirections.Count]));
+            redirectionDirections.Add(redirectionStationIndices[i], CharToInt(RedirectionString[_numberOfStationsWithDirections]));
+
+            _numberOfStationsWithDirections++;
         }
     }
 
@@ -188,28 +206,36 @@ public class FistPlate : PlateBase {
     {
         // There is a non-zero chance that the Unstoppable Force gets stuck in an infinite loop
         // To detect them, I could use a limit of "100 redirections" and be safe from that.
-        // However I want to be 100% sure of the loop
+        // However I want to be 100% sure of the loop, even if I misjudged it
+
         // Since stations always redirect in the same direction, and they can fail (can't u-turn and doesn't do anything if redirect in same direction)
         // Then getting redirected by a station that already redirected successfully means a loop is happening.
         // The outcome of the redirection will always be the same because there is no change to the state of the board over time.
+
         // So we just keep track of which stations Actually redirected the Unstoppable Force, and if we successfully get redirected by
         // a Station that already redirected, then that means an infinite loop has been found
 
+        // Starting location & direction of the Unstoppable Force
         unstoppableForceIndex = 59;
         unstoppableForceDirection = MovementDirection.Up;
 
+        // Safety out counter since while loops are dangerous
+        // This is the number of **movements** that is allowed, not redirections
         int _safetyCounter = 1000;
+
+
         isMesagozaSafe = true;
-        int _stationDirectionIndex = 0;
+        List<int> _redirectionStationInfiniteLoopTracker = new List<int>();
+        
+
+        // Prepare memory locations for use in the loop
+        VoidMovementData _forceMovementData;
+        int _stationDirectionIndex;
         MovementDirection _stationDirection;
 
-        List<int> _redirectionStationInfiniteLoopTracker = new List<int>();
 
-        // Prepare memory locations
-        VoidMovementData _forceMovementData;
-
-
-
+        // While true because I want an infinite loop that gets forcefully exited by hitting the Immovable Object,
+        // exiting the board, or being in an infinite loop
         while (true)
         {
             _safetyCounter--;
@@ -244,10 +270,10 @@ public class FistPlate : PlateBase {
 
 
             // Landed in a Redirection Station
-            if (redirectStationIndices.Contains(unstoppableForceIndex))
+            if (redirectionStationIndices.Contains(unstoppableForceIndex))
             {
                 // Gather the data
-                redirectDirections.TryGetValue(unstoppableForceIndex, out _stationDirectionIndex);
+                redirectionDirections.TryGetValue(unstoppableForceIndex, out _stationDirectionIndex);
                 _stationDirection = (MovementDirection)_stationDirectionIndex;
 
 

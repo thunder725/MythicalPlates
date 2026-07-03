@@ -1,26 +1,24 @@
 ﻿using KModkit;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Sony.NP.Matching;
 
 public class DreadPlate : PlateBase {
 
-    string optimisticNihilismText = "HUMAN EXISTENCE IS SCARY AND CONFUSING A FEW HUNDRED THOUSAND YEARS AGO WE BECAME CONSCIOUS AND FOUND OURSELVES IN A STRANGE PLACE IT WAS FILLED WITH OTHER BEINGS WE COULD EAT SOME SOME COULD EAT US THERE WAS LIQUID STUFF WE COULD DRINK THINGS WE COULD USE TO MAKE MORE THINGS THE DAYTIME SKY HAD A TINY YELLOW BALL THAT WARMED OUR SKIN THE NIGHT SKY WAS FILLED WITH BEAUTIFUL LIGHTS THIS PLACE WAS OBVIOUSLY MADE FOR US SOMETHING WAS WATCHING OVER US WE WERE HOME THIS MADE EVERYTHING MUCH LESS SCARY AND CONFUSING BUT THE OLDER WE GOT THE MORE WE LEARNED ABOUT THE WORLD AND OURSELVES WE LEARNED THAT THE TWINKLING LIGHTS ARE NOT SHINING BEAUTIFULLY FOR US THEY JUST ARE WE LEARNED THAT WERE NOT AT THE CENTER OF WHAT WE NOW CALL THE UNIVERSE AND THAT IT IS MUCH MUCH OLDER THAN WE THOUGHT WE LEARNED THAT WERE MADE OF MANY LITTLE DEAD THINGS WHICH MAKE UP BIGGER THINGS THAT ARE NOT DEAD FOR SOME REASON AND THAT WERE JUST ANOTHER TEMPORARY STAGE IN A HISTORY GOING BACK OVER A BILLION YEARS WE LEARNED IN AWE THAT WE LIVE ON A MOIST SPECK OF DUST MOVING AROUND A MEDIUM SIZED STAR IN A QUIET REGION OF ONE ARM OF AN AVERAGE GALAXY WHICH IS PART OF A GALAXY GROUP THAT WE WILL NEVER LEAVE AND THIS GROUP IS ONLY ONE OF A THOUSANDS THAT TOGETHER MAKE UP A GALAXY SUPERCLUSTER BUT EVEN OUT SUPERCLUSTER IS ONLY ONE IN THOUSANDS THAT MAKE UP WHAT WE CALL THE OBSERVABLE UNIVERSE THE UNIVERSE MIGHT BE A MILLION TIMES BIGGER BUT WE WILL NEVER KNOW WE COULD THROW WORDS AROUND LIKE TWO HUNDRED MILLION GALAXIES OR TRILLIONS OF STARS OR BAZILLIONS OF PLANETS BUT ALL OF THESE NUMBERS MEAN NOTHING OUR BRAINS CANT COMPREHEND THESE CONCEPTS THE UNIVERSE IS TOO BIG THERE IS TOO MUCH OF IT BUT SIZE IS NOT THE MOST TROUBLING CONCEPT WE HAVE TO DEAL WITH ITS TIME OR MORE PRECISELY THE TIME WE HAVE IF YOURE LUCKY ENOUGH TO LIVE TO ONE HUNDRED YOU HAVE FIVE THOUSAND TWO HUNDRED WEEKS AT YOUR DISPOSAL IF YOURE TWENTY FIVE NOW THEN YOU HAVE THREE THOUSAND NINE HUNDRED WEEKS LEFT IF YOURE GOING TO DIE AT SEVENTY THEN THERE ARE TWO THOUSAND THREE HUNDRED AND FORTY WEEKS LEFT A LOT OF TIME BUT ALSO NOT REALLY AND THEN WHAT? YOUR BIOLOGICAL PROCESSES WILL BREAK DOWN AND THE DYNAMIC PATTERN THAT IS YOU WILL STOP BEING DYNAMIC IT WILL DISSOLVE UNTIL THERE IS NO YOU LEFT SOME BELIEVE THAT THERE IS A PART OF US WE CANT SEE OR MEASURE BUT WE HAVE NO WAY TO FIND OUT SO THIS LIFE MIGHT BE IT AND WE MIGHT END UP DEAD FOREVER THIS IS LESS SCARY THAN IT SOUNDS THOUGH IF YOU DONT REMEMBER THE THIRTEEN POINT SEVEN FIVE BILLION YEARS THAT WENT BY BEFORE YOU EXISTED THEN THE TRILLIONS AND TRILLIONS AND TRILLIONS OF YEARS THAT COME AFTER WILL PASS IN NO TIME ONCE YOURE GONE CLOSE YOUR EYES COUNT TO ONE THATS HOW LONG FOREVER FEELS";
+    /// <summary> The entire text, in uppercase, with dashes considered as spaces and apostrophes removed (you're => youre) </summary>
+    readonly string optimisticNihilismText = "HUMAN EXISTENCE IS SCARY AND CONFUSING A FEW HUNDRED THOUSAND YEARS AGO WE BECAME CONSCIOUS AND FOUND OURSELVES IN A STRANGE PLACE IT WAS FILLED WITH OTHER BEINGS WE COULD EAT SOME SOME COULD EAT US THERE WAS LIQUID STUFF WE COULD DRINK THINGS WE COULD USE TO MAKE MORE THINGS THE DAYTIME SKY HAD A TINY YELLOW BALL THAT WARMED OUR SKIN THE NIGHT SKY WAS FILLED WITH BEAUTIFUL LIGHTS THIS PLACE WAS OBVIOUSLY MADE FOR US SOMETHING WAS WATCHING OVER US WE WERE HOME THIS MADE EVERYTHING MUCH LESS SCARY AND CONFUSING BUT THE OLDER WE GOT THE MORE WE LEARNED ABOUT THE WORLD AND OURSELVES WE LEARNED THAT THE TWINKLING LIGHTS ARE NOT SHINING BEAUTIFULLY FOR US THEY JUST ARE WE LEARNED THAT WERE NOT AT THE CENTER OF WHAT WE NOW CALL THE UNIVERSE AND THAT IT IS MUCH MUCH OLDER THAN WE THOUGHT WE LEARNED THAT WERE MADE OF MANY LITTLE DEAD THINGS WHICH MAKE UP BIGGER THINGS THAT ARE NOT DEAD FOR SOME REASON AND THAT WERE JUST ANOTHER TEMPORARY STAGE IN A HISTORY GOING BACK OVER A BILLION YEARS WE LEARNED IN AWE THAT WE LIVE ON A MOIST SPECK OF DUST MOVING AROUND A MEDIUM SIZED STAR IN A QUIET REGION OF ONE ARM OF AN AVERAGE GALAXY WHICH IS PART OF A GALAXY GROUP THAT WE WILL NEVER LEAVE AND THIS GROUP IS ONLY ONE OF A THOUSANDS THAT TOGETHER MAKE UP A GALAXY SUPERCLUSTER BUT EVEN OUT SUPERCLUSTER IS ONLY ONE IN THOUSANDS THAT MAKE UP WHAT WE CALL THE OBSERVABLE UNIVERSE THE UNIVERSE MIGHT BE A MILLION TIMES BIGGER BUT WE WILL NEVER KNOW WE COULD THROW WORDS AROUND LIKE TWO HUNDRED MILLION GALAXIES OR TRILLIONS OF STARS OR BAZILLIONS OF PLANETS BUT ALL OF THESE NUMBERS MEAN NOTHING OUR BRAINS CANT COMPREHEND THESE CONCEPTS THE UNIVERSE IS TOO BIG THERE IS TOO MUCH OF IT BUT SIZE IS NOT THE MOST TROUBLING CONCEPT WE HAVE TO DEAL WITH ITS TIME OR MORE PRECISELY THE TIME WE HAVE IF YOURE LUCKY ENOUGH TO LIVE TO ONE HUNDRED YOU HAVE FIVE THOUSAND TWO HUNDRED WEEKS AT YOUR DISPOSAL IF YOURE TWENTY FIVE NOW THEN YOU HAVE THREE THOUSAND NINE HUNDRED WEEKS LEFT IF YOURE GOING TO DIE AT SEVENTY THEN THERE ARE TWO THOUSAND THREE HUNDRED AND FORTY WEEKS LEFT A LOT OF TIME BUT ALSO NOT REALLY AND THEN WHAT? YOUR BIOLOGICAL PROCESSES WILL BREAK DOWN AND THE DYNAMIC PATTERN THAT IS YOU WILL STOP BEING DYNAMIC IT WILL DISSOLVE UNTIL THERE IS NO YOU LEFT SOME BELIEVE THAT THERE IS A PART OF US WE CANT SEE OR MEASURE BUT WE HAVE NO WAY TO FIND OUT SO THIS LIFE MIGHT BE IT AND WE MIGHT END UP DEAD FOREVER THIS IS LESS SCARY THAN IT SOUNDS THOUGH IF YOU DONT REMEMBER THE THIRTEEN POINT SEVEN FIVE BILLION YEARS THAT WENT BY BEFORE YOU EXISTED THEN THE TRILLIONS AND TRILLIONS AND TRILLIONS OF YEARS THAT COME AFTER WILL PASS IN NO TIME ONCE YOURE GONE CLOSE YOUR EYES COUNT TO ONE THATS HOW LONG FOREVER FEELS";
 
-    Dictionary<char, char> letterToSymbolTable = new Dictionary<char, char>() 
+    readonly Dictionary<char, char> letterToSymbolTable = new Dictionary<char, char>() 
     {
         {'E', '#'}, {'F', '#'}, {'H', '#'}, {'L', '#'}, {'N', '#'}, {'T', '#'}, {'V', '#'}, {'W', '#'},
         {'B', '&'}, {'D', '&'}, {'G', '&'}, {'R', '&'}, {'S', '&'}, {'U', '&'},
         {'K', '&'}, {'M', '&'}, {'P', '&'}, {'X', '&'}, {'Z', '&'},
         {'A', '@'}, {'C', '@'}, {'O', '@'}, {'Q', '@'},
         {'I', '!'}, {'J', '!'}, {'Y', '!'}
-    };
-
-    Dictionary<char, int> symbolAssociatedLettersCount = new Dictionary<char, int>()
-    {
-        {'#', '8'}, {'&', '6'}, {'%', '5'}, {'@', '4'}, {'!', '3'}
     };
 
     [SerializeField] TextMesh[] plateWordTexts;
@@ -65,13 +63,20 @@ public class DreadPlate : PlateBase {
 
     // public override void UpdateModule() { base.UpdateModule(); }
 
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Player Inputs
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
     void PressingPlateButton(string buttonPressed)
     {
-        if (summoningModule.isModuleSolved)
-        { return; }
-
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved)
+        { return; }
 
         if (buttonPressed == dreadSequence)
         {
@@ -106,13 +111,10 @@ public class DreadPlate : PlateBase {
     void InitializePuzzle()
     {
         GenerateVoidedWords();
-
         ShowWordsOnModule();
 
         GetConcatenatedSerialNumberDigits();
-
         GatherKeywordsFromText();
-
         TransformDreadSequence();
     }
 
@@ -124,28 +126,10 @@ public class DreadPlate : PlateBase {
         // Get a list of all unique words in the text
         List<string> _individualWords = optimisticNihilismText.Split(new char[] { ' ' }).Distinct().ToList();
 
-        // Grab 5 random words from that
-        for (int i = 0; i < 5; i ++)
-        {
-            voidedWords.Add(_individualWords.PickRandom());
-        }
+        // Grab 5 random words without repeats
+        voidedWords = _individualWords.Shuffle().GetRange(0, 5);
 
-        // Remove duplicates
-        voidedWords = voidedWords.Distinct().ToList();
-
-
-        // Log
-        string _logString = string.Empty;
-        for (int i = 0; i < voidedWords.Count; i ++)
-        {
-            if (i != 0)
-            {
-                _logString += " ";
-            }
-
-            _logString += voidedWords[i];
-        }
-        summoningModule.ModuleLog(moduleId, "Voided words are {0}.", _logString);
+        summoningModule.ModuleLog(moduleId, "Voided words are {0}.", voidedWords.Join(" "));
     }
 
     void ShowWordsOnModule()
@@ -154,13 +138,6 @@ public class DreadPlate : PlateBase {
 
         for (int i = 0; i < 5; i ++)
         {
-            // Hide some words if we had removed duplicates
-            if (voidedWords.Count <= i)
-            {
-                plateWordTexts[i].text = string.Empty;
-                continue;
-            }
-
             // Apply word
             plateWordTexts[i].text = voidedWords[i];
 
@@ -188,13 +165,16 @@ public class DreadPlate : PlateBase {
         List<string> _voidlessText = optimisticNihilismText.Split(new char[]{' '}).Where(w => voidedWords.Contains(w) == false).ToList();
 
 
-        // Gathered Concatenated Number is the word NUMBER, not the word Index
+        // Gathered Concatenated Number is the word's NUMBER, not the word's Index
         // Modulo the concatenated numbers by the final number of words in the voidless text
         concatenatedSerialNumberDigit = (concatenatedSerialNumberDigit - 1 + _voidlessText.Count) % _voidlessText.Count;
 
-        // This discrepency between Number and Index needs to be corrected in the logs, since internally we use Index, but we show Number
-        summoningModule.ModuleLog(moduleId, "After removing Voided words, the new text is:\n{0}\nSince it has a total of {1} words, we can modulo the concatenated numbers to become {2} (index {3}).",
-            _voidlessText.Join(" "), _voidlessText.Count, concatenatedSerialNumberDigit + 1, concatenatedSerialNumberDigit);
+        // This discrepency between Number and Index needs to be corrected in the logs, since internally we use Index, but we show Number to the user
+        summoningModule.ModuleLog(moduleId, "After removing Voided words, the new text is:");
+        summoningModule.ModuleLog(moduleId, _voidlessText.Join(" "));
+        summoningModule.ModuleLog(moduleId, "Since it has a total of {0}  words, we can modulo the concatenated numbers to become {1} (index {2}).",
+            _voidlessText.Count, concatenatedSerialNumberDigit + 1, concatenatedSerialNumberDigit);
+
 
         keywordFromStart = _voidlessText[concatenatedSerialNumberDigit];
         keywordFromEnd = _voidlessText[_voidlessText.Count - concatenatedSerialNumberDigit - 1];
@@ -206,7 +186,7 @@ public class DreadPlate : PlateBase {
 
         char _replacingCharacter;
         string _finalDreadSequence = string.Empty;
-        // Replace every letter by its character
+        // Replace every letter by its "Dread Cipher" character (# & % @ !)
         for (int i = 0; i < dreadSequence.Length; i ++)
         {
             letterToSymbolTable.TryGetValue(dreadSequence[i], out _replacingCharacter);
@@ -301,7 +281,7 @@ public class DreadPlate : PlateBase {
         // Check for both & and @ at each step, so we don't need to check backwards
         for (int i = 0; i < dreadSequence.Length - 1; i++)
         {
-            if ((dreadSequence[i] == '&' && dreadSequence[i+1] == '@') || (dreadSequence[i] == '@' && dreadSequence[i + 1] == '&'))
+            if ((dreadSequence[i] == '&' && dreadSequence[i + 1] == '@') || (dreadSequence[i] == '@' && dreadSequence[i + 1] == '&'))
             {
                 dreadSequence = dreadSequence.Remove(i, 2).Insert(i, "%");
 
@@ -482,19 +462,19 @@ public class DreadPlate : PlateBase {
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Submit #”";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit #”";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s")
         {
-            yield return "sendtochat {0} please make sure you Submit with either “Submit” or “s”.";
+            yield return "sendtochaterror {0} please make sure you Submit with either “Submit” or “s”.";
             yield break;
         }
 
         if (commandParts[1].Length != 1)
         {
-            yield return "sendtochat {0} please sumbit only one of the 5 allowed characters: # & % @ !";
+            yield return "sendtochaterror {0} please sumbit only one of the 5 allowed characters: # & % @ !";
         }
 
 

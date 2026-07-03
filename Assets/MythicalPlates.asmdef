@@ -1,0 +1,8 @@
+{
+  "name": "MythicalPlates",
+  "references": [
+    "GameProxies"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": []
+}

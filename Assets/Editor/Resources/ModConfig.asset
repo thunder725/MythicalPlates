@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615501dbe4f3fe94fbf4b564abb10237, type: 3}
+  m_Name: ModConfig
+  m_EditorClassIdentifier: 
+  id: MythicalPlates
+  title: Mythical Plates
+  author: thunder725
+  description: '"The rightful bearer of a Plate draws from the Plate it holds."
+
+
+    Harness the power of the Mythical Plates and defy the very fabric of reality!
+
+
+    18 new challenges all centered around a mechanic of Void, combined with a cellular
+    automaton, a tower defense game, a Rubik''s Cube or a chain of plane flights.
+
+
+    If you feel adventurous, you can defy the Allmighty Sinnoh and solve 3 randomly-selected
+    challenges in a row.
+
+    Otherwise, they each are contained within their own individual Plate module.
+
+
+    Created by: thunder725
+
+
+    Includes the following 19 modules:
+
+    - Allmighty Sinnoh
+
+    - Blank Plate
+
+    - Draco Plate
+
+    - Dread Plate
+
+    - Earth Plate
+
+    - Fist Plate
+
+    - Flame Plate
+
+    - Icicle Plate
+
+    - Insect Plate
+
+    - Iron Plate
+
+    - Meadow Plate
+
+    - Mind Plate
+
+    - Pixie Plate
+
+    - Sky Plate
+
+    - Splash Plate
+
+    - Spooky Plate
+
+    - Stone Plate
+
+    - Toxic Plate
+
+    - Zap Plate
+
+
+    Manuals can be found at https://ktane.timwi.de/
+
+
+    Includes Twitch Plays compatibility.
+
+
+    =-= Version History =-=
+
+    =-= 0.8
+
+    - Open for Public Beta Testing'
+  version: 0.8
+  outputFolder: build
+  debugBuild: 1
+  previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

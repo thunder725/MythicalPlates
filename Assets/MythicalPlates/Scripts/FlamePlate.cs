@@ -43,15 +43,15 @@ public class FlamePlate : PlateBase {
 
         moduleId = moduleIdCounter++;
 
-        platePressableButtons[0].OnInteract += delegate () { PlateKeypadGetsPressed(1, platePressableButtons[0]); return false; };
-        platePressableButtons[1].OnInteract += delegate () { PlateKeypadGetsPressed(2, platePressableButtons[1]); return false; };
-        platePressableButtons[2].OnInteract += delegate () { PlateKeypadGetsPressed(3, platePressableButtons[2]); return false; };
-        platePressableButtons[3].OnInteract += delegate () { PlateKeypadGetsPressed(4, platePressableButtons[3]); return false; };
-        platePressableButtons[4].OnInteract += delegate () { PlateKeypadGetsPressed(5, platePressableButtons[4]); return false; };
-        platePressableButtons[5].OnInteract += delegate () { PlateKeypadGetsPressed(6, platePressableButtons[5]); return false; };
-        platePressableButtons[6].OnInteract += delegate () { PlateKeypadGetsPressed(7, platePressableButtons[6]); return false; };
-        platePressableButtons[7].OnInteract += delegate () { PlateKeypadGetsPressed(8, platePressableButtons[7]); return false; };
-        platePressableButtons[8].OnInteract += delegate () { PlateKeypadGetsPressed(9, platePressableButtons[8]); return false; };
+        platePressableButtons[0].OnInteract += delegate () { PlateKeypadGetsPressed(1); return false; };
+        platePressableButtons[1].OnInteract += delegate () { PlateKeypadGetsPressed(2); return false; };
+        platePressableButtons[2].OnInteract += delegate () { PlateKeypadGetsPressed(3); return false; };
+        platePressableButtons[3].OnInteract += delegate () { PlateKeypadGetsPressed(4); return false; };
+        platePressableButtons[4].OnInteract += delegate () { PlateKeypadGetsPressed(5); return false; };
+        platePressableButtons[5].OnInteract += delegate () { PlateKeypadGetsPressed(6); return false; };
+        platePressableButtons[6].OnInteract += delegate () { PlateKeypadGetsPressed(7); return false; };
+        platePressableButtons[7].OnInteract += delegate () { PlateKeypadGetsPressed(8); return false; };
+        platePressableButtons[8].OnInteract += delegate () { PlateKeypadGetsPressed(9); return false; };
     }
 
     // Puzzle Initialization
@@ -72,22 +72,17 @@ public class FlamePlate : PlateBase {
 
     // public override void UpdateModule() { base.UpdateModule(); }
 
-    void DetermineXAndY()
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Player Inputs
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    void PlateKeypadGetsPressed(int sentIndex)
     {
-        // "x" and "y" values
-        xMovement = CharToInt(bombInfo.GetSerialNumber()[2]);
-        yMovement = CharToInt(bombInfo.GetSerialNumber()[5]);
-
-        summoningModule.ModuleLog(moduleId, "Value for “x” is {0}, and value for “y” is {1}.", xMovement, yMovement);
-    }
-
-
-    void PlateKeypadGetsPressed(int sentIndex, KMSelectable button)
-    {
-        if (summoningModule.isModuleSolved) { return; }
-
-        button.AddInteractionPunch();
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         if (CharToInt(finalPasscode[nextPasscodeDigitToSubmit]) == sentIndex)
         {
@@ -107,8 +102,40 @@ public class FlamePlate : PlateBase {
         }
     }
 
+
+    protected override void CasingTextButtonGetsPressed()
+    {
+        platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
+
+        nextPasscodeDigitToSubmit = 0;
+        summoningModule.ModuleLog(moduleId, "FLAME Casing text pressed. The currently input digits have been reset and forgotten.");
+    }
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Puzzle Initialization
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+    void DetermineXAndY()
+    {
+        // "x" and "y" values
+        xMovement = CharToInt(bombInfo.GetSerialNumber()[2]);
+        yMovement = CharToInt(bombInfo.GetSerialNumber()[5]);
+
+        summoningModule.ModuleLog(moduleId, "Value for “x” is {0}, and value for “y” is {1}.", xMovement, yMovement);
+    }
+
+
+    /// <summary> Repeat Movements and Voiding </summary>
     void DoAllMoveCycles()
     {
+        // The Game Design goal of this is to get a Vortex feel of perpetually rotating in a chaotic environment.
+        // This is Magma Vortex, Heatran's signature move!
+        // Heatran's Pokédex number is 485, which is why it's in the topleft and bottomright of the table!!
+
         // Yes it's not pretty, idc :D
         SingleMove(1);
         VoidNextLine();
@@ -268,11 +295,7 @@ public class FlamePlate : PlateBase {
     }
 
 
-    protected override void CasingTextButtonGetsPressed() 
-    {
-        nextPasscodeDigitToSubmit = 0;
-        summoningModule.ModuleLog(moduleId, "Casing text pressed. The currently input digits have been reset and forgotten.");
-    }
+
 
 
 
@@ -288,9 +311,17 @@ public class FlamePlate : PlateBase {
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+        if (command == "flame" || command == "f")
+        {
+            yield return "sendtochat {0} Successfully pressed FLAME and reset the submission sequence.";
+            CasingTextButtonGetsPressed();
+            yield break;
+        }
+
+
         if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s") && !commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Submit 13848426”, starting with the word “Submit” or “Press”.";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit 13848426”, starting with the word “Submit” or “Press”.";
             yield break;
         }
 
@@ -315,7 +346,7 @@ public class FlamePlate : PlateBase {
             // Is any of the buttons incorrect?
             if (CharToInt(_numberToPress) < 1 || CharToInt(_numberToPress) > 9)
             {
-                yield return "sendtochat {0} One of the numbers wasn't between 1 and 9 inclusive! Stopping there";
+                yield return "sendtochaterror {0} One of the numbers '" + _numberToPress + "' wasn't between 1 and 9 inclusive! Stopping there";
                 yield break;
             }
 

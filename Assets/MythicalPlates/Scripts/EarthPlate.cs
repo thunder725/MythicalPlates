@@ -25,6 +25,7 @@ public class EarthPlate : PlateBase {
         132, 133,                                    141, 142, 143
     };
 
+    /// <summary> Store the union of the row and columns to void both at once </summary>
     readonly Dictionary<int, int[]> voidLines = new Dictionary<int, int[]>()
     {
         {1, new int[23]{0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95}},
@@ -77,11 +78,11 @@ public class EarthPlate : PlateBase {
 
     void PressedMovementButton(int LShapeMovementIndex)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
+        // Feedback
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
 
+        if (summoningModule.isModuleSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "Pressed movement button {0}.", LShapeMovementIndex);
         MoveInLShape(LShapeMovementIndex);
@@ -89,10 +90,9 @@ public class EarthPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
-        if (summoningModule.isModuleSolved) { return; }
-
-        PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }        
 
 
         summoningModule.ModuleLog(moduleId, "EARTH casing button got pressed! Resetting to the starting position.");
@@ -106,9 +106,13 @@ public class EarthPlate : PlateBase {
         // Both have to be checked, because you can have paths that are valid only in one way and not the other
         // since it's forbidden to exit the grid's bounds.
 
+        // S-shaped or Z-shaped movements are not valid, so the length that is 2-tile long is done at once.
+
         int _tryoutIndex = currentTileIndex;
 
         // Try to move in a direction, the method returns the tile index if the movement was valid, or a -1 otherwise
+        // The method also moves once or twice by itself depending on the movement that is asked.
+
         // Try first to move horizontally then vertically
         _tryoutIndex = MoveHorizontallyFromLShape(LShapeMovementIndex, _tryoutIndex);
         if (_tryoutIndex != -1)
@@ -145,6 +149,7 @@ public class EarthPlate : PlateBase {
         return;
     }
 
+    /// <summary> Once we know that the movement was valid, apply it for real! </summary>
     void ApplyValidMovement(int newTile)
     {
         currentTileIndex = newTile;
@@ -253,8 +258,10 @@ public class EarthPlate : PlateBase {
         currentTileIndex = startingTileIndex;
     }
 
+    /// <summary> Determine which tile is the Start and which is the Target using bomb start time </summary>
     void DecideStartAndTargetTiles()
     {
+        // Round to avoid being tricked by the time being 449.94 instead of 450
         float bombTime = Mathf.Round(bombInfo.GetTime());
 
         // Bomb Time starts below 4500 seconds
@@ -262,16 +269,17 @@ public class EarthPlate : PlateBase {
         {
             startingTileIndex = 1;
             targetTileIndex = 142;
-            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} which is less than 4500 (75 minutes). Starting cell is B1 and target cell is K12", bombTime);
+            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is less than 4500 (75 minutes). Starting cell is B1 and target cell is K12", bombTime);
         }
         else
         {
             startingTileIndex = 142;
             targetTileIndex = 1;
-            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} which is more than 4500 (75 minutes). Starting cell is K12 and target cell is B1", bombTime);
+            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is more than 4500 (75 minutes). Starting cell is K12 and target cell is B1", bombTime);
         }
     }
 
+    /// <summary> Void lines and columns using existing Port types </summary>
     void DetermineVoids()
     {
         IEnumerable<string> allPorts = bombInfo.GetPorts().Distinct();
@@ -313,7 +321,7 @@ public class EarthPlate : PlateBase {
                         break;
                 }
 
-                summoningModule.ModuleLog(moduleId, "Found a {0} port!", port);
+                summoningModule.ModuleLog(moduleId, "Found a {0} port! Voiding the associated row and column.", port);
                 voidedCellsIndices.AddRange(_cellsToVoid);
             }
         }
@@ -331,6 +339,12 @@ public class EarthPlate : PlateBase {
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+        if (command == "earth")
+        {
+            yield return "sendtochat {0} Successfully pressed EARTH and reset you to your starting location.";
+            CasingTextButtonGetsPressed();
+            yield break;
+        }
 
         if (commandParts.Length == 0)
         {

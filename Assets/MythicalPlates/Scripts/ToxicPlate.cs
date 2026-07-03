@@ -6,8 +6,9 @@ using UnityEngine;
 
 public class ToxicPlate : PlateBase {
 
-    /// <summary> The paths start with their starting location, for reference, and loop around </summary>
-    int[][] VoidPathsFromStartingLocation = new int[23][]
+    /// <summary> Representation, for every starting room of Void, of the path it will take around the grid.
+    /// Those paths loop. </summary>
+    readonly int[][] VoidPathsFromStartingLocation = new int[23][]
     {
         new int[]{0, 1, 6, 8, 12},
         new int[]{1, 2, 3, 5},
@@ -35,7 +36,7 @@ public class ToxicPlate : PlateBase {
     };
 
     /// <summary> Array containing, for each room, its connections in order North East South West. -1 represents no door. </summary>
-    int[][] connectedRoomsFromIndices = new int[23][]
+    readonly int[][] connectedRoomsFromIndices = new int[23][]
     {
         new int[4]{ -1, 1, 12, -1 },
         new int[4]{ 2, 5, 6, 0 },
@@ -62,16 +63,25 @@ public class ToxicPlate : PlateBase {
         new int[4]{ 13, 19, 17, -1 }
     };
 
+    /// <summary> Starting locations of Voids </summary>
     List<int> startingVoidLocationsIndices = new List<int>();
+    /// <summary> Starting locations of the Toxic Crystals </summary>
     List<int> startingCrystalsLocationIndices = new List<int>();
+    /// <summary> Starting location of the Player </summary>
     int startingPlayerLocationIndex;
 
-
+    /// <summary> Current location of the Player </summary>
     int currentPlayerLocationIndex;
+    /// <summary> Current locations of the Toxic Crystals. They do not move around, but this stores which ones are left to collect. </summary>
     List<int> currentCrystalsLocationIndices = new List<int>();
+
+    /// <summary> As Voids move around, how far into their movement loop are they?
+    /// Used as an index for lookup in VoidPathsFromStartingLocation.</summary>
     int[] currentIndexInPathForVoids;
 
-    [SerializeField] TextMesh topStartingVoidRoomsTextMesh, middleToxicCrystalsRoomsTextMesh, bottomStartingLocationTextMesh;
+    [SerializeField] TextMesh topStartingVoidRoomsTextMesh;
+    [SerializeField] TextMesh middleToxicCrystalsRoomsTextMesh;
+    [SerializeField] TextMesh bottomStartingLocationTextMesh;
 
 
     Coroutine movementVibrationCoroutine;
@@ -92,7 +102,6 @@ public class ToxicPlate : PlateBase {
         platePressableButtons[1].OnInteract += delegate () { PressedMovementInput(MovementDirection.Down); return false; };
         platePressableButtons[2].OnInteract += delegate () { PressedMovementInput(MovementDirection.Left); return false; };
         platePressableButtons[3].OnInteract += delegate () { PressedMovementInput(MovementDirection.Right); return false; };
-
     }
 
     // Puzzle Initialization
@@ -102,7 +111,6 @@ public class ToxicPlate : PlateBase {
         base.InitializeModuleStart();
 
         InitializePuzzle();
-
     }
 
     
@@ -159,7 +167,7 @@ public class ToxicPlate : PlateBase {
             { StopCoroutine(movementVibrationCoroutine); }
 
             // Shake the plate
-            StartCoroutine(VibratePlate(2f));
+            movementVibrationCoroutine = StartCoroutine(VibratePlate(2f));
 
             summoningModule.ModuleLog(moduleId, "Trying to move {0} from room {1}, but there is no opening!",
                 GetPlayerFacingDirectionName(_roomDirectionIndexInitiallyTaken), currentPlayerLocationIndex);
@@ -183,6 +191,8 @@ public class ToxicPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
+        platePressableButtons[0].AddInteractionPunch();
+
         if (summoningModule.isModuleSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "TOXIC text button pressed. Resetting the module to its initial state.");

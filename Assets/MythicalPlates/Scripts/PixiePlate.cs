@@ -5,12 +5,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.Linq;
+using static PixiePlate;
 
 
 public class PixiePlate : PlateBase {
 
     /// <summary> Dictionary to convert a 5-digit binary into one of the 32 characters that can be displayed on the Plate </summary>
-    Dictionary<string, string> ConversionTableBelow = new Dictionary<string, string>()
+    readonly Dictionary<string, string> ConversionTableBelow = new Dictionary<string, string>()
     { {"00000", "A"}, {"00001", "B"}, {"00010", "C"}, {"00011", "D"}, {"00100", "E"}, {"00101", "F"}, {"00110", "G"}, {"00111", "H"},
       {"01000", "I"}, {"01001", "J"}, {"01010", "K"}, {"01011", "L"}, {"01100", "M"}, {"01101", "N"}, {"01110", "O"}, {"01111", "P"},
       {"10000", "Q"}, {"10001", "R"}, {"10010", "S"}, {"10011", "T"}, {"10100", "U"}, {"10101", "V"}, {"10110", "W"}, {"10111", "X"},
@@ -146,11 +147,11 @@ public class PixiePlate : PlateBase {
         presetPuzzleLists = JsonConvert.DeserializeObject<PresetPlayfieldPuzzle[]>(puzzleListJson.text);
 
         // Bind to Buttons on the Plate
-        platePressableButtons[0].OnInteract += delegate () { PlateButtonsGetsPressed(platePressableButtons[0], 0); return false; };
-        platePressableButtons[1].OnInteract += delegate () { PlateButtonsGetsPressed(platePressableButtons[1], 1); return false; };
-        platePressableButtons[2].OnInteract += delegate () { PlateButtonsGetsPressed(platePressableButtons[2], 2); return false; };
-        platePressableButtons[3].OnInteract += delegate () { PlateButtonsGetsPressed(platePressableButtons[3], 3); return false; };
-        platePressableButtons[4].OnInteract += delegate () { PlateButtonsGetsPressed(platePressableButtons[4], 4); return false; };
+        platePressableButtons[0].OnInteract += delegate () { PlateButtonsGetsPressed(0); return false; };
+        platePressableButtons[1].OnInteract += delegate () { PlateButtonsGetsPressed(1); return false; };
+        platePressableButtons[2].OnInteract += delegate () { PlateButtonsGetsPressed(2); return false; };
+        platePressableButtons[3].OnInteract += delegate () { PlateButtonsGetsPressed(3); return false; };
+        platePressableButtons[4].OnInteract += delegate () { PlateButtonsGetsPressed(4); return false; };
     }
 
     // Puzzle Initialization
@@ -185,12 +186,12 @@ public class PixiePlate : PlateBase {
     //    Player Inputs
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    void PlateButtonsGetsPressed(KMSelectable pressedButton, int buttonTypeIndicator)
+    void PlateButtonsGetsPressed(int buttonTypeIndicator)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
-        pressedButton.AddInteractionPunch();
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         // Button Type Indicator:
         // 0123 is Up Down Left Right Movement to coincide with MovementDirection enum
@@ -209,6 +210,10 @@ public class PixiePlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
+        platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
+
         summoningModule.ModuleLog(moduleId, "Resetting the Grid due to PIXIE Button pressed.");
         ResetGridAndPlayerInputs();
     }
@@ -1579,7 +1584,7 @@ public class PixiePlate : PlateBase {
             currentPlayfield.playfieldRepresentation[_spawnedBasel.gridLocationIndex] = _spawnedBasel.demonPlayfieldNumber;
 
             // Log
-            summoningModule.ModuleLog(moduleId, "The Vassal-Goh with number {0} spawned a Basel at location {1}\nThis Basel has been assigned Creature Number {2}.",
+            summoningModule.ModuleLog(moduleId, "The Vassal-Goh with number {0} spawned a Basel at location {1}. This Basel has been assigned Creature Number {2}.",
                 _potentialVassalGoh.demonPlayfieldNumber, ConvertGridIndexToPresetPuzzleLocation(_spawnedBasel.gridLocationIndex), _spawnedBasel.demonPlayfieldNumber);
             
         }
@@ -2032,51 +2037,44 @@ public class PixiePlate : PlateBase {
         }
 
         summoningModule.ModuleLog(moduleId, "Verifications done!!");
-
-        ModuleShouldSolve();
     }
 
     void LogPlayfield()
     {
         // Remember that Creature Number can change over time as Basels might be summoned!
+        summoningModule.ModuleLog(moduleId, "Here is the current state of the Playfield:");
 
-        string _logPlayfield = "";
-
-        // Construct Playfield
-        for (int i = 0; i < 32; i ++)
+        string _lineToLog;
+        for (int _row = 0; _row < 4; _row ++)
         {
-            // Add separator before each cell to make it more readable
-            if (i % 8 != 0) 
+            _lineToLog = string.Empty;
+
+            for (int _col = 0; _col < 8;  _col ++)
             {
-                _logPlayfield += " | "; 
+                _lineToLog += currentPlayfield.playfieldRepresentation[4 * _row + _col];
+                if (_col % 8 != 0)
+                {
+                    _lineToLog += " | ";
+                }
             }
-            // Otherwise, if not the very first, add linebreak to make it more readable
-            else if (i != 0) 
-            {
-                _logPlayfield += "\n";
-            }
-            _logPlayfield += currentPlayfield.playfieldRepresentation[i];
+
+            summoningModule.ModuleLog(moduleId, _lineToLog);
         }
 
 
-        // Construct Representation of all Creatures so they're linked in the log
-        string _creaturesData = "";
+        summoningModule.ModuleLog(moduleId, "0 is empty, -1 is Void, Numbers >0 represent a Creature Number:");
 
         // Loop through all Demons
         foreach (Demon _demon in currentPlayfield.demons)
         {
-            _creaturesData += String.Format("{0} represents the {1} with current Health {2} and Damage {3}.\n",
+            summoningModule.ModuleLog(moduleId, "{0} represents the {1} with current Health {2} and Damage {3}.",
                 _demon.demonPlayfieldNumber, _demon.debugFriendlyName, _demon.currentHealth, _demon.currentDamage);
         }
         foreach (Pixie _pixie in currentPlayfield.pixies)
         {
-            _creaturesData += String.Format("{0} represents the {1} with current Health {2} and Damage {3}.\n",
+            summoningModule.ModuleLog(moduleId, "{0} represents the {1} with current Health {2} and Damage {3}.",
             _pixie.pixiePlayfieldNumber, _pixie.debugFriendlyName, _pixie.currentHealth, _pixie.currentDamage);
         }
-
-
-        summoningModule.ModuleLog(moduleId, "Here is the current state of the Playfield:\n{0}\n0 is empty, -1 is Void, Numbers >0 represent a Creature Number:\n{1}",
-            _logPlayfield, _creaturesData);
     }
 
 
@@ -2092,7 +2090,7 @@ public class PixiePlate : PlateBase {
 
         if (command.Length == 0)
         {
-            yield return "sendtochat {0} Received empty command!";
+            yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
@@ -2100,10 +2098,10 @@ public class PixiePlate : PlateBase {
         command = command.ToLowerInvariant().Replace(" ", "").Replace(",","");
 
         // Pressing PIXIE on the center of the plate
-        if (command == "p")
+        if (command == "p" || command == "pixie")
         {
             casingPressableButton.OnInteract();
-            yield return "sendtochat {0} Successfully reset the board.";
+            yield return "sendtochat {0} Successfully press PIXIE and reset the board. You are back in the top-left corner.";
             yield break;
         }
 
@@ -2145,7 +2143,7 @@ public class PixiePlate : PlateBase {
                     break;
 
                 default:
-                    string _stringToSend = string.Format("sendtochat {0} Received unknown character: “{1}”. To reset send a singular “p” for PIXIE. You currently are in {2} and have placed {3} Pixies.",
+                    string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset send the command “pixie”. You currently are in {2} and have placed {3} Pixies.",
                         "{0}", _individualCommand, ConvertGridIndexToPresetPuzzleLocation(currentPlayerPointerLocation), currentPixieIndexToPlace);
                     yield return _stringToSend;
                     yield break;

@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4113089016455792}
   - component: {fileID: 23840193421388454}
   - component: {fileID: 102461734723501320}
+  - component: {fileID: 114009616677274336}
   m_Layer: 0
   m_Name: BottomFaeriesDataText
   m_TagString: Untagged
@@ -38,6 +39,7 @@ GameObject:
   - component: {fileID: 4464518967228982}
   - component: {fileID: 23559480466661846}
   - component: {fileID: 102736441585823714}
+  - component: {fileID: 114149970868476600}
   m_Layer: 0
   m_Name: TopDemonDataText
   m_TagString: Untagged
@@ -56,6 +58,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114701435272424976}
+  - component: {fileID: 114419051698867608}
   m_Layer: 0
   m_Name: PixiePlatePrefab
   m_TagString: Untagged
@@ -90,7 +93,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4735265931724080}
   - component: {fileID: 65277887406589872}
-  m_Layer: 11
+  - component: {fileID: 114078828813767752}
+  - component: {fileID: 114670923011992880}
+  m_Layer: 0
   m_Name: PlateCollisionBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,6 +166,7 @@ GameObject:
   - component: {fileID: 4319454873520932}
   - component: {fileID: 23077189085768366}
   - component: {fileID: 102974400079873414}
+  - component: {fileID: 114832280881266256}
   m_Layer: 0
   m_Name: MiddleVoidCellsText
   m_TagString: Untagged
@@ -510,7 +516,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1233495750110230}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.1, y: 0.005, z: 0.15}
@@ -580,6 +586,32 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 1962934272
+--- !u!114 &114009616677274336
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1059288967146578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114078828813767752
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1233495750110230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
+  OutlineAmount: 0
 --- !u!114 &114103099880510112
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -593,6 +625,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114149970868476600
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1090633214070404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114165299606245106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -641,6 +686,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114419051698867608
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114502820872906552
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -698,6 +756,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114670923011992880
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1233495750110230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114078828813767752}
+  SelectableColliders:
+  - {fileID: 65277887406589872}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
 --- !u!114 &114701435272424976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -715,9 +796,10 @@ MonoBehaviour:
   - {fileID: 114339493905417724}
   - {fileID: 114502820872906552}
   - {fileID: 114625123676530820}
+  - {fileID: 114670923011992880}
   customTwitchHelpMessage: "Move around with \u201C!{0} udlr\u201D and press the center
     button with \u201Cc\u201D. \u201C!{0} drrcdlcururcc\u201D is a valid command.
-    Use \u201Cp\u201D alone to press the PIXIE on the casing and reset all inputs."
+    Use \u201C!{0} pixie\u201D to press the PIXIE word on the casing."
   fullPlateName: Pixie Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -732,8 +814,6 @@ MonoBehaviour:
   topPlateDemonInscription: {fileID: 102736441585823714}
   bottomPlatePixieInscription: {fileID: 102461734723501320}
   middlePlateVoidInscription: {fileID: 102974400079873414}
-  incorrectWarningSound: {fileID: 8300000, guid: 3f56430d63a6dc9419e74ea72083234a,
-    type: 3}
   readyToSubmitSound: {fileID: 8300000, guid: 18aa463545479e349bf447e41f428ef4, type: 3}
   puzzleListJson: {fileID: 4900000, guid: 1929e109abc8d3f48bdc6004da904d57, type: 3}
 --- !u!114 &114784272692744898
@@ -749,6 +829,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114832280881266256
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1855713284926048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114869939694892514
 MonoBehaviour:
   m_ObjectHideFlags: 1

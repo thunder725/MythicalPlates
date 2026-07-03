@@ -9,6 +9,7 @@ public class MeadowPlate : PlateBase {
 
     readonly string[] ReadableMonths = new string[12] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 
+    /// <summary> ALL BERRIES, with the months they can be planted in. 1 is January, not 0. </summary>
     readonly Dictionary<string, int[]> berries = new Dictionary<string, int[]>()
     {
         { "Aguav", new int[4]{ 2, 3, 8, 9 } }, { "Apicot", new int[6]{ 1, 2, 3, 10, 11, 12 } }, { "Aspear", new int[6]{ 1, 2, 3, 10, 11, 12} },
@@ -92,10 +93,10 @@ public class MeadowPlate : PlateBase {
 
     void PressedMonthButton(int buttonMonthNumber)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "Pressed button for the month of {0}!", GetReadableMonthName(buttonMonthNumber));
 
@@ -261,7 +262,10 @@ public class MeadowPlate : PlateBase {
 
         for (int i = 0; i < 4; i ++)
         {
-            
+            // Goto usage to go back to the start of the loop without incrementing
+            // Could have used a while(numberOfBerriesFound < 4)
+            // and incremented only when a valid one was found, to then do a continue instead...
+            // That would have been better, huh?
             tryNewBerry:
 
             // Randomly pick Berry

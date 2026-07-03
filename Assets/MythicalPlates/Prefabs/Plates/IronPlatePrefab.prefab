@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4704086427348464}
   - component: {fileID: 23417496451130202}
   - component: {fileID: 102964705250435582}
+  - component: {fileID: 114607495181556404}
   m_Layer: 0
   m_Name: ThirdCreatureData
   m_TagString: Untagged
@@ -39,6 +40,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114788383673603588}
+  - component: {fileID: 114316787646972806}
   m_Layer: 0
   m_Name: IronPlatePrefab
   m_TagString: Untagged
@@ -56,6 +58,7 @@ GameObject:
   - component: {fileID: 4941547488109092}
   - component: {fileID: 23906375738671186}
   - component: {fileID: 102794078007496792}
+  - component: {fileID: 114823453299541676}
   m_Layer: 0
   m_Name: FirstCreatureData
   m_TagString: Untagged
@@ -73,6 +76,7 @@ GameObject:
   - component: {fileID: 4868240167580534}
   - component: {fileID: 23713534416724852}
   - component: {fileID: 102510918431753592}
+  - component: {fileID: 114393394273888102}
   m_Layer: 0
   m_Name: FourthCreatureData
   m_TagString: Untagged
@@ -90,6 +94,7 @@ GameObject:
   - component: {fileID: 4028109436669756}
   - component: {fileID: 23005825420001214}
   - component: {fileID: 102894650487984406}
+  - component: {fileID: 114577413450750612}
   m_Layer: 0
   m_Name: SecondCreatureData
   m_TagString: Untagged
@@ -479,6 +484,58 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114316787646972806
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
+--- !u!114 &114393394273888102
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1738459981159042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114577413450750612
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1866977329919534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114607495181556404
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1074921504052476}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114625123676530820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -532,3 +589,16 @@ MonoBehaviour:
   - {fileID: 102894650487984406}
   - {fileID: 102964705250435582}
   - {fileID: 102510918431753592}
+--- !u!114 &114823453299541676
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1350977211698132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse

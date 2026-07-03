@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114361109656085064}
+  - component: {fileID: 114723828564591968}
   m_Layer: 0
   m_Name: ZapPlatePrefab
   m_TagString: Untagged
@@ -148,8 +149,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   platePressableButtons:
   - {fileID: 114625123676530820}
-  customTwitchHelpMessage: "Press the Plate on a specific time using \u201C!{0} Press
-    3\u201D."
+  customTwitchHelpMessage: "Press the Plate on a specific last digit of the timer
+    using \u201C!{0} Press 3\u201D."
   fullPlateName: Zap Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -183,3 +184,16 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114723828564591968
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse

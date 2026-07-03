@@ -7,24 +7,24 @@ using UnityEngine;
 
 public class SpookyPlate : PlateBase {
 
-    Dictionary<string, int> PlatinumTablePortToNumber = new Dictionary<string, int>() {
+    readonly Dictionary<string, int> PlatinumTablePortToNumber = new Dictionary<string, int>() {
     { "StereoRCA", 1}, { "PS2", 7}, { "Serial", 14}, { "RJ45", 21}, { "DVI", 28}, {"Parallel", 35} };
 
     /// <summary>
     /// Width of each floor, to use in conjuction with MoveAroundGridWithVoid() to get the correct floor shape
     /// </summary>
-    int[] floorsWidths = new int[9] { 9, 5, 7, 6, 6, 7, 6, 7, 5};
+    readonly int[] floorsWidths = new int[9] { 9, 5, 7, 6, 6, 7, 6, 7, 5};
 
     /// <summary>
     /// Starting Cell index (blue in the manual) for all 9 floors.
     /// </summary>
-    int[] floorsStartingCells = new int[9] { 35, 4, 13, 21, 1, 14, 18, 17, 31 };
+    readonly int[] floorsStartingCells = new int[9] { 35, 4, 13, 21, 1, 14, 18, 17, 31 };
 
 
     /// <summary>
     /// All 9 floors. Walkable cells are marked with a 1, empty cells with a 0. Starting cell is a 2 and ending is a 3.
     /// </summary>
-    int[][] allFloors = new int[9][] { 
+    readonly int[][] allFloors = new int[9][] { 
     
         // Floor 1 - "Hole Field 1"
         new int[45]
@@ -134,7 +134,7 @@ public class SpookyPlate : PlateBase {
     /// This is a bit messy, but trying to figure it out mathematically too would be messy since information about
     /// whether it's a row or column + the correct index should be stored, to then compute how many to void and then which ones...
     /// </summary>
-    int[][] allVoidedLines = new int[63][] { 
+    readonly int[][] allVoidedLines = new int[63][] { 
 
         // Floor 1 - "Hole Field 1"
         new int[5]{ 1, 10, 19, 28, 37},
@@ -220,11 +220,16 @@ public class SpookyPlate : PlateBase {
 
 
 
-
+    // What Floors are we traversing in order
     int floorOneNumber, floorTwoNumber, floorThreeNumber;
+    // What Line should be voided for each Floor
     int voidedLineOne, voidedLineTwo, voidedLineThree;
 
-    int currentFloorNumber, currentFloorIndex;
+    /// <summary> Floor Number is 1-9, it's the number in the Manual. </summary>
+    int currentFloorNumber;
+    /// <summary> Floor Index is 0-2, it's to know if we're on the first, second or third Floor we will traverse. </summary>
+    int currentFloorIndex;
+    /// <summary> Current location of the Player </summary>
     int currentPlayerCellIndex;
 
     [SerializeField] TextMesh floorNumbersText;
@@ -268,11 +273,11 @@ public class SpookyPlate : PlateBase {
 
     void PressedMovementInput(MovementDirection pressedDirection)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         // Feedback
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.3f);
+
+        if (summoningModule.isModuleSolved) { return; }
 
 
         // Save the pre-movement location in case we need to cancel movement.
@@ -283,7 +288,7 @@ public class SpookyPlate : PlateBase {
         // If ran outside of the edges
         if (_movementData.ranIntoGridEdges)
         {
-            summoningModule.ModuleLog(moduleId, "Movement {0} from {1} landed outside of the bounds of the floor. Movement has been cancelled and Strike has been given.",
+            summoningModule.ModuleLog(moduleId, "Movement {0} from {1} landed outside of the bounds of the floor. Movement has been cancelled and Strike will be given.",
                 pressedDirection, GetCoordinateFromCellIndex(_preMovementLocation, GetCurrentFloorWidth()));
 
             currentPlayerCellIndex = _preMovementLocation;
@@ -295,7 +300,7 @@ public class SpookyPlate : PlateBase {
         // We only check after the movement, players can go through empty cells if they are Voided, on purpose.
         else if (GetCurrentCellContent() == 0)
         {
-            summoningModule.ModuleLog(moduleId, "Movement {0} from {1} landed in {2}, which is an invalid cell. Movement has been cancelled and Strike has been given.",
+            summoningModule.ModuleLog(moduleId, "Movement {0} from {1} landed in {2}, which is an invalid cell. Movement has been cancelled and Strike will be given.",
                             pressedDirection, GetCoordinateFromCellIndex(_preMovementLocation, GetCurrentFloorWidth()), GetCoordinateFromCellIndex(currentPlayerCellIndex, GetCurrentFloorWidth()));
 
             currentPlayerCellIndex = _preMovementLocation;
@@ -338,12 +343,11 @@ public class SpookyPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
+        platePressableButtons[0].AddInteractionPunch();
+
         if (summoningModule.isModuleSolved) { return; }
 
-        // Feedback
-        PlayPlatePressSound();
-        platePressableButtons[0].AddInteractionPunch(.3f);
-
+        summoningModule.ModuleLog(moduleId, "SPOOKY text button pressed!");
 
         LandInNewFloor(currentFloorIndex);
 
@@ -372,6 +376,8 @@ public class SpookyPlate : PlateBase {
 
         yield return null;
     }
+
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Puzzle Initialization
@@ -467,7 +473,7 @@ public class SpookyPlate : PlateBase {
         {
             _resultingNumber *= 3;
 
-            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicaotrs and {1} Lits. There are more Unlits, so the number is multiplied by 3 to get {2}",
+            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicators and {1} Lits. There are more Unlits, so the number is multiplied by 3 to get {2}",
                 _numberOfUnlits, _numberOfLits, _resultingNumber);
         }
         // Otherwise, if equal, multiply by 2
@@ -475,13 +481,13 @@ public class SpookyPlate : PlateBase {
         {
             _resultingNumber *= 2;
 
-            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicaotrs and {1} Lits. There are as many Unlits as Lits, so the number is multiplied by 2 to get {2}",
+            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicators and {1} Lits. There are as many Unlits as Lits, so the number is multiplied by 2 to get {2}",
                 _numberOfUnlits, _numberOfLits, _resultingNumber);
         }
         // Otherwise, don't do anything
         else
         {
-            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicaotrs and {1} Lits. There are more Lits, so the number is unchanged and stays {2}",
+            summoningModule.ModuleLog(moduleId, "Found a total of {0} Unlit indicators and {1} Lits. There are more Lits, so the number is unchanged and stays {2}",
                 _numberOfUnlits, _numberOfLits, _resultingNumber);
         }
 
@@ -589,7 +595,7 @@ public class SpookyPlate : PlateBase {
         // Either SPOOKY
         if (commandParts[0] == "spooky")
         {
-            yield return "sendtochat {0} Successfully pressed SPOOKY and reset the module.";
+            yield return "sendtochat {0} Successfully pressed SPOOKY and reset you to the start of the current floor.";
             CasingTextButtonGetsPressed();
             yield break;
         }

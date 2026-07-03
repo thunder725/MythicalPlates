@@ -16,7 +16,7 @@ Children:
 > IndividualPlateModule.cs	(all 18 other Modules in one .cs, configured on the Prefab)
 
 
-ReceiveStrike() and ReceiveSolve() are to be created in Children, and to be called by PlateBases
+ReceiveStrike() and ReceiveSolve() are to be coded specifically in Children, and to be called by PlateBases
 
 PlateBases can call (and SHOULD) summoningModule.ModuleLog(moduleId, "message {0}", args)
 

@@ -1,15 +1,13 @@
 ﻿using KModkit;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Deployment.Internal;
 using System.Linq;
 using UnityEngine;
 
 
 public class StonePlate : PlateBase{
 
-    int[][] VoidPatterns = new int[4][]
+    readonly int[][] VoidPatterns = new int[4][]
     {
         new int[16]{ 1, 6, 8, 15, 18, 21, 27, 28, 35, 36, 42, 45, 48, 55, 57, 62 },
         new int[23]{ 9, 17, 18, 21, 22, 25, 26, 29, 30, 31, 37, 38, 39, 42, 43, 46, 47, 48, 49, 50, 51, 56, 57},
@@ -20,7 +18,7 @@ public class StonePlate : PlateBase{
 
     /// <summary> Starting from the top-left corner of the Treasure, add the top-left corner's index
     /// to the indices in this table to get the final indices of the treasure, in an 8x8 table.</summary>
-    int[][] TreasurePositionOffsets = new int[10][]
+    readonly int[][] TreasurePositionOffsets = new int[10][]
     {
         new int[14]{ 1, 2, 3, 8, 9, 10, 11, 12, 16, 20, 27, 28, 34, 35 },
         new int[14]{ 0, 2, 8, 9, 10, 11, 12, 16, 17, 18, 19, 20, 25, 27 },
@@ -35,7 +33,7 @@ public class StonePlate : PlateBase{
     };
 
     /// <summary> For each Treasure, gives the latest Column and Row allowed for the Treasure to be correctly placed. 0-indexed </summary>
-    int[] furthestAllowedCoordinatesPerTreasure = new int[20]
+    readonly int[] furthestAllowedCoordinatesPerTreasure = new int[20]
     { 
         3, 3,
         3, 4,
@@ -106,10 +104,12 @@ public class StonePlate : PlateBase{
 
     protected override void CasingTextButtonGetsPressed() 
     {
+        platePressableButtons[0].AddInteractionPunch();
+
         if (summoningModule.isModuleSolved)
         { return; }
 
-        summoningModule.ModuleLog(moduleId, "STONE word pressed, re-generating puzzle.");
+        summoningModule.ModuleLog(moduleId, "STONE word pressed, re-generating a new puzzle.");
 
         ReGeneratePuzzleAtRuntime();
     }
@@ -117,6 +117,7 @@ public class StonePlate : PlateBase{
 
     void PressedMovementInput(MovementDirection direction)
     {
+        platePressableButtons[0].AddInteractionPunch(0.3f);
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
@@ -138,6 +139,7 @@ public class StonePlate : PlateBase{
 
     void PressedDrillInput()
     {
+        platePressableButtons[0].AddInteractionPunch(0.5f);
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
@@ -164,18 +166,6 @@ public class StonePlate : PlateBase{
 
             // Mark the tile as unnecessary to drill anymore
             remainingDrillableTreasureTiles.Remove(currentCoordinate);
-
-            summoningModule.ModuleLog(moduleId, "Drilling at {0} returned a {1} vibration. This is drill number {2}.",
-                GetCoordinateFromCellIndex(currentCoordinate, 8), lastVibrationWasStrong ? "strong" : "weak", currentNumberOfDrillsDone);
-
-
-            // If all are excavated
-            if (remainingDrillableTreasureTiles.Count == 0)
-            {
-                summoningModule.ModuleLog(moduleId, "All tiles of the Treasure have been drilled out! Solving module!");
-                summoningModule.ReceiveSolve();
-            }
-
         }
         // Otherwise
         else
@@ -185,6 +175,17 @@ public class StonePlate : PlateBase{
 
             if (drillVibrationCoroutine != null) { StopCoroutine(drillVibrationCoroutine); }
             drillVibrationCoroutine = StartCoroutine(VibratePlate(1f));
+        }
+
+
+        summoningModule.ModuleLog(moduleId, "Drilling at {0} returned a {1} vibration. This is drill number {2}.",
+                GetCoordinateFromCellIndex(currentCoordinate, 8), lastVibrationWasStrong ? "strong" : "weak", currentNumberOfDrillsDone);
+
+        // Check if the Plate is solved
+        if (remainingDrillableTreasureTiles.Count == 0)
+        {
+            summoningModule.ModuleLog(moduleId, "All tiles of the Treasure have been drilled out! Solving module!");
+            summoningModule.ReceiveSolve();
         }
     }
 
@@ -209,8 +210,8 @@ public class StonePlate : PlateBase{
 
     void DetermineVoidPattern()
     {
+        // Void Pattern is determined by the number of indicators, from 0 to 3 they have their own pattern
         int _numberOfIndicators = bombInfo.GetIndicators().Count();
-
         selectedVoidPaternIndex = Mathf.Clamp(_numberOfIndicators, 0, 3);
 
         summoningModule.ModuleLog(moduleId, "Found {0} indicators, so Void Pattern used will be number {1}", _numberOfIndicators, selectedVoidPaternIndex);
@@ -219,6 +220,7 @@ public class StonePlate : PlateBase{
         voidedCellsIndices = VoidPatterns[selectedVoidPaternIndex].ToList();
     }
 
+    /// <summary> Randomly select a Starting coordinate that is not Voided </summary>
     void GenerateStartingCoordinate()
     {
         bool isSearching = true;
@@ -234,6 +236,8 @@ public class StonePlate : PlateBase{
         }
     }
 
+
+    /// <summary> Generate a new puzzle, with a new Treasure somewhere in the map </summary>
     void GenerateAndPlaceNewTreasure()
     {
         // Determine the Treasure shape
@@ -280,6 +284,7 @@ public class StonePlate : PlateBase{
         return "";
     }
 
+    /// <summary> Does a Puzzle Generation while also resetting the Player Data </summary>
     void ReGeneratePuzzleAtRuntime()
     {
         GenerateAndPlaceNewTreasure();
@@ -303,7 +308,7 @@ public class StonePlate : PlateBase{
         command = command.ToLowerInvariant().Replace(" ", "").Replace(",", "");
 
         // Pressing STONE text on the center of the plate
-        if (command == "s")
+        if (command == "s" || command == "stone")
         {
             casingPressableButton.OnInteract();
             yield return "sendtochat {0} Successfully re-generated a puzzle.";
@@ -345,7 +350,7 @@ public class StonePlate : PlateBase{
                     break;
 
                 default:
-                    string _stringToSend = string.Format("sendtochat {0} Received unknown character: “{1}”. To reset send a singular “s” for STONE. You currently are in {2}.",
+                    string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset use command “stone”. You currently are in {2}.",
                         "{0}", _individualCommand, GetCoordinateFromCellIndex(currentCoordinate, 8));
                     yield return _stringToSend;
                     yield break;

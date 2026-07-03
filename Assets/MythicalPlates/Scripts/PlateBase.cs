@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,10 +12,20 @@ public abstract class PlateBase : MonoBehaviour {
 
     // =-=-= Universal Plate Data =-=-=
     // Information that the Module knows by itself
+
+    /// <summary> All KMSelectables or buttons that the Plate has </summary>
     public KMSelectable[] platePressableButtons;
+
+    /// <summary> Every Plate uses Void, so they can all have the same List containing indices for Void. </summary>
     protected List<int> voidedCellsIndices;
+
+    /// <summary> Twitch Help Message that is to be customized by every Plate </summary>
     [SerializeField] protected string customTwitchHelpMessage = "“!{0}”";
+
+    /// <summary> Plate Name, used in Logs for example </summary>
     public string fullPlateName;
+
+    /// <summary> Sounds to be pressed when the Plate is pressed </summary>
     [SerializeField] protected AudioClip[] platePressedSounds;
 
 
@@ -26,11 +35,13 @@ public abstract class PlateBase : MonoBehaviour {
     [HideInInspector] public SummoningModule summoningModule;
     [HideInInspector] public KMSelectable casingPressableButton;
 
+    /// <summary> Delegate linked to the Casing Text Button being pressed (BLANK, STONE, DRACO, PIXIE, etc).
+    /// Used to remove the delegate upon suppression by Allmighty Sinnoh to avoid phantom code execution. </summary>
     KMSelectable.OnInteractHandler casingButtonPressedDelegate;
 
     // Visual Data
-    float plateIdleRotationFrequency = 0.25f;
-    float plateIdleRotationIntensity = 1.2f;
+    const float plateIdleRotationFrequency = 0.25f;
+    const float plateIdleRotationIntensity = 1.2f;
     float startingPlateIdleRotationOffset;
 
     /// <summary> For child classes to add a shake or rotation on top of the idle one </summary>
@@ -48,7 +59,7 @@ public abstract class PlateBase : MonoBehaviour {
         public bool ranIntoGridEdges;
     }
 
-    // Helper Data
+    // Helper Data that can be used in multiple Plates in various ways
     protected string[] alphabet = new string[26] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
     protected string[] hexadecimal = new string[16] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"};
     protected string[] morseCodeAlphabet = new string[26] { ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--.."};
@@ -70,21 +81,24 @@ public abstract class PlateBase : MonoBehaviour {
             casingButtonPressedDelegate = casingPressableButton.OnInteract += delegate () { CasingTextButtonGetsPressed(); return false; };
         }
 
-        
-
         summoningModule.ReceiveTwitchHelpMessage(customTwitchHelpMessage);
     }
+
+
     /// <summary> Called by the Module after Start() is called. Used for puzzle initialization. </summary>
     public virtual void InitializeModuleStart()
     {
         voidedCellsIndices = new List<int>();
         startingPlateIdleRotationOffset = UnityEngine.Random.Range(0f, 10f);
     }
+
+
     /// <summary> Called by the Module every tick. </summary>
     public virtual void UpdateModule()
     {
         UpdatePlateIdleRotation();
     }
+
 
     // Remove the Delegates
     // Specifically useful for AllmightySinnoh to avoid phantom code and logs
@@ -125,7 +139,7 @@ public abstract class PlateBase : MonoBehaviour {
         summoningModule.PlaySound(platePressedSounds.PickRandom());
     }
 
-    protected IEnumerator VibratePlate(float intensity)
+    public IEnumerator VibratePlate(float intensity)
     {
         float timer = 0;
 
@@ -144,11 +158,17 @@ public abstract class PlateBase : MonoBehaviour {
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Global Table Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    // Many plates use Tables for their Void Mechanic
+    // So having global methods like transforming a table index into a readable D3 coordinate
+    // or how to move around a table while accounting for Voided Cells can be extremely useful
+
 
     /// <summary> Gets a Row (topmost = 0) from a cell index and the number of elements in a row of the grid </summary>
     protected int GetRowFromCellIndex(int cellIndex, int rowSize) { return cellIndex / rowSize; }
+
     /// <summary> Gets a Column (leftmost = 0) from a cell index and the number of elements in a row of the grid </summary>
     protected int GetColumnFromCellIndex(int cellIndex, int rowSize) { return cellIndex % rowSize; }
+
     /// <summary> Gets a coordinate (format A1) from a cell index and the number of elements in a row of the grid </summary>
     protected string GetCoordinateFromCellIndex(int cellIndex, int rowSize)
     {
@@ -158,6 +178,7 @@ public abstract class PlateBase : MonoBehaviour {
 
         return _coordinate;
     }
+
 
     /// <summary> Move around a grid while taking into account Void cells. All 8 directions are supported for movements. 
     /// Returns the number of Voided Cells crossed. </summary>

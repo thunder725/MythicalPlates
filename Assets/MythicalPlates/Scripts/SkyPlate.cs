@@ -35,8 +35,8 @@ public class SkyPlate : PlateBase {
         public Flight[] allConnectedFlights;
     }
 
-    /// <summary>  </summary>
-    City[] allCities = new City[26] {
+    /// <summary> All Cities in the graph, each with their own 4 flights </summary>
+    readonly City[] allCities = new City[26] {
     new City{ cityName = "A", allConnectedFlights = new Flight[4] {
         new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
         new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
@@ -214,11 +214,10 @@ public class SkyPlate : PlateBase {
 
     void PressingPlateButton(string buttonType)
     {
-        if (summoningModule.isModuleSolved)
-        { return; }
-
-        platePressableButtons[0].AddInteractionPunch();
+        platePressableButtons[0].AddInteractionPunch( buttonType == "submit" ? 1f : 0.7f);
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         switch (buttonType)
         {
@@ -240,8 +239,6 @@ public class SkyPlate : PlateBase {
 
                 break;
         }
-
-
     }
 
     void VerifyPlayerAnswer()
@@ -301,6 +298,10 @@ public class SkyPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed() 
     {
+        platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
+
         currentCity = GetCityFromName(startingCityName);
         currentTimer = finalTimerToSolve;
 
@@ -490,7 +491,9 @@ public class SkyPlate : PlateBase {
 
     void ComputeAllFlightDurations()
     {
-        string _debug = "All Flight Durations are:\n";
+        summoningModule.ModuleLog(moduleId, "All Flight Durations are:");
+
+
         int _duration = 0;
         int edgeworkOne, edgeworkTwo;
 
@@ -503,8 +506,7 @@ public class SkyPlate : PlateBase {
         _duration = 2120 * Mathf.Max(edgeworkOne, 1);
 
         AllFlightDurations.Add(FlightDurationType.Circle, _duration);
-
-        _debug += "Circle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Batteries.\n";
+        summoningModule.ModuleLog(moduleId, "Circle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Batteries.");
 
 
 
@@ -517,7 +519,7 @@ public class SkyPlate : PlateBase {
 
         AllFlightDurations.Add(FlightDurationType.Square, _duration);
 
-        _debug += "Square: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.\n";
+        summoningModule.ModuleLog(moduleId, "Square: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.");
 
 
 
@@ -528,7 +530,7 @@ public class SkyPlate : PlateBase {
 
         AllFlightDurations.Add(FlightDurationType.Triangle, _duration);
 
-        _debug += "Triangle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Ports.\n";
+        summoningModule.ModuleLog(moduleId, "Triangle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Ports.");
 
 
 
@@ -537,11 +539,7 @@ public class SkyPlate : PlateBase {
 
         AllFlightDurations.Add(FlightDurationType.Star, _duration);
 
-        _debug += "Star: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + "\n";
-
-
-        // Log
-        summoningModule.ModuleLog(moduleId, _debug);
+        summoningModule.ModuleLog(moduleId, "Star: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration));
     }
 
     string GetReadableHourNotationFromTime(int time)
@@ -632,15 +630,22 @@ public class SkyPlate : PlateBase {
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+        if (command == "sky")
+        {
+            yield return "sendtochat {0} Successfully pressed SKY and reset you to your starting City and starting Timer.";
+            CasingTextButtonGetsPressed();
+            yield break;
+        }
+
         if (commandParts.Length <= 1)
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Submit .-. -.-- -.. ...- -.-.”";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit .-. -.-- -.. ...- -.-.”";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s")
         {
-            yield return "sendtochat {0} please make sure you Submit with either “Submit” or “s”.";
+            yield return "sendtochaterror {0} please make sure you Submit with either “Submit” or “s”.";
             yield break;
         }
 

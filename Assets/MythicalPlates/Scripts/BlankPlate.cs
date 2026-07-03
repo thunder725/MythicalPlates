@@ -9,6 +9,7 @@ using UnityEngine;
 
 public class BlankPlate : PlateBase {
 
+    /// <summary> Dictionary containing the different Paths associated with each letter. </summary>
     readonly Dictionary<char, string> PathConversionTable = new Dictionary<char, string>() {
         {'A', "__x_x_*__"},
         {'B', "___"},
@@ -49,16 +50,25 @@ public class BlankPlate : PlateBase {
     };
     enum PabloMovementType { Step, Jump, Slide };
 
+    /// <summary> Constructed Path that Pablo will have to traverse </summary>
     string pabloPath;
     [SerializeField] TextMesh plateVoidText;
 
+    /// <summary> Boolean used for puzzle generation </summary>
     bool foundValidVoid;
+    /// <summary> Example sequence of movements that correctly solves the module </summary>
     string correctMovementPattern;
+
+    /// <summary> Current location of where Pablo will move on the next step.
+    /// A current location +1.
+    /// What this means is that Pablo starts outside of the path, in an "index -1",
+    /// and this is represented by currentPabloIndex being 0.
+    /// This index could be thought as "The next tile that Pablo will Traverse".</summary>
+    int currentPabloIndex;
+
 
     // Universal Logging Data
     static int moduleIdCounter = 1;
-
-    int currentPabloIndex;
 
 
     // Buttons gathering and GetComponents
@@ -68,9 +78,9 @@ public class BlankPlate : PlateBase {
 
         moduleId = moduleIdCounter++;
 
-        platePressableButtons[0].OnInteract += delegate () { PressedMovementButton(PabloMovementType.Jump); return false; };
-        platePressableButtons[1].OnInteract += delegate () { PressedMovementButton(PabloMovementType.Step); return false; };
-        platePressableButtons[2].OnInteract += delegate () { PressedMovementButton(PabloMovementType.Slide); return false; };
+        platePressableButtons[0].OnInteract += delegate () { OnPressedMovementButton(PabloMovementType.Jump); return false; };
+        platePressableButtons[1].OnInteract += delegate () { OnPressedMovementButton(PabloMovementType.Step); return false; };
+        platePressableButtons[2].OnInteract += delegate () { OnPressedMovementButton(PabloMovementType.Slide); return false; };
     }
 
     // Puzzle Initialization
@@ -80,7 +90,6 @@ public class BlankPlate : PlateBase {
         base.InitializeModuleStart();
 
         InitializePuzzle();
-
     }
 
 
@@ -89,20 +98,18 @@ public class BlankPlate : PlateBase {
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
-    void PressedMovementButton(PabloMovementType pressedButtonType)
+    void OnPressedMovementButton(PabloMovementType pressedButtonType)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
+        // Feedbacks
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.5f);
 
-        summoningModule.ModuleLog(moduleId, "Pressed a {0} button!", pressedButtonType.ToString());
-
+        if (summoningModule.isModuleSolved) { return; }
 
         switch (pressedButtonType)
         {
             case PabloMovementType.Step:
-                // Step is only correct if the current tile is empty
+                // Step is only correct if the tile to move into is empty
                 if (pabloPath[currentPabloIndex] == '_')
                 {
                     MovePabloForwardWhileWatchingForVoid();
@@ -115,9 +122,10 @@ public class BlankPlate : PlateBase {
 
             case PabloMovementType.Jump:
                 
-                // For 3 tiles, only get hit by JumpObstacles
+                // Move 3 tiles forward
                 for (int i = 0; i < 3; i ++)
                 {
+                    // Only can get hit by SlideObstacles (you jump over the Jump Obstacles)
                     if (pabloPath[currentPabloIndex] == '*')
                     {
                         GiveStrike();
@@ -140,7 +148,7 @@ public class BlankPlate : PlateBase {
                 break;
 
             case PabloMovementType.Slide:
-                // For 2 tiles, only get hit by SlideObstacles
+                // For 2 tiles, only get hit by JumpObstacles (you pass under the Slide Obstacles)
                 for (int i = 0; i < 2; i++)
                 {
                     if (pabloPath[currentPabloIndex] == 'x')
@@ -168,20 +176,22 @@ public class BlankPlate : PlateBase {
         
         if (currentPabloIndex >= pabloPath.Length)
         {
-            summoningModule.ModuleLog(moduleId, "That movement moved Pablo to the exit of the Path. Well done!", currentPabloIndex);
+            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo to the exit of the Path. Well done!", pressedButtonType.ToString());
             summoningModule.ReceiveSolve();
         }
         else
         {
-            summoningModule.ModuleLog(moduleId, "That movement moved Pablo to tile index {0}.", currentPabloIndex);
+            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo to tile index {1}.", pressedButtonType.ToString(), currentPabloIndex);
         }
     }
 
+    /// <summary> Give a Strike for bad movement, and then move Pablo forward until the next Obstacle-less Voidless tile </summary>
     void GiveStrike()
     {
         // Get a Strike!
         summoningModule.ReceiveStrike();
 
+        // Move forward until a valid spot is okay
         bool foundCorrectTile = false;
         while (foundCorrectTile == false)
         {
@@ -218,12 +228,12 @@ public class BlankPlate : PlateBase {
         }
     }
 
-
+    // Reset button
     protected override void CasingTextButtonGetsPressed()
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         currentPabloIndex = 0;
         summoningModule.ModuleLog(moduleId, "'BLANK' button pressed! Reset Pablo to its starting location!");
@@ -248,7 +258,7 @@ public class BlankPlate : PlateBase {
 
         string _charactersForPathCreation = "";
 
-        // All three letters of the Indicators
+        // Take all Indicators, sum the First Letters together, then the Second Letters together, then the Third
         string[] _allIndicators = bombInfo.GetIndicators().ToArray();
         if (_allIndicators.Length == 0 )
         {
@@ -272,6 +282,8 @@ public class BlankPlate : PlateBase {
                 }
 
                 // Mod26 to be sure, but keep 26...
+                // So it's a "%26 but == 0 => 26"
+                // So just subtract 26 if above 26
                 while (_sumOfCharacters > 26)
                 {
                     _sumOfCharacters -= 26;
@@ -373,12 +385,12 @@ public class BlankPlate : PlateBase {
         {
             if (PathConversionTable.TryGetValue(_pathLetter, out _pathToAdd) == false)
             {
-                summoningModule.ModuleLogError(moduleId, "Did not find path using character '{0}'!!!", _pathLetter);
+                summoningModule.ModuleLogError(moduleId, "Did not find path using character '{0}'!!! Please report this to thunder725.", _pathLetter);
             }
 
             if (_pathToAdd.Length == 0)
             {
-                summoningModule.ModuleLogError(moduleId, "Received path with length 0 using character '{0}'!!!", _pathLetter);
+                summoningModule.ModuleLogError(moduleId, "Received path with length 0 using character '{0}'!!! Please report this to thunder725.", _pathLetter);
             }
 
             pabloPath += _pathToAdd;
@@ -394,6 +406,7 @@ public class BlankPlate : PlateBase {
 
         // We cannot check individual Void tiles, check if they work, and combine them; because the combination could become impossible.
         // Likewise, even if we check individual Void tiles, then combine and re-check, we would miss combinations that only work by being together and not alone
+        // That is because Void offsets the entire path so changes are cumulative and impact each other
 
         // So the mission is to take some frames, void 3 random tiles; and walk forward recursively trying every movement possible (^>v)
         // If a single path is found to be correct, then bingo we found the solution and we can use that.
@@ -404,8 +417,10 @@ public class BlankPlate : PlateBase {
 
 
         foundValidVoid = false;
+
         // Current settings are to do 5 path generation per frame, and to throw the towel after 60 frames of failed generation, or 300 attempts.
-        // After generating 10,000 random paths, the highest number of frames it took was 12; so this is a very generous failsafe threshold that shouldn't happen in practice.
+        // I tested this by generating 10,000 random paths, and the highest number of frames it took was 12;
+        // so this is a very generous failsafe threshold that shouldn't happen in practice.
         // But hey, those thresholds are still important to have!
         int framesOfGenerationTaken = 0;
         int maximumFramesToGenerate = 60;
@@ -442,8 +457,9 @@ public class BlankPlate : PlateBase {
         }
         else
         {
-            summoningModule.ModuleLog(moduleId, "Despite having generated {0} set of Void tiles, no path had valid solutions... In over 10k puzzle generation this never happened while developping. Sorry about that!",
+            summoningModule.ModuleLog(moduleId, "Despite having generated {0} set of Void tiles, no path had valid solutions...",
                 maximumFramesToGenerate * pathGenerationAttemptsPerFrame);
+            summoningModule.ModuleLog(moduleId, "In over 10k puzzle generation this never happened while developping. Sorry about that! Using failsafe solution.");
         }
 
         FinalizePath();
@@ -662,8 +678,8 @@ public class BlankPlate : PlateBase {
         // Show value on plate
         plateVoidText.text = voidedCellsIndices.Join("\n");
         summoningModule.ModuleLog(moduleId, "After generating the puzzle; the Voided path tiles are {0}.", voidedCellsIndices.Join());
-        summoningModule.ModuleLog(moduleId, "One possible valid movement is '{0}'. A > represents a regular movement forward, ^ represents a jump and v represents a slide. Note that this represents button presses only; jumps and slides still last multiple tiles!",
-            correctMovementPattern.Join(""));
+        summoningModule.ModuleLog(moduleId, "One possible valid movement is '{0}'.", correctMovementPattern.Join(""));
+        summoningModule.ModuleLog(moduleId, "A > represents a regular movement forward, ^ represents a jump and v represents a slide. Note that this represents button presses only; jumps and slides still last multiple tiles!");
     }
 
 
@@ -687,6 +703,7 @@ public class BlankPlate : PlateBase {
 
         if (commandParts.Length == 1 && commandParts[0] == "blank")
         {
+            yield return "sendtochat {0} Successfully pressed BLANK and reset the module.";
             CasingTextButtonGetsPressed();
             yield break;
         }
@@ -708,15 +725,15 @@ public class BlankPlate : PlateBase {
             switch (_movementSubmission)
             {
                 case 't': case 'u': case '^':
-                    PressedMovementButton(PabloMovementType.Jump);
+                    OnPressedMovementButton(PabloMovementType.Jump);
                     break;
 
                 case 'b': case 'd': case 'v':
-                    PressedMovementButton(PabloMovementType.Slide);
+                    OnPressedMovementButton(PabloMovementType.Slide);
                     break;
 
                 case 'c': case 'm': case '>':
-                    PressedMovementButton(PabloMovementType.Step);
+                    OnPressedMovementButton(PabloMovementType.Step);
                     break;
 
                 default:
@@ -744,15 +761,15 @@ public class BlankPlate : PlateBase {
             switch (_movementSubmission)
             {
                 case '^':
-                    PressedMovementButton(PabloMovementType.Jump);
+                    OnPressedMovementButton(PabloMovementType.Jump);
                     break;
 
                 case 'v':
-                    PressedMovementButton(PabloMovementType.Slide);
+                    OnPressedMovementButton(PabloMovementType.Slide);
                     break;
 
                 case '>':
-                    PressedMovementButton(PabloMovementType.Step);
+                    OnPressedMovementButton(PabloMovementType.Step);
                     break;
 
                 default:

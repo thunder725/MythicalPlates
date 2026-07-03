@@ -11,7 +11,7 @@ public class MindPlate : PlateBase
     /// Face I has numbers 11 12 13 14 15 16 17 18 19 in reading order, so when it gets scrambled we instantly know where it came from.
     /// This is just a representation of its original placement. The new location is represented in the number's index in the array.
     /// The format III-B1 is for the new location only, and is player-facing.</summary>
-    int[] rubiksCube = new int[54] {
+    readonly int[] rubiksCube = new int[54] {
         11, 12, 13, 14, 15, 16, 17, 18, 19,
         21, 22, 23, 24, 25, 26, 27, 28, 29,
         31, 32, 33, 34, 35, 36, 37, 38, 39,
@@ -25,7 +25,7 @@ public class MindPlate : PlateBase
     /// Input the movement Direction (U D L R) times 54, + starting index (0-53), and you get the index where you land.
     /// But to make my life even simpler, I added the info of the new Rotation (relative to the previous direction at least)!
     /// It is the Hundreds digit, using the same order as all MovementDirections have used from the start (UDLR).</summary>
-    int[] postMovementInformationLookupTable = new int[216]
+    readonly int[] postMovementInformationLookupTable = new int[216]
     {
         // Indices 0-53 => Moving Up in the Net
             // Face UP
@@ -87,19 +87,24 @@ public class MindPlate : PlateBase
     /// <summary> Enum representing the 12 possible individual Scrambling Moves </summary>
     enum ScramblingMove { Up, UpPrime, Left, LeftPrime, Front, FrontPrime, Right, RightPrime, Back, BackPrime, Down, DownPrime };
     enum Constellation { Latias, TapuLele, Mew, Uxie};
-    int[][] StarCoordinatesPerConstellation = new int[4][] {
+
+    /// <summary> Content of Appendix ANISTAR in the manual, for the coordinates of the Stars </summary>
+    readonly int[][] StarCoordinatesPerConstellation = new int[4][] {
         new int[7] { 16, 25, 27, 34, 43, 48, 55},
         new int[7] { 16, 27, 32, 43, 45, 57, 66},
         new int[7] { 13, 17, 22, 24, 37, 43, 66},
         new int[7] { 14, 19, 23, 39, 54, 59, 65}
     };
-    int[][] VoidCoordinatesPerConstellation = new int[4][] {
+    /// <summary> Content of Appendix ANISTAR in the manual, for the coordinates of the Voided tiles </summary>
+    readonly int[][] VoidCoordinatesPerConstellation = new int[4][] {
         new int[6] { 14, 22, 39, 49, 53, 61 },
         new int[6] { 13, 23, 37, 42, 55, 69 },
         new int[6] { 19, 27, 36, 57, 62, 67 },
         new int[6] { 17, 25, 44, 46, 52, 64 }
     };
-    ScramblingMove[][] ScramblingMovesPerDigit = new ScramblingMove[10][] {
+
+    /// <summary> Content of Table PSI in the manual </summary>
+    readonly ScramblingMove[][] ScramblingMovesPerDigit = new ScramblingMove[10][] {
         new ScramblingMove[2] { ScramblingMove.Up, ScramblingMove.FrontPrime},
         new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.LeftPrime},
         new ScramblingMove[2] { ScramblingMove.Back, ScramblingMove.RightPrime},
@@ -111,9 +116,10 @@ public class MindPlate : PlateBase
         new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.Front},
         new ScramblingMove[2] { ScramblingMove.Left, ScramblingMove.Back}
     };
-    string[] romanNumeralsToSix = new string[6] { "I", "II", "III", "IV", "V", "VI" };
+    readonly string[] romanNumeralsToSix = new string[6] { "I", "II", "III", "IV", "V", "VI" };
 
 
+    /// <summary> The 4 textures for the 4 possible Constellations </summary>
     [SerializeField] Texture2D[] constellationTextures;
     [SerializeField] MeshRenderer constellationRenderer;
     Material constellationMaterial;
@@ -159,7 +165,6 @@ public class MindPlate : PlateBase
         base.InitializeModuleStart();
 
         InitializePuzzle();
-
     }
 
 
@@ -169,22 +174,24 @@ public class MindPlate : PlateBase
 
     void PressedMovementInput(MovementDirection pressedDirection)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         PlayPlatePressSound();
-        platePressableButtons[4].AddInteractionPunch(.3f);
+        platePressableButtons[0].AddInteractionPunch(.3f);
+
+        if (summoningModule.isModuleSolved) { return; }
 
         MoveOnRubiksCubeInDirection(pressedDirection);
     }
 
+    /// <summary> The "Submit" button. </summary>
     void PressedCentralButton()
     {
+        PlayPlatePressSound();
+        platePressableButtons[0].AddInteractionPunch(.7f);
+
         if (summoningModule.isModuleSolved) { return; }
 
-        PlayPlatePressSound();
-        platePressableButtons[4].AddInteractionPunch(.7f);
-
         // Is there no Star?
+        // Vibration but no strike
         if (allSevenStarsNumbers.Contains(rubiksCube[currentPlayerLocationIndex]) == false)
         {
             if (movementVibrationCoroutine != null) { StopCoroutine(movementVibrationCoroutine); }
@@ -197,6 +204,7 @@ public class MindPlate : PlateBase
 
 
         // Is there a Star that's already Present?
+        // Vibration but no strike
         if (CollectedStarsNumbers.Contains(rubiksCube[currentPlayerLocationIndex]))
         {
             if (movementVibrationCoroutine != null) { StopCoroutine(movementVibrationCoroutine); }
@@ -227,9 +235,9 @@ public class MindPlate : PlateBase
 
     protected override void CasingTextButtonGetsPressed()
     {
-        if (summoningModule.isModuleSolved) { return; }
+        platePressableButtons[0].AddInteractionPunch();
 
-        platePressableButtons[4].AddInteractionPunch(.7f);
+        if (summoningModule.isModuleSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "MIND text button pressed. Resetting the module to its initial state.");
         ResetValuesToStart();
@@ -273,7 +281,7 @@ public class MindPlate : PlateBase
             // Maybe there is a formula for that, but I can't think of an algorithm that would work!
             // Then there is the whole "figure out the new facing Direction from old Face, new Face, and movement Direction" 
 
-            // What if we solve both problems with the same solution: A Look-up Table?
+            // What if we solve both problems with the same solution: A Lookup Table?
             // MovementDirection (UDLR) * 54  + current index
             _resultLocationIndex = postMovementInformationLookupTable[(int)_directionToGoInto * 54 + currentPlayerLocationIndex];
 
@@ -402,7 +410,8 @@ public class MindPlate : PlateBase
     {
         SelectConstellation();
 
-        summoningModule.ModuleLog(moduleId, "Starting Cube State:\n{0}", FormatRubiksCubeForLogging());
+        summoningModule.ModuleLog(moduleId, "Starting Cube State:");
+        LogRubiksCube();
 
         DetermineScramblingMovesToExecute();
 
@@ -813,7 +822,8 @@ public class MindPlate : PlateBase
 
         }
 
-        summoningModule.ModuleLog(moduleId, "Performed Scrambling Action {0}. New Rubik's Cube state is:\n{1}", scramblingMove.ToString(), FormatRubiksCubeForLogging());
+        summoningModule.ModuleLog(moduleId, "=-= Performed Scrambling Action {0}. New Rubik's Cube state is: =-=", scramblingMove.ToString());
+        LogRubiksCube();
     }
 
     void ResetValuesToStart()
@@ -824,12 +834,9 @@ public class MindPlate : PlateBase
     }
 
     /// <summary> Returns both the Rubik's Cube State, but also a list of Voids and Stars (index + Placement) </summary>
-    string FormatRubiksCubeForLogging()
+    void LogRubiksCube()
     {
-        string _rubiksCubeState = string.Empty;
-
         // Rubik's Cube State looks like
-
 
         // _________11 12 13
         // _________14 15 16
@@ -844,29 +851,37 @@ public class MindPlate : PlateBase
         // Void (14) is in I-A2,  Void (22) is in II-B1,  Void (39) is in III-C3,  Void (49) is in IV-C3,  Void (53) is in V-C1,  Void (61) is in VI-A1
 
         // It's a LOT of info, but still less than Pixie Plate
-        
-        _rubiksCubeState += "_________" + rubiksCube[0] + " " + rubiksCube[1] + " " + rubiksCube[2] + "\n";
-        _rubiksCubeState += "_________" + rubiksCube[3] + " " + rubiksCube[4] + " " + rubiksCube[5] + "\n";
-        _rubiksCubeState += "_________" + rubiksCube[6] + " " + rubiksCube[7] + " " + rubiksCube[8] + "\n";
-        _rubiksCubeState += rubiksCube[9]  + " " + rubiksCube[10] + " " + rubiksCube[11] + " " + rubiksCube[18] + " " + rubiksCube[19] + " " + rubiksCube[20] + " " + rubiksCube[27] + " " + rubiksCube[28] + " " + rubiksCube[29] + " " + rubiksCube[36] + " " + rubiksCube[37] + " " + rubiksCube[38] + "\n";
-        _rubiksCubeState += rubiksCube[12] + " " + rubiksCube[13] + " " + rubiksCube[14] + " " + rubiksCube[21] + " " + rubiksCube[22] + " " + rubiksCube[23] + " " + rubiksCube[30] + " " + rubiksCube[31] + " " + rubiksCube[32] + " " + rubiksCube[39] + " " + rubiksCube[40] + " " + rubiksCube[41] + "\n";
-        _rubiksCubeState += rubiksCube[15] + " " + rubiksCube[16] + " " + rubiksCube[17] + " " + rubiksCube[24] + " " + rubiksCube[25] + " " + rubiksCube[26] + " " + rubiksCube[33] + " " + rubiksCube[34] + " " + rubiksCube[35] + " " + rubiksCube[42] + " " + rubiksCube[43] + " " + rubiksCube[44] + "\n";
-        _rubiksCubeState += "_________" + rubiksCube[45] + " " + rubiksCube[46] + " " + rubiksCube[47] + "\n";
-        _rubiksCubeState += "_________" + rubiksCube[48] + " " + rubiksCube[49] + " " + rubiksCube[50] + "\n";
-        _rubiksCubeState += "_________" + rubiksCube[51] + " " + rubiksCube[52] + " " + rubiksCube[53] + "\n";
+
+
+
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[0] + " " + rubiksCube[1] + " " + rubiksCube[2]);
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[3] + " " + rubiksCube[4] + " " + rubiksCube[5]);
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[6] + " " + rubiksCube[7] + " " + rubiksCube[8]);
+        summoningModule.ModuleLog(moduleId, rubiksCube[9]  + " " + rubiksCube[10] + " " + rubiksCube[11] + " " + rubiksCube[18] + " " + rubiksCube[19] + " " + rubiksCube[20] + " " + rubiksCube[27] + " " + rubiksCube[28] + " " + rubiksCube[29] + " " + rubiksCube[36] + " " + rubiksCube[37] + " " + rubiksCube[38]);
+        summoningModule.ModuleLog(moduleId, rubiksCube[12] + " " + rubiksCube[13] + " " + rubiksCube[14] + " " + rubiksCube[21] + " " + rubiksCube[22] + " " + rubiksCube[23] + " " + rubiksCube[30] + " " + rubiksCube[31] + " " + rubiksCube[32] + " " + rubiksCube[39] + " " + rubiksCube[40] + " " + rubiksCube[41]);
+        summoningModule.ModuleLog(moduleId, rubiksCube[15] + " " + rubiksCube[16] + " " + rubiksCube[17] + " " + rubiksCube[24] + " " + rubiksCube[25] + " " + rubiksCube[26] + " " + rubiksCube[33] + " " + rubiksCube[34] + " " + rubiksCube[35] + " " + rubiksCube[42] + " " + rubiksCube[43] + " " + rubiksCube[44]);
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[45] + " " + rubiksCube[46] + " " + rubiksCube[47]);
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[48] + " " + rubiksCube[49] + " " + rubiksCube[50]);
+        summoningModule.ModuleLog(moduleId, "_________" + rubiksCube[51] + " " + rubiksCube[52] + " " + rubiksCube[53]);
+
+
 
         // Stars
-        for (int i = 0; i < 7; i ++)
+        string _starsLocation = string.Empty;
+        for (int i = 0; i < 7; i++)
         {
-            _rubiksCubeState += "Star (" + allSevenStarsNumbers[i] + ") is in " + GetAnistarCoordinateFormatting(Array.IndexOf(rubiksCube, allSevenStarsNumbers[i])) + (i < 6 ? ",  " : "\n");
-        }            
+            _starsLocation += "Star (" + allSevenStarsNumbers[i] + ") is in " + GetAnistarCoordinateFormatting(Array.IndexOf(rubiksCube, allSevenStarsNumbers[i])) + (i < 6 ? ",  " : "");
+        }
+        summoningModule.ModuleLog(moduleId, _starsLocation);
+
+
         // Void
+        string _voidLocation = string.Empty;
         for (int i = 0; i < 6; i ++)
         {
-            _rubiksCubeState += "Void (" + voidedCellsIndices[i] + ") is in " + GetAnistarCoordinateFormatting(Array.IndexOf(rubiksCube, voidedCellsIndices[i])) + (i < 5 ? ",  " : "");
+            _voidLocation += "Void (" + voidedCellsIndices[i] + ") is in " + GetAnistarCoordinateFormatting(Array.IndexOf(rubiksCube, voidedCellsIndices[i])) + (i < 5 ? ",  " : "");
         }
-
-        return _rubiksCubeState;
+        summoningModule.ModuleLog(moduleId, _voidLocation);
     }
 
     string GetAnistarCoordinateFormatting(int indexInRubiksCubeArray)

@@ -51,6 +51,7 @@ GameObject:
   - component: {fileID: 4430744280133658}
   - component: {fileID: 23801147773779948}
   - component: {fileID: 102033760961614694}
+  - component: {fileID: 114119860562176088}
   m_Layer: 0
   m_Name: PlateNameText
   m_TagString: Untagged
@@ -187,6 +188,7 @@ GameObject:
   - component: {fileID: 4044358672698942}
   - component: {fileID: 23133986207255380}
   - component: {fileID: 102007795128906846}
+  - component: {fileID: 114557833565195500}
   m_Layer: 0
   m_Name: CasingText
   m_TagString: Untagged
@@ -546,12 +548,12 @@ MonoBehaviour:
   - {fileID: 1115473799074938, guid: 19e348a95ac539e4db5e774940630b2e, type: 2}
   - {fileID: 1115473799074938, guid: a0c541aefd912524fa856817db3fda42, type: 2}
   - {fileID: 1115473799074938, guid: f8f1fa7d1b5a95f45b99341f6055b60f, type: 2}
-  platesRotationSpeed: -0.005
-  platesRotationCircleRadius: 0.085
+  visualPlatesRotationSpeed: -0.005
+  visualPlatesRotationCircleRadius: 0.085
   visualPlatesScaleFactor: 0.23
   platesWaveSpeed: 0.15
   RotationCenter: {fileID: 4831544731590382}
-  timeMarkedPlateLagSpeed: 0.425
+  timeMarkedPlateLagSpeed: 0.4
   SolvablePlateSpawnPoint: {fileID: 4296127056590486}
   individualPlateNameText: {fileID: 102033760961614694}
   platePressedSounds:
@@ -561,7 +563,21 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 73efe079dbc6611489424ed1bf343c1b, type: 3}
   SolvablePlateSolvedSound: {fileID: 8300000, guid: e07a1976c2ccff74d98e001c00190003,
     type: 3}
-  AllmightySinnohSolveSound: {fileID: 0}
+  AllmightySinnohSolveSound: {fileID: 8300000, guid: 62516f99acf95c540a8f2d8d4a4418d8,
+    type: 3}
+--- !u!114 &114119860562176088
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1148720734020780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114186846547656306
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -637,6 +653,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114557833565195500
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1964967525342278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114611761857937948
 MonoBehaviour:
   m_ObjectHideFlags: 1

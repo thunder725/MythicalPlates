@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114870887342232206}
+  - component: {fileID: 114350303927523654}
   m_Layer: 0
   m_Name: FistPlatePrefab
   m_TagString: Untagged
@@ -57,6 +58,7 @@ GameObject:
   - component: {fileID: 4797468005419064}
   - component: {fileID: 23967478689928506}
   - component: {fileID: 102683892031988976}
+  - component: {fileID: 114798255027458914}
   m_Layer: 0
   m_Name: VoidedCellsText
   m_TagString: Untagged
@@ -277,6 +279,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114350303927523654
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114625123676530820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -299,6 +314,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114798255027458914
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1628083202378388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114850296014151800
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -335,7 +363,8 @@ MonoBehaviour:
   platePressableButtons:
   - {fileID: 114850296014151800}
   - {fileID: 114625123676530820}
-  customTwitchHelpMessage: "Press a button using \u201C!{0} press safe/evacuate\u201D"
+  customTwitchHelpMessage: "Press a button using \u201C!{0} press safe\u201D or \u201C!{0}
+    press evacuate\u201D"
   fullPlateName: Fist Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}

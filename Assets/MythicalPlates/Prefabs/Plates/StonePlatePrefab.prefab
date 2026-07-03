@@ -38,7 +38,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4649444460019196}
   - component: {fileID: 65986793997593718}
-  m_Layer: 11
+  - component: {fileID: 114935296617799164}
+  - component: {fileID: 114579381496471888}
+  m_Layer: 0
   m_Name: PlateCollisionBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,6 +58,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114571586953179872}
+  - component: {fileID: 114945829745269878}
   m_Layer: 0
   m_Name: StonePlatePrefab
   m_TagString: Untagged
@@ -91,6 +94,7 @@ GameObject:
   - component: {fileID: 4653215949578618}
   - component: {fileID: 23449723921117158}
   - component: {fileID: 102038688830240866}
+  - component: {fileID: 114025847830891646}
   m_Layer: 0
   m_Name: StartingCoordinateText
   m_TagString: Untagged
@@ -380,7 +384,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1095123214350986}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.1, y: 0.005, z: 0.15}
@@ -406,6 +410,19 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 1962934272
+--- !u!114 &114025847830891646
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1450522583275898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114269740353552552
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -471,9 +488,10 @@ MonoBehaviour:
   - {fileID: 114447296627949740}
   - {fileID: 114982224898339572}
   - {fileID: 114593095010983724}
+  - {fileID: 114579381496471888}
   customTwitchHelpMessage: "\u201C!{0} Press rrrdrcrcddc\u201D to press directions
-    (Up Down Left Right) or drill with Center. Use \u201Cs\u201D alone to press the
-    STONE on the casing and reset the puzzle."
+    (Up Down Left Right) or drill with Center. Use \u201C!{0} stone\u201D to press
+    the STONE word on the casing."
   fullPlateName: Stone Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -486,6 +504,29 @@ MonoBehaviour:
   casingPressableButton: {fileID: 0}
   moduleId: 0
   startingCoordinateTextMesh: {fileID: 102038688830240866}
+--- !u!114 &114579381496471888
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1095123214350986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114935296617799164}
+  SelectableColliders:
+  - {fileID: 65986793997593718}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
 --- !u!114 &114593095010983724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -591,6 +632,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114935296617799164
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1095123214350986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
+  OutlineAmount: 0
+--- !u!114 &114945829745269878
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114982224898339572
 MonoBehaviour:
   m_ObjectHideFlags: 1

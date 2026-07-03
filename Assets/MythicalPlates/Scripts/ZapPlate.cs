@@ -6,6 +6,7 @@ using System.Linq;
 
 public class ZapPlate : PlateBase {
 
+    /// <summary> Table DYN4M0 from the manual. I checked for typos 3 times so I hope there's none!! </summary>
     readonly int[] tableDynamo = new int[150]
     {   8, 5, 0, 3, 2, 6, 7, 9, 1, 4,
         3, 8, 4, 2, 0, 7, 1, 5, 6, 9,
@@ -62,64 +63,17 @@ public class ZapPlate : PlateBase {
 
 
 
-
-
-    void CalculateStartingCoordinate()
-    {
-        string _serialNumber = bombInfo.GetSerialNumber();
-        currentLocation = CharToInt(_serialNumber[2]) + (CharToInt(_serialNumber[5]) * 10);
-
-        // Log
-        summoningModule.ModuleLog(moduleId, "Starting Coordinate in the table is column {0}, row {1}, also known as {2}",
-            GetColumnFromCellIndex(currentLocation, 10), GetRowFromCellIndex(currentLocation, 10), GetCoordinateFromCellIndex(currentLocation, 10));
-    }
-
-    /// <summary> Finds the Six-Digit number for all 5 stages </summary>
-    void FindAllSixDigitNumbers()
-    {
-        for (currentStage = 0; currentStage < 5; currentStage++)
-        {
-            VoidLineFromIterationNumber(6 - currentStage);
-
-            while (sixDigitStageValues[currentStage].Length < 6)
-            {
-                MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true);
-                sixDigitStageValues[currentStage] += tableDynamo[currentLocation].ToString();
-            }
-            summoningModule.ModuleLog(moduleId, "Six-digit number for n = {0} is {1}", 6 - currentStage, sixDigitStageValues[currentStage]);
-        }
-    }
-
-    void VoidLineFromIterationNumber(int iterationNumber)
-    {
-        voidedCellsIndices.Clear();
-
-        // Simply loop over the whole table to Void
-        for (int i = 0; i < 150; i ++)
-        {
-            if ((GetRowFromCellIndex(i, 10) + 1)  % iterationNumber == 0)
-            {
-                voidedCellsIndices.Add(i);
-            }
-        }
-    }
-
-    void FindSubmissionTimerNumber()
-    {
-        int _sum = int.Parse(sixDigitStageValues[0]) + int.Parse(sixDigitStageValues[1]) + int.Parse(sixDigitStageValues[2]) + int.Parse(sixDigitStageValues[3]) + int.Parse(sixDigitStageValues[4]);
-        secondsToPressOn = DigitalRoot(_sum);
-
-        summoningModule.ModuleLog(moduleId, "Sum of all numbers is {0}, so press the Plate when the last digit on the bomb's timer is equal to {1}", _sum, secondsToPressOn);
-    }
-
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Player Inputs
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
     void PlateGetsPressed()
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         char _pressedSecond = bombInfo.GetFormattedTime().Last();
         if (CharToInt(_pressedSecond) == secondsToPressOn)
@@ -138,6 +92,63 @@ public class ZapPlate : PlateBase {
 
 
 
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Puzzle Initialization
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+    /// <summary> Get starting coordinate from SN character 3 and 6 </summary>
+    void CalculateStartingCoordinate()
+    {
+        string _serialNumber = bombInfo.GetSerialNumber();
+        currentLocation = CharToInt(_serialNumber[2]) + (CharToInt(_serialNumber[5]) * 10);
+
+        // Log
+        summoningModule.ModuleLog(moduleId, "Starting Coordinate in the table is column {0}, row {1}, also known as {2}",
+            GetColumnFromCellIndex(currentLocation, 10), GetRowFromCellIndex(currentLocation, 10), GetCoordinateFromCellIndex(currentLocation, 10));
+    }
+
+
+    /// <summary> Finds the Six-Digit number for all 5 stages </summary>
+    void FindAllSixDigitNumbers()
+    {
+        for (currentStage = 0; currentStage < 5; currentStage++)
+        {
+            VoidLineFromIterationNumber(6 - currentStage);
+
+            while (sixDigitStageValues[currentStage].Length < 6)
+            {
+                MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true);
+
+                sixDigitStageValues[currentStage] += tableDynamo[currentLocation].ToString();
+            }
+            summoningModule.ModuleLog(moduleId, "Six-digit number for n = {0} is {1}", 6 - currentStage, sixDigitStageValues[currentStage]);
+        }
+    }
+
+    void VoidLineFromIterationNumber(int iterationNumber)
+    {
+        voidedCellsIndices.Clear();
+
+        // Simply loop over the whole table to Void
+        for (int i = 0; i < 150; i ++)
+        {
+            if ((GetRowFromCellIndex(i, 10) + 1) % iterationNumber == 0)
+            {
+                voidedCellsIndices.Add(i);
+            }
+        }
+    }
+
+    void FindSubmissionTimerNumber()
+    {
+        int _sum = int.Parse(sixDigitStageValues[0]) + int.Parse(sixDigitStageValues[1]) + int.Parse(sixDigitStageValues[2]) + int.Parse(sixDigitStageValues[3]) + int.Parse(sixDigitStageValues[4]);
+        secondsToPressOn = DigitalRoot(_sum);
+
+        summoningModule.ModuleLog(moduleId, "Sum of all numbers is {0}, so press the Plate when the last digit on the bomb's timer is equal to {1}", _sum, secondsToPressOn);
+    }
+
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Twitch Plays
@@ -152,20 +163,20 @@ public class ZapPlate : PlateBase {
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Press 3” with exactly 2 arguments.";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Press 3” with exactly 2 arguments.";
             yield break;
         }
 
         if (!commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Press 3”, starting with the word “Press”.";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Press 3”, starting with the word “Press”.";
             yield break;
         }
 
         int _timeToPressAt = int.Parse(commandParts[1]);
         if (_timeToPressAt < 0 || _timeToPressAt > 9)
         {
-            yield return "sendtochat {0} you must ask for submission time that is within 0 and 9 only.";
+            yield return "sendtochaterror {0} you must ask for submission time that is within 0 and 9 only.";
             yield break;
         }
 
@@ -192,9 +203,7 @@ public class ZapPlate : PlateBase {
             yield return null;
         }
 
-        platePressableButtons[0].OnInteract();
-
-        
+        platePressableButtons[0].OnInteract();        
     }
 
 }

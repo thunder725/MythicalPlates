@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114098738920606438}
+  - component: {fileID: 114070740072828040}
   m_Layer: 0
   m_Name: SplashPlatePrefab
   m_TagString: Untagged
@@ -93,6 +94,7 @@ GameObject:
   - component: {fileID: 4109477750961046}
   - component: {fileID: 23939709146217240}
   - component: {fileID: 102281995651975358}
+  - component: {fileID: 114525712320182172}
   m_Layer: 0
   m_Name: LustrousSequenceText
   m_TagString: Untagged
@@ -327,6 +329,19 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 1962934272
+--- !u!114 &114070740072828040
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114098738920606438
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -402,6 +417,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114525712320182172
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1880267674336266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114678206370953836
 MonoBehaviour:
   m_ObjectHideFlags: 1

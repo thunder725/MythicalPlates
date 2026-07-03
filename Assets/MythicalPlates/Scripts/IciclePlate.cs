@@ -9,6 +9,7 @@ public class IciclePlate : PlateBase {
 
     struct Boat { public int icebreakingPower; public int currentResistance; };
 
+    /// <summary> All 10 possible Boats, depending on the Last digit of SN# </summary>
     readonly Boat[] possibleBoats = new Boat[10]
     {
         new Boat(){ icebreakingPower = 4, currentResistance = 2},
@@ -23,10 +24,8 @@ public class IciclePlate : PlateBase {
         new Boat(){ icebreakingPower = 3, currentResistance = 1}
     };
 
-    readonly int[] startingCells = new int[6] { 1, 1, 1, 1, 1, 1 };
-
     // Representing the entire board for easier visualization
-    readonly int[] crebaseRiverIceTiles = new int[117]
+    readonly int[] crebaseRiverIceTiles = new int[116]
     {
         000, 001, 002,                006, 007, 008,           011, 012,
         013, 014, 015, 016,           019, 020, 021,           024, 025,
@@ -41,14 +40,16 @@ public class IciclePlate : PlateBase {
         130, 131, 132, 133,                     138, 139,           142,
         143,           146,           149,                     154, 155,
         156,                          162,                          168,
-        169,                          175,                          181,
+        169,                                                        181,
         182,      184,           187,           190,           193, 194,
         195,      197,           200,      202, 203, 204,      206, 207,
         208,      210,           213,      215, 216,           219, 220
     };
 
+    /// <summary> Tile Index of the 6 starting locations in order </summary>
     readonly int[] startingLocations = new int[6] { 209, 211, 212, 214, 217, 218 };
 
+    // Boat Data
     Boat selectedBoat;
     int currentBoatLocationIndex;
     int currentBoatIcebreakingCounter;
@@ -56,6 +57,7 @@ public class IciclePlate : PlateBase {
     List<int> visitedTiles = new List<int>();
 
 
+    // Currents
     public TextMesh rightCurrentsText, leftCurrentsText, voidPlateText;
 
     List<int> rightCurrents = new List<int>();
@@ -67,6 +69,8 @@ public class IciclePlate : PlateBase {
     int intendedStartingLocationIndex;
     string intendedBoatMovements = "";
     List<int> tilesInExpectedMovementPath = new List<int>();
+
+    int puzzleGenerationIteration;
 
 
     // Universal Logging Data
@@ -106,10 +110,10 @@ public class IciclePlate : PlateBase {
 
     void PressedAnswerButton(int shipStartingPositionIndex)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         // Set the boat at its starting location
         currentBoatLocationIndex = startingLocations[shipStartingPositionIndex];
@@ -280,9 +284,10 @@ public class IciclePlate : PlateBase {
         // Puzzle Generation is as follows:
         // Ice Blocks are always at the same position
         // Boat Stat are determined by Edgework
-        // Then puzzle generates a starting location and a wanted path (according to stats)
-        // It adds currents to make that path possible
-        // Then adds fake currents that do not affect the current path but are here to throw off the expert
+        // Then puzzle randomly places Void and generates a starting location
+        // It then searches for a valid Boat path (according to stats)
+        // It adds currents to make that path possible by Extracting Data from that path
+        // Then adds fake currents that do not affect the current path but are here to populate the rest of the river
 
 
         SelectBoat();
@@ -349,6 +354,13 @@ public class IciclePlate : PlateBase {
         // Using the starting location, void tiles, ice tiles, and boat stats, 
         // Find a movement path (adding currents) that is valid
 
+        puzzleGenerationIteration++;
+        if (puzzleGenerationIteration > 10)
+        {
+            summoningModule.ModuleLogError(moduleId, "Something went VERY wrong with Icicle Plate: We got no valid paths no matter the Void Tiles pattern. Please report this to thunder725. Solving module to avoid issues.");
+            summoningModule.ReceiveSolve();
+            return;
+        }
 
         // To generate a path, do a recursive chain of functions that check movements just like Blank Plate
         // Only we move X forward for each Y side path so there's not a lot to check!
@@ -359,7 +371,8 @@ public class IciclePlate : PlateBase {
         // If we get a length of 0, that means there was no valid paths!!
         if (intendedBoatMovements.Length == 0)
         {
-            // This is bad; 
+            // This is bad, but not catastrophic.
+            // The current selection of Void Tiles did not manage to find a valid solution, but another one might
             // Place new Void tiles and retry
             PlaceVoidTiles();
             GenerateValidPath();
@@ -520,8 +533,8 @@ public class IciclePlate : PlateBase {
             rightCurrentsTextForm[0], rightCurrentsTextForm[1], rightCurrentsTextForm[2], rightCurrentsTextForm[3], rightCurrentsTextForm[4],
             rightCurrentsTextForm[5], rightCurrentsTextForm[6], rightCurrentsTextForm[7], rightCurrentsTextForm[8]);
 
-        summoningModule.ModuleLog(moduleId, "All rightward currents are in tiles {0}.", rightCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join());
-        summoningModule.ModuleLog(moduleId, "All leftward currents are in tiles {0}.", leftCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join());
+        summoningModule.ModuleLog(moduleId, "All rightward currents are in tiles {0}.", rightCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join(", "));
+        summoningModule.ModuleLog(moduleId, "All leftward currents are in tiles {0}.", leftCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join(", "));
     }
 
 

@@ -8,15 +8,22 @@ using UnityEngine;
 
 public class DracoPlate : PlateBase
 {
+    /// <summary> One-dimensional string representation of the Grid </summary>
     string dracoGrid;
-    /// <summary> Only non-edge cells are allowed to become colored </summary>
-    readonly int[] allowedColoredCellsIndices = new int[36] { 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 33, 34, 35, 36, 37, 38, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54};
+    /// <summary> Only non-edge cells are allowed to become coloured </summary>
+    readonly int[] allowedColouredCellsIndices = new int[36] { 9, 10, 11, 12, 13, 14, 17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 33, 34, 35, 36, 37, 38, 41, 42, 43, 44, 45, 46, 49, 50, 51, 52, 53, 54};
+    
+    // Indices of the three coloured cells
     int cyanCellIndex, magentaCellIndex, yellowCellIndex;
+
+    /// <summary> Representation of the Distance Field used by the Yellow Cell rule </summary>
     string yellowDistanceField;
+
+    // Expected line answer, and what the user is submitting
     string lineToSubmit;
     string submittedLine;
 
-    /// <summary> Temporary pointer to an index inside of the table, for keeping track of locations when moving around </summary>
+    /// <summary> Temporary pointer to an index inside of the table, for keeping track of locations when moving around. Unsafe to read as it is used multiple times. </summary>
     int scratchLocationPointer;
     List<int> cellsMarkedForToggle;
 
@@ -44,15 +51,17 @@ public class DracoPlate : PlateBase
         // No need to log, this is done in the summoningModule
         base.InitializeModuleStart();
 
+        // Initializing the starting state, before any rule
         GenerateVoidCellsFromBombData();
         GenerateStartingGrid();
 
-        EncryptingGridIntoBinary();
+        // Show the starting state to the user
+        EncryptGridIntoBinary();
         ShowColoredCellsOnModule();
 
         cellsMarkedForToggle = new List<int>();
 
-        // Apply the Colored Steps
+        // Apply the Colored Steps in order
         ApplyCyanCellRules();
         ApplyMagentaCellRules();
         ApplyYellowCellRules();
@@ -63,13 +72,19 @@ public class DracoPlate : PlateBase
 
     // public override void UpdateModule() { base.UpdateModule(); }
 
-    
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Player Inputs
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     void PressingPlateButton(string buttonColor)
     {
-        if (summoningModule.isModuleSolved) { return; }
-
+        // Feedback
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
+
+        if (summoningModule.isModuleSolved) { return; }
 
         // Save the input
         submittedLine += buttonColor;
@@ -84,12 +99,13 @@ public class DracoPlate : PlateBase
 
             summoningModule.ReceiveStrike();
         }
-        // If the two are the same!
+        // If the entire line has been correctly submitted
         else if (lineToSubmit == submittedLine)
         {
             summoningModule.ModuleLog(moduleId, "You pressed {0}, which is correct.", buttonColor == "w" ? "White" : "Black");
             summoningModule.ReceiveSolve();
         }
+        // Otherwise some characters still are missing
         else
         {
             summoningModule.ModuleLog(moduleId, "You pressed {0}, which is correct.", buttonColor == "w" ? "White" : "Black");
@@ -99,9 +115,19 @@ public class DracoPlate : PlateBase
 
     protected override void CasingTextButtonGetsPressed() 
     {
-        summoningModule.ModuleLog(moduleId, "Casing text pressed. Currently entered sequence reset.");
+        platePressableButtons[0].AddInteractionPunch();
+
+        if (summoningModule.isModuleSolved) { return; }
+
+        summoningModule.ModuleLog(moduleId, "DRACO Casing text pressed. Currently entered sequence reset.");
         submittedLine = string.Empty;
     }
+
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Puzzle Initialization
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     void GenerateVoidCellsFromBombData()
     {
@@ -142,8 +168,9 @@ public class DracoPlate : PlateBase
             dracoGrid += UnityEngine.Random.value > 0.5f ? "w" : "k";
         }
 
+        // Now add the three Colours
         // Randomize the allowed locations, and remove Voided locations to not override them
-        List<int> _allowedCellsResults = allowedColoredCellsIndices.Shuffle().ToList();
+        List<int> _allowedCellsResults = allowedColouredCellsIndices.Shuffle().ToList();
         _allowedCellsResults.RemoveAll(nb => voidedCellsIndices.Contains(nb));
 
 
@@ -177,38 +204,39 @@ public class DracoPlate : PlateBase
         // So it's better to change the rules to make them less tiresome instead.
 
 
-
         summoningModule.ModuleLog(moduleId, "Initial Grid State:");
         PrintDracoGrid();
     }
 
-    void EncryptingGridIntoBinary()
+    /// <summary> Encrypt the 8 lines into 8 0-255 numbers. Each number is made of 8 bits which represent White or Black, so we can show the entire grid as just 8 numbers. </summary>
+    void EncryptGridIntoBinary()
     {
         string _binaryEncryptedGrid = "";
 
         string _rowToEncrypt;
         int _tempRowResult;
 
-        for (int i = 0; i < 8; i++)
+        // For each Row
+        for (int _row = 0; _row < 8; _row++)
         {
             // Get the next 8 bits
-            _rowToEncrypt = dracoGrid.Substring(8 * i, 8);
+            _rowToEncrypt = dracoGrid.Substring(8 * _row, 8);
             _tempRowResult = 0;
 
             // Convert the byte into its decimal value
             // Only Black & Void count as 0, colors count as 1
-            for (int j = 0; j < 8; j ++)
+            for (int _cell = 0; _cell < 8; _cell ++)
             {
                 // Can't use IsCellWhite() because that checks the table directly
                 // There could be a way to do it easily, but this works
-                if (_rowToEncrypt[7 - j] != 'k' && _rowToEncrypt[7 - j] != 'V')
+                if (_rowToEncrypt[7 - _cell] != 'k' && _rowToEncrypt[7 - _cell] != 'V')
                 {
-                    _tempRowResult += (int)Mathf.Pow(2, j);
+                    _tempRowResult += (int)Mathf.Pow(2, _cell);
                 }
             }
 
             // Add it
-            _binaryEncryptedGrid += _tempRowResult.ToString() + (i == 3 ? "\n" : " ");
+            _binaryEncryptedGrid += _tempRowResult.ToString() + (_row == 3 ? "\n" : " ");
         }
 
         summoningModule.ModuleLog(moduleId, "Binary-Encrypted grid becomes: {0}", _binaryEncryptedGrid.Replace("\n", " "));
@@ -217,7 +245,7 @@ public class DracoPlate : PlateBase
         encryptedGridInscription.text = _binaryEncryptedGrid;
     }
 
-    /// <summary> Inscribes on the physical Plate the coordinated of Cyan Magenta and Yellow cells </summary>
+    /// <summary> Inscribes on the physical Plate the coordinates of Cyan Magenta and Yellow cells </summary>
     void ShowColoredCellsOnModule()
     {
         string _coloredCellsCoordinates = GetCoordinateFromCellIndex(cyanCellIndex, 8) + " " + GetCoordinateFromCellIndex(magentaCellIndex, 8) + " " + GetCoordinateFromCellIndex(yellowCellIndex, 8);
@@ -294,10 +322,10 @@ public class DracoPlate : PlateBase
 
         cellsMarkedForToggle.Clear();
 
-        // Add for toggle all colored cells
-        cellsMarkedForToggle.AddRange(ReturnNeighborCells(cyanCellIndex, 4));
-        cellsMarkedForToggle.AddRange(ReturnNeighborCells(magentaCellIndex, 4));
-        cellsMarkedForToggle.AddRange(ReturnNeighborCells(yellowCellIndex, 4));
+        // Add for toggle all colored cells' neighbors
+        cellsMarkedForToggle.AddRange(GetNeighborCells(cyanCellIndex, 4));
+        cellsMarkedForToggle.AddRange(GetNeighborCells(magentaCellIndex, 4));
+        cellsMarkedForToggle.AddRange(GetNeighborCells(yellowCellIndex, 4));
 
         // Add for toggle the reverse of those cells
         cellsMarkedForToggle.Add(63 - cyanCellIndex);
@@ -305,15 +333,16 @@ public class DracoPlate : PlateBase
         cellsMarkedForToggle.Add(63 - yellowCellIndex);
 
 
-        // Add for toggle all Voided Cells
-        foreach (int _void in voidedCellsIndices)
-        {
-
-            cellsMarkedForToggle.AddRange(ReturnNeighborCells(_void, 4));
-
-            // And their reverse
-            cellsMarkedForToggle.Add(63 - _void);
-        }
+        // THIS HAS BEEN REMOVED
+        // It's not really fun and is mainly just confusing
+        // // Add for toggle all Voided Cells' neighbors
+        // foreach (int _void in voidedCellsIndices)
+        // {
+        //     cellsMarkedForToggle.AddRange(GetNeighborCells(_void, 4));
+        // 
+        //     // And their reverse
+        //     cellsMarkedForToggle.Add(63 - _void);
+        // }
         
 
 
@@ -344,8 +373,6 @@ public class DracoPlate : PlateBase
         GenerateYellowManhattanDistanceField();
 
 
-        // For each cell in the grid, if there are WhiteCells > DistanceField
-        // Then toggle
         cellsMarkedForToggle.Clear();
 
         for (int i = 0; i < 64; i ++)
@@ -382,7 +409,7 @@ public class DracoPlate : PlateBase
         if (_isThirdEven)
         {
             // Submit Column
-            // Simply grab the row, remove Voids, and replace colors by white
+            // Simply grab the column, remove Voids, and replace colors by white
             for (int i = _portCount; i < 64; i += 8)
             {
                 switch (dracoGrid[i])
@@ -427,33 +454,47 @@ public class DracoPlate : PlateBase
         summoningModule.ModuleLog(moduleId, "Line to submit is {0} with zero-index {1} (ignoring Voids): {2}", _isThirdEven ? "column" : "row", _portCount, lineToSubmit);
     }
 
+
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //      Grid Methods
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     /// <summary> Helper Method to quickly print the entire Draco Grid to log </summary>
     void PrintDracoGrid()
     {
-        string _dracoGridToPrint = "";
-        for (int i = 0; i < 8; i ++)
-        {
-            if (i != 0)
-            {
-                _dracoGridToPrint += "\n";
-            }
-            _dracoGridToPrint += dracoGrid.Substring(8 * i, 8);
-        }
+        // Previous Implementation, but LFA doesn't show linebreaks!!!
 
-        summoningModule.ModuleLog(moduleId, _dracoGridToPrint);
+        // string _dracoGridToPrint = "";
+        // for (int i = 0; i < 8; i++)
+        // {
+        //     if (i != 0)
+        //     {
+        //         _dracoGridToPrint += "\n";
+        //     }
+        //     _dracoGridToPrint += dracoGrid.Substring(8 * i, 8);
+        // }
+        // 
+        // summoningModule.ModuleLog(moduleId, _dracoGridToPrint);
+
+
+        for (int i = 0; i < 8; i++)
+        {
+            summoningModule.ModuleLog(moduleId, dracoGrid.Substring(8 * i, 8));
+        }
     }
+
+        
 
     /// <summary> Determine if a Cell index should be considered White. Allows to filter for or against Colored cells too. </summary> 
     bool IsCellWhite(int cellIndex, bool allowColoredAsWhite)
     {
-        switch (dracoGrid[cellIndex]) 
+        switch (dracoGrid[cellIndex])
         {
             case 'w': return true;
-            case 'k': return false;
-            case 'V':  return false;
-            case 'C': if (allowColoredAsWhite) { return true; } return false;
-            case 'M': if (allowColoredAsWhite) { return true; } return false;
-            case 'Y': if (allowColoredAsWhite) { return true; } return false;
+            case 'k': case 'V': return false;
+            case 'C': case 'M':  case 'Y': return allowColoredAsWhite ? true : false;
             default: return false;
         }
     }
@@ -462,13 +503,9 @@ public class DracoPlate : PlateBase
     {
         switch (dracoGrid[cellIndex])
         {
-            case 'w': return true;
-            case 'k': return true;
-            case 'V': return false;
-            case 'C': return false;
-            case 'M': return false;
-            case 'Y': return false;
-            default:  return false;
+            case 'w': case 'k': return true;
+            case 'V': case 'C': case 'M': case 'Y': return false;
+            default: return false;
         }
     }
 
@@ -477,7 +514,7 @@ public class DracoPlate : PlateBase
     int VerifyNeighboringNumberOfWhites(int cellIndex, int movementsToDo)
     {
         int _totalWhiteCells = 0;
-        var _cells = ReturnNeighborCells(cellIndex, movementsToDo);
+        var _cells = GetNeighborCells(cellIndex, movementsToDo);
 
         foreach (var cell in _cells)
         {
@@ -492,7 +529,7 @@ public class DracoPlate : PlateBase
 
     /// <summary> Loop through Neighboring cells and return the neighbors, using Void too. Input 4 for the four cardinal direction, or 8 for all neighbors. Might return -1 as padding.</summary>
     /// <param name="movementsToDo">Input 4 for the four cardinal direction, or 8 for all neighbors.</param>
-    int[] ReturnNeighborCells(int cellIndex, int movementsToDo)
+    int[] GetNeighborCells(int cellIndex, int movementsToDo)
     {
         int[] _neighborIndices = new int[movementsToDo];
         bool _stillInTable;
@@ -548,6 +585,7 @@ public class DracoPlate : PlateBase
 
         return _neighborIndices;
     }
+
 
     /// <summary> Verifies Neightbooring Number of White Cells all around, and check GoL rules </summary>
     bool DoesCellNeedToggleFromGameOfLifeRuleset(int cellIndex)
@@ -686,7 +724,12 @@ public class DracoPlate : PlateBase
 
         }
 
-        summoningModule.ModuleLog(moduleId, "Debug Yellow Distance Field: {0}", yellowDistanceField);
+        summoningModule.ModuleLog(moduleId, "Debug Yellow Distance Field:");
+
+        for (int i = 0; i < 8; i++)
+        {
+            summoningModule.ModuleLog(moduleId, yellowDistanceField.Substring(8 * i, 8));
+        }
     }
 
     /// <summary> Helper Function to create the Distance Field: Just sets a cell with a given value. </summary>
@@ -708,15 +751,22 @@ public class DracoPlate : PlateBase
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
+        if (command == "draco" || command == "d")
+        {
+            yield return "sendtochat {0} Successfully pressed DRACO and reset the submission sequence.";
+            CasingTextButtonGetsPressed();
+            yield break;
+        }
+
         if (commandParts.Length != 2)
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Submit wkkwkwwk” with exactly 2 arguments.";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit wkkwkwwk” with exactly 2 arguments.";
             yield break;
         }
 
         if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s"))
         {
-            yield return "sendtochat {0} you must format the submission with “!{1} Submit wkkwkwwk”, starting with the word “Submit”.";
+            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit wkkwkwwk”, starting with the word “Submit”.";
             yield break;
         }
 
@@ -737,7 +787,7 @@ public class DracoPlate : PlateBase
                     break;
 
                 default:
-                    yield return "sendtochat {0} Unknown character “" + _submittedSequence[i] + "”. Stopping sequence input.";
+                    yield return "sendtochaterror {0} Unknown character “" + _submittedSequence[i] + "”. Stopping sequence input.";
                     yield break;
             }
         }
@@ -764,8 +814,6 @@ public class DracoPlate : PlateBase
             }
         }
     }
-
-    
 }
 
 

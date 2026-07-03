@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114668908709185350}
+  - component: {fileID: 114317341789567042}
   m_Layer: 0
   m_Name: ToxicPlatePrefab
   m_TagString: Untagged
@@ -57,6 +58,7 @@ GameObject:
   - component: {fileID: 4342087609476598}
   - component: {fileID: 23875332687059806}
   - component: {fileID: 102030554718540190}
+  - component: {fileID: 114616963068419986}
   m_Layer: 0
   m_Name: MiddleCrystalsRooms
   m_TagString: Untagged
@@ -74,6 +76,7 @@ GameObject:
   - component: {fileID: 4310068376306680}
   - component: {fileID: 23868597756669386}
   - component: {fileID: 102267667783339740}
+  - component: {fileID: 114605518826813166}
   m_Layer: 0
   m_Name: TopVoidedRooms
   m_TagString: Untagged
@@ -109,6 +112,7 @@ GameObject:
   - component: {fileID: 4340553331814138}
   - component: {fileID: 23902311771054196}
   - component: {fileID: 102296131527561246}
+  - component: {fileID: 114296259243996230}
   m_Layer: 0
   m_Name: BottomStartingLocation
   m_TagString: Untagged
@@ -143,7 +147,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4479269380132268}
   - component: {fileID: 65610142292512974}
-  m_Layer: 11
+  - component: {fileID: 114854805117260856}
+  - component: {fileID: 114062085688028048}
+  m_Layer: 0
   m_Name: PlateCollisionBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -471,7 +477,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1928055839943780}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.1, y: 0.005, z: 0.15}
@@ -539,6 +545,29 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 1962934272
+--- !u!114 &114062085688028048
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1928055839943780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114854805117260856}
+  SelectableColliders:
+  - {fileID: 65610142292512974}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
 --- !u!114 &114169188437538110
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -574,6 +603,32 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114296259243996230
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1653991165876266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114317341789567042
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114428618028108502
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -631,6 +686,32 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114605518826813166
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1528521861361250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114616963068419986
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1298947587057006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114662214382306738
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -660,6 +741,7 @@ MonoBehaviour:
   - {fileID: 114428618028108502}
   - {fileID: 114801303789863500}
   - {fileID: 114204910281631092}
+  - {fileID: 114062085688028048}
   customTwitchHelpMessage: "\u201C!{0} move udlr\u201D to move Up Down Left Right.
     You can also use \u201C!{0} move nsew\u201D to use North South East West. Use
     \u201C!{0} toxic\u201D to press the TOXIC casing text."
@@ -699,6 +781,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114854805117260856
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1928055839943780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
+  OutlineAmount: 0
 --- !u!114 &114883164625757480
 MonoBehaviour:
   m_ObjectHideFlags: 1

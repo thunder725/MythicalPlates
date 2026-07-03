@@ -58,6 +58,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114885788411281432}
+  - component: {fileID: 114724804579574840}
   m_Layer: 0
   m_Name: EarthPlatePrefab
   m_TagString: Untagged
@@ -92,7 +93,9 @@ GameObject:
   m_Component:
   - component: {fileID: 4593670007531408}
   - component: {fileID: 65075475425928930}
-  m_Layer: 11
+  - component: {fileID: 114758794755856856}
+  - component: {fileID: 114771995130674666}
+  m_Layer: 0
   m_Name: PlateCollisionBlocker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -432,7 +435,7 @@ BoxCollider:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1237179480795374}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 0.1, y: 0.005, z: 0.15}
@@ -678,6 +681,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114724804579574840
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114747193940173204
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -691,6 +707,42 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114758794755856856
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1237179480795374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -706292897, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HighlightScale: {x: 0, y: 0, z: 0}
+  OutlineAmount: 0
+--- !u!114 &114771995130674666
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1237179480795374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1702003387, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Parent: {fileID: 0}
+  Children: []
+  IsPassThrough: 0
+  ChildRowLength: 0
+  Highlight: {fileID: 114758794755856856}
+  SelectableColliders:
+  - {fileID: 65075475425928930}
+  DefaultSelectableIndex: 0
+  AllowSelectionWrapX: 0
+  AllowSelectionWrapY: 0
+  ForceSelectionHighlight: 0
+  ForceInteractionHighlight: 0
 --- !u!114 &114833982024127766
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -724,8 +776,10 @@ MonoBehaviour:
   - {fileID: 114655951643422178}
   - {fileID: 114526383767000724}
   - {fileID: 114300370349158234}
+  - {fileID: 114771995130674666}
   customTwitchHelpMessage: "Move around using \u201C!{0} Press 186473548324\u201D.
-    You can string together as many movements as you want. Only numbers 1-8 are allowed."
+    You can string together as many movements as you want. Only numbers 1-8 are allowed.
+    Use \u201C!{0} earth\u201D to press the EARTH word on the casing."
   fullPlateName: Earth Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}

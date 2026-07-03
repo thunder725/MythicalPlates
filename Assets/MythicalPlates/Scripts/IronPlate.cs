@@ -64,12 +64,13 @@ public class IronPlate : PlateBase {
 
     void PressedTimestopButton()
     {
-        platePressableButtons[0].AddInteractionPunch(0.5f);
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
         { return; }
 
+        // Flip the boolean!
         isPlayerSimulatingGame ^= true;
         
         if (isPlayerSimulatingGame)
@@ -82,6 +83,8 @@ public class IronPlate : PlateBase {
         }
         else
         {
+            summoningModule.ModuleLog(moduleId, "Time has been stopped after {0} seconds.", numberOfMovementsDone);
+
             if (timeFlowingCoroutine != null)
             {
                 StopCoroutine(timeFlowingCoroutine);
@@ -135,9 +138,12 @@ public class IronPlate : PlateBase {
                 }
             }
 
+            // No need to check every single frame, we have a window of 1s, we can check less often than that to optimize a bit
             yield return new WaitForSeconds(0.1f);
         }
     }
+
+
 
     void ResetCreatureData()
     {
@@ -245,7 +251,7 @@ public class IronPlate : PlateBase {
 
 
     /// <summary>
-    /// Does NOT do any edge verification algorithm, it just returns an offset index.
+    /// Does NOT do any edge verification algorithm nor Void verification, it just returns an offset index.
     /// </summary>
     int GetTileIndexInDirection(int startingTile, MovementDirection movementDirection)
     {
@@ -302,10 +308,10 @@ public class IronPlate : PlateBase {
 
     void MoveCreatureOneTimestep(int creatureId)
     {
-        // Good thing is that Void is never
-        // - 2 in a row
-        // Next to an edge
-        // So void handling is wayyyy easier, none of that while loop business, just move twice ^^
+        // Good thing is that Void is never:
+        // a) 2 in a row
+        // b) Next to an edge
+        // So void handling is wayyyy easier, none of that while loop business, just move twice if needed ^^
 
 
         Creature _creatureToMove = creatures[creatureId];

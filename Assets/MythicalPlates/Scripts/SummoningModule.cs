@@ -73,7 +73,13 @@ public abstract class SummoningModule : MonoBehaviour {
 
 
     /// <summary> Called by the PlateBase when a Strike should be issued </summary>
-    public abstract void ReceiveStrike();
+    public virtual void ReceiveStrike()
+    {
+        if (currentSummonedPlateScript != null)
+        {
+            StartCoroutine(currentSummonedPlateScript.VibratePlate(3f));
+        }
+    }
     /// <summary> Called by the PlateBase when the module should get solved. </summary>
     public abstract void ReceiveSolve();
 

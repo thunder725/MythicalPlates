@@ -9,6 +9,7 @@ public class InsectPlate : PlateBase {
 
     char[] voidedLetters;
 
+    // Boolean for every question answer, since most of them can be pre-computed from edgeword and bomb data
     bool questionAAnswer, questionBAnswer, questionCAnswer, questionDAnswer, questionEAnswer, questionFAnswer, questionGAnswer,
         questionHAnswer, questionIAnswer, questionJAnswer, questionKAnswer, questionLAnswer, questionMAnswer, questionNAnswer;
 
@@ -50,12 +51,10 @@ public class InsectPlate : PlateBase {
     //    Player Input
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    /// <summary>
-    /// 0 for Up, 1 for Down, 2 for Left, 3 for Right, 4 for Center
-    /// </summary>>
+    /// <summary> 0 for Up, 1 for Down, 2 for Left, 3 for Right, 4 for Center </summary>
     void PlayerPressedButton(int buttonIndex)
     {
-        platePressableButtons[0].AddInteractionPunch(0.5f);
+        platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
         if (summoningModule.isModuleSolved)
@@ -65,10 +64,8 @@ public class InsectPlate : PlateBase {
         // G) Is over 50% of the time remaining?
         questionGAnswer = bombInfo.GetTime() > (bombStartingTime / 2);
 
-
         // I) Are there 0 solved modules?
         questionIAnswer = bombInfo.GetSolvedModuleIDs().Count == 0;
-
 
         // J) Has the bomb struct previously?
         questionJAnswer = bombInfo.GetStrikes() > 0;
@@ -93,10 +90,10 @@ public class InsectPlate : PlateBase {
             case 3: return "Right";
             case 4: return "Center";
         }
-        return "UNKNOWN" + buttonIndex;
+        return "UNKNOWN-" + buttonIndex;
     }
 
-
+    /// <summary> 0 for Up, 1 for Down, 2 for Left, 3 for Right, 4 for Center </summary>
     void PressedButtonResult(int expectedButtonDirection)
     {
         if (expectedButtonDirection == pressedButtonDirection)
@@ -113,6 +110,7 @@ public class InsectPlate : PlateBase {
         
     }
 
+
     void CheckQuestion(char questionLetter)
     {
 
@@ -124,14 +122,14 @@ public class InsectPlate : PlateBase {
             case 'A':
                 // A true => B
                 // A false => C
-                if (questionAAnswer) { CheckQuestion('B'); }
+                if (questionAAnswer == true) { CheckQuestion('B'); }
                 else { CheckQuestion('C'); }
                 return;
 
             case 'B':
                 // B true OR B void => D
                 // B false => E
-                if (questionBAnswer || voidedLetters.Contains('B')) { CheckQuestion('D'); }
+                if (questionBAnswer == true || voidedLetters.Contains('B')) { CheckQuestion('D'); }
                 else { CheckQuestion('E'); }
                 return;
 
@@ -145,7 +143,7 @@ public class InsectPlate : PlateBase {
             case 'D':
                 // D true OR D void => Should have pressed Up!
                 // D false => G
-                if (questionDAnswer || voidedLetters.Contains('D')) { PressedButtonResult(0); }
+                if (questionDAnswer == true || voidedLetters.Contains('D')) { PressedButtonResult(0); }
                 else { CheckQuestion('G'); }
                 return;
 
@@ -173,7 +171,7 @@ public class InsectPlate : PlateBase {
             case 'H':
                 // H true OR H void => K
                 // H false => Should have pressed Right!
-                if (questionHAnswer || voidedLetters.Contains('G')) { CheckQuestion('K'); }
+                if (questionHAnswer == true || voidedLetters.Contains('G')) { CheckQuestion('K'); }
                 else { PressedButtonResult(3); }
                 return;
 
@@ -194,21 +192,21 @@ public class InsectPlate : PlateBase {
             case 'K':
                 // K true OR K void => Should have pressed Left!
                 // K false => Should have pressed Up!
-                if (questionKAnswer|| voidedLetters.Contains('K')) { PressedButtonResult(2); }
+                if (questionKAnswer == true || voidedLetters.Contains('K')) { PressedButtonResult(2); }
                 else { PressedButtonResult(0); }
                 return;
 
             case 'L':
                 // L true or L void => M
                 // L false => N
-                if (questionLAnswer || voidedLetters.Contains('L')) { CheckQuestion('M'); }
+                if (questionLAnswer == true || voidedLetters.Contains('L')) { CheckQuestion('M'); }
                 else { CheckQuestion('N'); }
                 return;
 
             case 'M':
                 // M true or M void => Should have pressed Center!
                 // M false => Should have pressed Down!
-                if (questionMAnswer || voidedLetters.Contains('M')) { PressedButtonResult(4); }
+                if (questionMAnswer == true || voidedLetters.Contains('M')) { PressedButtonResult(4); }
                 else { PressedButtonResult(1); }
                 return;
 
@@ -240,7 +238,7 @@ public class InsectPlate : PlateBase {
         // Which is A B C D E F H K L M N
         // G I J must be computed on the fly
 
-        // This is used in multiple questions
+        // This is used in multiple questions that check the presence of other modules
         List<string> _solvableModuleIds = bombInfo.GetSolvableModuleIDs();
 
         // This will be used for G, later

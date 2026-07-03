@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 33697501557912562}
   - component: {fileID: 23323560502128362}
   - component: {fileID: 114189695281016048}
+  - component: {fileID: 114797986439159940}
   m_Layer: 0
   m_Name: DreadPlatePrefab
   m_TagString: Untagged
@@ -75,6 +76,7 @@ GameObject:
   - component: {fileID: 4653215949578618}
   - component: {fileID: 23449723921117158}
   - component: {fileID: 102038688830240866}
+  - component: {fileID: 114386989132755644}
   m_Layer: 0
   m_Name: VoidedWordsText_05
   m_TagString: Untagged
@@ -110,6 +112,7 @@ GameObject:
   - component: {fileID: 4117167217901482}
   - component: {fileID: 23011449121557048}
   - component: {fileID: 102315610297980422}
+  - component: {fileID: 114877004360851518}
   m_Layer: 0
   m_Name: VoidedWordsText_02
   m_TagString: Untagged
@@ -145,6 +148,7 @@ GameObject:
   - component: {fileID: 4783890077911970}
   - component: {fileID: 23447809349121454}
   - component: {fileID: 102570878443814608}
+  - component: {fileID: 114100977070452178}
   m_Layer: 0
   m_Name: VoidedWordsText_01
   m_TagString: Untagged
@@ -180,6 +184,7 @@ GameObject:
   - component: {fileID: 4776632258133090}
   - component: {fileID: 23919533669788826}
   - component: {fileID: 102357431425840500}
+  - component: {fileID: 114541021607922714}
   m_Layer: 0
   m_Name: VoidedWordsText_03
   m_TagString: Untagged
@@ -197,6 +202,7 @@ GameObject:
   - component: {fileID: 4040526456270124}
   - component: {fileID: 23415486256042944}
   - component: {fileID: 102971700397606818}
+  - component: {fileID: 114027832335944844}
   m_Layer: 0
   m_Name: VoidedWordsText_04
   m_TagString: Untagged
@@ -708,6 +714,32 @@ TextMesh:
   m_Color:
     serializedVersion: 2
     rgba: 1962934272
+--- !u!114 &114027832335944844
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1957213253886550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
+--- !u!114 &114100977070452178
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1641716120963906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114189695281016048
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -725,7 +757,8 @@ MonoBehaviour:
   - {fileID: 114447296627949740}
   - {fileID: 114982224898339572}
   - {fileID: 114742485134897530}
-  customTwitchHelpMessage: "\u201C!{0} submit %\u201D to submit a character"
+  customTwitchHelpMessage: "\u201C!{0} submit %\u201D to submit a character. Characters
+    are # & % @ !"
   fullPlateName: Dread Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -756,6 +789,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114386989132755644
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1450522583275898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114447296627949740
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -791,6 +837,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114541021607922714
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1697229557445248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114593095010983724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -861,6 +920,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HighlightScale: {x: 1, y: 1, z: 1}
   OutlineAmount: 0
+--- !u!114 &114797986439159940
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1115473799074938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - Legacy Shaders/Diffuse
 --- !u!114 &114847863158399170
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -883,6 +955,19 @@ MonoBehaviour:
   AllowSelectionWrapY: 0
   ForceSelectionHighlight: 0
   ForceInteractionHighlight: 0
+--- !u!114 &114877004360851518
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1487397858091582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1005838349, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShaderNames:
+  - GUI/KT 3D Text Diffuse
 --- !u!114 &114887503757137732
 MonoBehaviour:
   m_ObjectHideFlags: 1
