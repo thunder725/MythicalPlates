@@ -63,6 +63,7 @@ public class AllmightySinnoh : SummoningModule {
     /// <summary> Spawn Point and Parent for the Solvable Plates </summary>
     [SerializeField] Transform SolvablePlateSpawnPoint;
     Coroutine SolvablePlateApparitionCoroutine;
+    Coroutine SolvablePlateDisparitionCoroutine;
 
     /// <summary> Reference to the Bomb, to gather information about the Timer, other Modules
     /// or its rotation for Twitch Plays' Wiggle command </summary>
@@ -237,9 +238,9 @@ public class AllmightySinnoh : SummoningModule {
             case 3:
                 // Solve the module
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Received solve from the summoned {0}, Marked by Antimatter. All Plates have been solved. Solving Module.", currentSummonedPlateScript.fullPlateName);
-                
+
                 // Nothing to spawn, just despawn!
-                DestroyPreviousSolvablePlate();
+                StartCoroutine(SolvablePlateDisparitionAnimation(currentSummonedPlateScript, currentSummonedPlateObject));
                 SolveAllmightySinnoh();
                 break;
         }
@@ -397,14 +398,14 @@ public class AllmightySinnoh : SummoningModule {
         moduleSelectable.UpdateChildrenProperly();
     }
 
-
     /// <summary> Method to spawn the next Solvable Plate, after the Marks have been pressed </summary>
     void SpawnSolvablePlate(int plateIndex)
     {
         // Potentially Destroy the previous Plate
+        // It is autonomous and will get rid of everything itself
         if (currentSummonedPlateObject != null)
         {
-            DestroyPreviousSolvablePlate();
+            SolvablePlateDisparitionCoroutine = StartCoroutine(SolvablePlateDisparitionAnimation(currentSummonedPlateScript, currentSummonedPlateObject));
         }
 
         AllmightySinnohModuleLog(allmightySinnohModuleId, "Summoning next Plate: {0} Plate.", GetPlateNameFromIndex(plateIndex));
@@ -435,20 +436,25 @@ public class AllmightySinnoh : SummoningModule {
         SolvablePlateApparitionCoroutine = StartCoroutine(SolvablePlateApparitionAnimation());
     }
 
-    void DestroyPreviousSolvablePlate()
+    void DestroyPreviousSolvablePlate(PlateBase _plateScript, GameObject _plateObject)
     {
         // Ask the Plate to remove its delegate to the casingButton.OnInteract delegate
         // Otherwise, we get phantom scripts, not attached to anything since their Plate has been Destroyed
         // but they still do code and log elements!!
-        currentSummonedPlateScript.RemoveDelegates();
+        _plateScript.RemoveDelegates();
 
-        // Destroy
-        Destroy(currentSummonedPlateScript);
-        Destroy(currentSummonedPlateObject);
+        // Destroy Script
+        Destroy(_plateScript);
+        Destroy(_plateObject);
 
-        // Void References to hopefully make them GCable
-        currentSummonedPlateObject = null;
-        currentSummonedPlateScript = null;
+
+        // Clean Selectables ONLY if this was the last plate
+        // Otherwise, we might clean the selectables of the current plate!!
+        if (numberOfPlatesSolved == 3)
+        {
+            moduleSelectable.Children = new KMSelectable[1] { casingPressableButton };
+            moduleSelectable.UpdateChildrenProperly();
+        }
     }
 
     /// <summary> Coroutine to make the Solvable Plate's apparition smooth and juicy </summary>
@@ -477,6 +483,43 @@ public class AllmightySinnoh : SummoningModule {
         currentSummonedPlateObject.transform.localScale = Vector3.one;
     }
 
+
+    IEnumerator SolvablePlateDisparitionAnimation(PlateBase _plateScript, GameObject _plateObject)
+    {
+        AllmightySinnohModuleLog(allmightySinnohModuleId, "Starting Previous Plate Disparition Animation");
+
+
+        // Avoid the Colliders being scared of negative or close-to-zero sizes
+        foreach (Collider _collider in _plateObject.GetComponentsInChildren<Collider>())
+        {
+            _collider.gameObject.SetActive(false);
+        }
+
+
+        // Bring the plate from current to 0 scale
+        float _startingScale = _plateObject.transform.localScale.x;
+
+        float _progress = 0f;
+
+        // Increase its size using some smooth easing
+        while (_progress < 1f)
+        {
+            // Safety check because the Twitch Force Solve can mess with this Coroutine
+            if (_plateObject == null)
+            { StopCoroutine(SolvablePlateApparitionCoroutine); yield break; }
+
+            // Make the Plate shrink
+            _progress += Time.deltaTime;
+            _plateObject.transform.localScale = Vector3.one * Easing.InCubic(_progress, _startingScale, 0, 1f);
+
+            yield return new WaitForEndOfFrame();
+        }
+
+        // Once it's done, set it to nearly-zero
+        _plateObject.transform.localScale = Vector3.zero;
+
+        DestroyPreviousSolvablePlate(_plateScript, _plateObject);
+    }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Visual Methods
@@ -717,11 +760,13 @@ public class AllmightySinnoh : SummoningModule {
         // It is forced to be on the same side as it, because it can spawn Timer-dependant Plates such as Zap or Iron
 
         // Get the Bomb (KMBomb is valid only if called within OnActivate, not within Start()!!)
-        bombReference = transform.root.GetComponent<KMBomb>();
+        bombReference = GetComponentInParent<KMBomb>();
         if (bombReference != null)
         {
             // From that, get the Timer's position
             Vector3 timerPos = Vector3.zero;
+
+
 
             // The Timer is of type "TimerModule" in the Test Harness, so we use that for checking the Timer
             // However, it is of type "TimerComponent" in the real game, so we use that instead when built

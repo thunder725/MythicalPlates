@@ -106,15 +106,15 @@ public class MindPlate : PlateBase
     /// <summary> Content of Table PSI in the manual </summary>
     readonly ScramblingMove[][] ScramblingMovesPerDigit = new ScramblingMove[10][] {
         new ScramblingMove[2] { ScramblingMove.Up, ScramblingMove.FrontPrime},
-        new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.LeftPrime},
-        new ScramblingMove[2] { ScramblingMove.Back, ScramblingMove.RightPrime},
+        new ScramblingMove[1] { ScramblingMove.LeftPrime},
+        new ScramblingMove[1] { ScramblingMove.Back},
         new ScramblingMove[2] { ScramblingMove.BackPrime, ScramblingMove.UpPrime},
         new ScramblingMove[2] { ScramblingMove.Right, ScramblingMove.Right},
         new ScramblingMove[2] { ScramblingMove.LeftPrime, ScramblingMove.UpPrime},
-        new ScramblingMove[2] { ScramblingMove.RightPrime, ScramblingMove.Left},
-        new ScramblingMove[2] { ScramblingMove.Front, ScramblingMove.DownPrime},
+        new ScramblingMove[1] { ScramblingMove.RightPrime},
+        new ScramblingMove[1] { ScramblingMove.DownPrime},
         new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.Front},
-        new ScramblingMove[2] { ScramblingMove.Left, ScramblingMove.Back}
+        new ScramblingMove[1] { ScramblingMove.Left}
     };
     readonly string[] romanNumeralsToSix = new string[6] { "I", "II", "III", "IV", "V", "VI" };
 

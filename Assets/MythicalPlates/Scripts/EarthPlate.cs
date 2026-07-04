@@ -258,25 +258,36 @@ public class EarthPlate : PlateBase {
         currentTileIndex = startingTileIndex;
     }
 
-    /// <summary> Determine which tile is the Start and which is the Target using bomb start time </summary>
+    /// <summary> Determine which tile is the Start and which is the Target</summary>
     void DecideStartAndTargetTiles()
     {
-        // Round to avoid being tricked by the time being 449.94 instead of 450
-        float bombTime = Mathf.Round(bombInfo.GetTime());
 
-        // Bomb Time starts below 4500 seconds
-        if (bombTime < 4500)
-        {
-            startingTileIndex = 1;
-            targetTileIndex = 142;
-            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is less than 4500 (75 minutes). Starting cell is B1 and target cell is K12", bombTime);
-        }
-        else
-        {
-            startingTileIndex = 142;
-            targetTileIndex = 1;
-            summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is more than 4500 (75 minutes). Starting cell is K12 and target cell is B1", bombTime);
-        }
+        startingTileIndex = 1;
+        targetTileIndex = 142;
+
+        summoningModule.ModuleLog(moduleId, "Starting cell is B1 and target cell is K12");
+
+        return;
+
+
+        // Lost Code since it previously checked the Starting Bomb Time and changed the starting & end cells from that
+
+        // // Round to avoid being tricked by the time being 449.94 instead of 450
+        // float bombTime = Mathf.Round(bombInfo.GetTime());
+        // 
+        // // Bomb Time starts below 4500 seconds
+        // if (bombTime < 4500)
+        // {
+        //     startingTileIndex = 1;
+        //     targetTileIndex = 142;
+        //     summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is less than 4500 (75 minutes). Starting cell is B1 and target cell is K12", bombTime);
+        // }
+        // else
+        // {
+        //     startingTileIndex = 142;
+        //     targetTileIndex = 1;
+        //     summoningModule.ModuleLog(moduleId, "Starting Bomb Time has been detected as {0} seconds which is more than 4500 (75 minutes). Starting cell is K12 and target cell is B1", bombTime);
+        // }
     }
 
     /// <summary> Void lines and columns using existing Port types </summary>

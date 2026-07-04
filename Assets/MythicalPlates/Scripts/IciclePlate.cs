@@ -586,8 +586,9 @@ public class IciclePlate : PlateBase {
             // How long should it last maximum? 
             if (addedPathFakeout)
             {
-                // within 1 and 5 tiles for regular decoy currents
-                _maximumUpwardsCurrentLength = UnityEngine.Random.Range(0, 5);
+                // within currentResistance and 5 tiles for regular decoy currents
+                // If they are smaller they never can impact anything so you can ignore them
+                _maximumUpwardsCurrentLength = UnityEngine.Random.Range(selectedBoat.currentResistance, 5);
             }
             else 
             {
