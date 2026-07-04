@@ -1063,7 +1063,7 @@ public class PixiePlate : PlateBase {
         // Else, we landed on a Pixie, so save it
         Pixie _targettedPixie = GetPixieFromPlayfieldCellIndex(_attackTargetCellIndex);
         // Deal Damage, including potential Bonus Damage
-        _targettedPixie.currentHealth -= (_demon.currentDamage + GetYmorGreBonusDamage(_demon.gridLocationIndex) );
+        _targettedPixie.currentHealth -= Mathf.Max(_demon.currentDamage + GetYmorGreBonusDamage(_demon.gridLocationIndex), 0);
         
 
         // Special Ability Switch on valid attack
@@ -1326,7 +1326,8 @@ public class PixiePlate : PlateBase {
     {
         // Vashakapa can buff other Pixies!
         // Because pixies can move around and stuff, it's easier to check manually before every attack.
-        demon.currentHealth -= pixie.currentDamage + GetVashakapaBonusDamage(pixie.gridLocationIndex);
+        // Max to avoid restoring health if an Ifle-Sym has negative attack power...
+        demon.currentHealth -= Mathf.Max(pixie.currentDamage + GetVashakapaBonusDamage(pixie.gridLocationIndex), 0);
         ApplyAndUpdateDemonValuesInArray(demon);
 
         // Log

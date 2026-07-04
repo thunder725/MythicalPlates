@@ -14,7 +14,12 @@ MonoBehaviour:
   id: MythicalPlates
   title: Mythical Plates
   author: thunder725
-  description: '"The rightful bearer of a Plate draws from the Plate it holds."
+  description: '=-= This module pack is currently in Public Beta. It needs to be subscribed
+    voluntarily to function. The up-to-date manuals are available in #mod-creation
+    in the public KTANE Discord =-=
+
+
+    "The rightful bearer of a Plate draws from the Plate it holds."
 
 
     Harness the power of the Mythical Plates and defy the very fabric of reality!
@@ -84,8 +89,19 @@ MonoBehaviour:
 
     =-= 0.8
 
-    - Open for Public Beta Testing'
-  version: 0.8
+    - Open for Public Beta Testing
+
+
+    =-= 0.8.1
+
+    - Fixed Draco Plate and Blank Plate modules not having proper reset buttons.
+
+
+    =-= 0.8.2
+
+    - Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its attack
+    stat was negative.'
+  version: 0.8.1
   outputFolder: build
   debugBuild: 1
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}
