@@ -277,66 +277,19 @@ public class PixiePlate : PlateBase {
         if (summoningModule.isModuleSolved)
         { return; }
 
+        // Save previous location
+        int _previousLocation = currentPlayerPointerLocation;
 
-        // Movement
-        // We can't use MoveAroundGridWithVoid because we shouldn't use Voided Cells for moving the pointer cell
-        switch (movementDirection)
+        // Move with Void, and detect if we ran into edges
+        if (MoveAroundGridWithVoid(movementDirection, currentPlayfield.playfieldRepresentation.Length, ref currentPlayerPointerLocation, 8, false).ranIntoGridEdges)
         {
-            case MovementDirection.Up:
-                // Verify Edges: We aren't at the topmost row
-                if (currentPlayerPointerLocation >= 8)
-                {
-                    currentPlayerPointerLocation -= 8;
-                }
-                else
-                {
-                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
-                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
-                }
+            // Ran into edges: plate movement!
+            if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
+            warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
 
-                break;
-
-            case MovementDirection.Down:
-                // Verify Edges: We aren't at the bottommost row
-                if (currentPlayerPointerLocation < 24)
-                {
-                    currentPlayerPointerLocation += 8;
-                }
-                else
-                {
-                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
-                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
-                }
-
-                break;
-
-            case MovementDirection.Left:
-                // Verify Edges: We aren't at the leftmost column
-                if (GetColumnFromCellIndex(currentPlayerPointerLocation, 8) != 0)
-                {
-                    currentPlayerPointerLocation -= 1;
-                }
-                else
-                {
-                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
-                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
-                }
-
-                break;
-
-            case MovementDirection.Right:
-                // Verify Edges: We aren't at the rightmost column
-                if (GetColumnFromCellIndex(currentPlayerPointerLocation, 8) != 7)
-                {
-                    currentPlayerPointerLocation += 1;
-                }
-                else
-                {
-                    if (warningVibrationCoroutine != null) { StopCoroutine(warningVibrationCoroutine); }
-                    warningVibrationCoroutine = StartCoroutine(VibratePlate(4f));
-                }
-
-                break;
+            // Go back to _previousLocation since we could've ran into the edge because of Void,
+            // so "currentPlayerPointerLocation" is not safe
+            currentPlayerPointerLocation = _previousLocation;
         }
     }
 
@@ -1954,6 +1907,12 @@ public class PixiePlate : PlateBase {
                 if (_puzzle.demonLocations.Contains(_voidLocation))
                 {
                     summoningModule.ModuleLogError(moduleId, "Puzzle List Error Code 13: !i!i!i!i! Found Void Cell Location {1} who's already the location of a Demon for Puzzle ID {0}", _puzzle.puzzleId, _voidLocation);
+                }
+
+                // Test 22: Void Cells cannot be on A1 since that is the player pointer's starting location
+                if (_voidLocation == "00")
+                {
+                    summoningModule.ModuleLogError(moduleId, "Puzzle List Error Code 22: !i!i!i!i! Found Void Cell Location {1} who's in A1 which is reserved for the Player Pointer for Puzzle ID {0}", _puzzle.puzzleId, _voidLocation);
                 }
             }
             // End of Void Cell Locations

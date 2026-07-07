@@ -44,7 +44,7 @@
     "demonIDs": [ 0, 3, 2, 0, 2, 3 ],
     "demonLocations": [ "60", "53", "61", "52", "43", "31" ],
     "pixieIDs": [ 3 ],
-    "voidCellLocations": [ "00", "13", "41" ],
+    "voidCellLocations": [ "02", "13", "41" ],
     "intendedPixiePlacementSolution": [ "32" ]
   },
   {

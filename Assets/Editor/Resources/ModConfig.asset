@@ -100,7 +100,12 @@ MonoBehaviour:
     =-= 0.8.2
 
     - Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its attack
-    stat was negative.'
+    stat was negative.
+
+
+    =-= 0.8.3
+
+    - Pixie Plate: Void now affects player movement during the setup phase'
   version: 0.8.1
   outputFolder: build
   debugBuild: 1
