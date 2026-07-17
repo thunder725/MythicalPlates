@@ -28,7 +28,6 @@ public class FistPlate : PlateBase {
     static int moduleIdCounter = 1;
 
 
-
     // Buttons gathering and GetComponents
     public override void InitializeModuleAwake()
     {
@@ -118,9 +117,10 @@ public class FistPlate : PlateBase {
         {
             _attemptedVoidIndex = UnityEngine.Random.Range(0, 64);
 
-            // Do not allow Void to exist on the Immovable Object's position, the Unstoppable Force's starting position
-            // Nor to have duplicate
-            if (_attemptedVoidIndex == 27 || _attemptedVoidIndex == 59 || voidedCellsIndices.Contains(_attemptedVoidIndex))
+            // Do not allow Void to exist on the Immovable Object's position (27), the Unstoppable Force's starting position (59)
+            // Nor D5 / D7  (35 and 51) because they are in the straight path to the Immovable Object and that's boring
+            // Nor to have duplicates
+            if (_attemptedVoidIndex == 27 || _attemptedVoidIndex == 59 || _attemptedVoidIndex == 35 || _attemptedVoidIndex == 51 || voidedCellsIndices.Contains(_attemptedVoidIndex))
             { continue; }
 
             voidedCellsIndices.Add(_attemptedVoidIndex);

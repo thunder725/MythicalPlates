@@ -716,7 +716,7 @@ public class AllmightySinnoh : SummoningModule {
         // Splash index is 9
         // Spooky index is 7
         int[] _ironSplashOrSpookyIndices = new int[3] { 10, 9, 7 };
-        int[] _initialMarks = new int[3] { initialTimeMark, initialSpaceMark, initialSpaceMark };
+        int[] _initialMarks = new int[3] { initialTimeMark, initialSpaceMark, initialAntimaterMark };
         if (_ironSplashOrSpookyIndices.Intersect(_initialMarks).Count() > 0)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Two should be applied.");

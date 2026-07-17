@@ -323,9 +323,25 @@ public class SkyPlate : PlateBase {
         // This becomes the time at which you leave the previous City, to which we add a random 00:0X:XX value to account for Waiting for the Next Plane to Arrive
         // After moving a few times (making sure not to go above 23:59:59), stop here, at the Starting City
 
+
         // Start at the TargetCity
+        // Take only a city neighboring with Void to favorize a path that goes through it.
+        List<string> _nonVoidAlphabet = new List<string>();
+
+        // Add all neighbors of the Voided City
+        foreach (int _voidedCityIndex in voidedCellsIndices)
+        {
+            City voidedCity = GetCityFromName(alphabet[_voidedCityIndex]);
+
+            foreach (Flight _flight in voidedCity.allConnectedFlights)
+            {
+                _nonVoidAlphabet.Add(_flight.otherConnectedCityName);
+            }
+        }
+
+
         // Can't have a Target that is voided!!
-        List<string> _nonVoidAlphabet = alphabet.ToList();
+        // List<string> _nonVoidAlphabet = alphabet.ToList();
         _nonVoidAlphabet.RemoveAll(l => voidedCellsIndices.Contains(Array.IndexOf(alphabet, l)));
 
         targetCityName = _nonVoidAlphabet.PickRandom();

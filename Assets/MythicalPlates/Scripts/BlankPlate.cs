@@ -20,20 +20,20 @@ public class BlankPlate : PlateBase {
         {'G', "__x_"},
         {'H', "_*___xx_"},
         {'I', "_xxx__*_"},
-        {'J', "xx___*__x__"},
+        {'J', "xx___*_"},
         {'K', "*___x__"},
         {'L', "_*_"},
         {'M', "_xxx_*__"},
-        {'N', "_xx_*__x_x_"},
-        {'O', "x_x_**__*_"},
+        {'N', "_xx_*__"},
+        {'O', "x_x_**_"},
         {'P', "*__*__"},
-        {'Q', "_**_*__xx__"},
-        {'R', "_*_xx___x__"},
-        {'S', "_**__*_xx__"},
+        {'Q', "_*__xx__"},
+        {'R', "xx___x__"},
+        {'S', "_**__*_"},
         {'T', "_*_xx__"},
         {'U', "xxx_"},
         {'V', "_xx__*_"},
-        {'W', "**_x_x_**__"},
+        {'W', "**_x_x_"},
         {'X', "__x__*_"},
         {'Y', "___x__x__"},
         {'Z', "__*__xx_"},
@@ -264,22 +264,44 @@ public class BlankPlate : PlateBase {
         {
             summoningModule.ModuleLog(moduleId, "Found no indicators.");
         }
+        // Only found 1 indicator
+        else if (_allIndicators.Length == 1)
+        {
+            _charactersForPathCreation += _allIndicators[0];
+
+            summoningModule.ModuleLog(moduleId, "Found singular indicator {0}. Adding it to the Character chain as-is. Character chain now is {1}", _allIndicators[0], _charactersForPathCreation);
+        }
+        // Found more than 1 indicator
         else
         {
-            summoningModule.ModuleLog(moduleId, "Found indicators {0}.", _allIndicators.Join());
+            summoningModule.ModuleLog(moduleId, "Found indicators {0}.", _allIndicators.Join(", "));
 
             int _sumOfCharacters;
+
+            int _characterValue;
             for (int i = 0; i < 3; i ++)
             {
                 _sumOfCharacters = 0;
 
+                string _lettersFromIndicators = String.Empty;
+
                 foreach (string _indicator in _allIndicators)
                 {
-                    // +1 is there because A is index 0; when its alphabetical position is 1
-                    _sumOfCharacters += Array.IndexOf(alphabet, _indicator[i].ToString()) + 1;
+                    _characterValue = Array.IndexOf(alphabet, _indicator[i].ToString()) + 1;
 
-                    summoningModule.ModuleLog(moduleId, "{0}, {1}, {2}", _indicator, _indicator[i], Array.IndexOf(alphabet, _indicator[i].ToString()) + 1);
+                    // +1 is there because A is index 0; when its alphabetical position is 1
+                    _sumOfCharacters += _characterValue;
+
+                    // Log 
+                    _lettersFromIndicators += String.Format("Letter {0} from {1} has value {2}; ", _indicator[i].ToString(), _indicator, _characterValue);
                 }
+
+                // remove the final "; "
+                _lettersFromIndicators = _lettersFromIndicators.Remove(_lettersFromIndicators.Length - 2);
+
+                // Log the letters from those indicators.
+                summoningModule.ModuleLog(moduleId, _lettersFromIndicators);
+
 
                 // Mod26 to be sure, but keep 26...
                 // So it's a "%26 but == 0 => 26"
@@ -302,11 +324,12 @@ public class BlankPlate : PlateBase {
         }
 
 
-        // Number of batteries
-        int _numberOfBatteries = bombInfo.GetBatteryCount();
-        _charactersForPathCreation += _numberOfBatteries.ToString();
-
-        summoningModule.ModuleLog(moduleId, "Found {0} batteries. Character chain now is {1}", _numberOfBatteries, _charactersForPathCreation);
+        // // Number of batteries
+        // // DEPRECATED!!
+        // int _numberOfBatteries = bombInfo.GetBatteryCount();
+        // _charactersForPathCreation += _numberOfBatteries.ToString();
+        // 
+        // summoningModule.ModuleLog(moduleId, "Found {0} batteries. Character chain now is {1}", _numberOfBatteries, _charactersForPathCreation);
 
 
         // All of the Serial Number
@@ -316,11 +339,14 @@ public class BlankPlate : PlateBase {
         summoningModule.ModuleLog(moduleId, "Serial Number is {0}. Character chain now is {1}", _serialNumber, _charactersForPathCreation);
 
 
-        // Number of modules
-        int _numberOfModules = bombInfo.GetModuleNames().Count;
-        _charactersForPathCreation += _numberOfModules.ToString();
+        // // Number of modules
+        // // DEPRECATED!!
+        // int _numberOfModules = bombInfo.GetModuleNames().Count;
+        // _charactersForPathCreation += _numberOfModules.ToString();
+        // 
+        // summoningModule.ModuleLog(moduleId, "Found {0} modules. Character chain now is {1}", _numberOfModules, _charactersForPathCreation);
 
-        summoningModule.ModuleLog(moduleId, "Found {0} modules. Character chain now is {1}", _numberOfModules, _charactersForPathCreation);
+
 
         // Make everything uppercase just to be sure.
         _charactersForPathCreation = _charactersForPathCreation.ToUpper();

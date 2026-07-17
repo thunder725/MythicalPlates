@@ -14,99 +14,30 @@ MonoBehaviour:
   id: MythicalPlates
   title: Mythical Plates
   author: thunder725
-  description: '=-= This module pack is currently in Public Beta. It needs to be subscribed
+  description: "=-= This module pack is currently in Public Beta. It needs to be subscribed
     voluntarily to function. The up-to-date manuals are available in #mod-creation
-    in the public KTANE Discord =-=
-
-
-    "The rightful bearer of a Plate draws from the Plate it holds."
-
-
-    Harness the power of the Mythical Plates and defy the very fabric of reality!
-
-
-    18 new challenges all centered around a mechanic of Void, combined with a cellular
-    automaton, a tower defense game, a Rubik''s Cube or a chain of plane flights.
-
-
-    If you feel adventurous, you can defy the Allmighty Sinnoh and solve 3 randomly-selected
-    challenges in a row.
-
-    Otherwise, they each are contained within their own individual Plate module.
-
-
-    Created by: thunder725
-
-
-    Includes the following 19 modules:
-
-    - Allmighty Sinnoh
-
-    - Blank Plate
-
-    - Draco Plate
-
-    - Dread Plate
-
-    - Earth Plate
-
-    - Fist Plate
-
-    - Flame Plate
-
-    - Icicle Plate
-
-    - Insect Plate
-
-    - Iron Plate
-
-    - Meadow Plate
-
-    - Mind Plate
-
-    - Pixie Plate
-
-    - Sky Plate
-
-    - Splash Plate
-
-    - Spooky Plate
-
-    - Stone Plate
-
-    - Toxic Plate
-
-    - Zap Plate
-
-
-    Manuals can be found at https://ktane.timwi.de/
-
-
-    Includes Twitch Plays compatibility.
-
-
-    =-= Version History =-=
-
-    =-= 0.8
-
-    - Open for Public Beta Testing
-
-
-    =-= 0.8.1
-
-    - Fixed Draco Plate and Blank Plate modules not having proper reset buttons.
-
-
-    =-= 0.8.2
-
-    - Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its attack
-    stat was negative.
-
-
-    =-= 0.8.3
-
-    - Pixie Plate: Void now affects player movement during the setup phase'
-  version: 0.8.1
+    in the public KTANE Discord =-=\n\n\"The rightful bearer of a Plate draws from
+    the Plate it holds.\"\n\nHarness the power of the Mythical Plates and defy the
+    very fabric of reality!\n\n18 new challenges all centered around a mechanic of
+    Void, combined with a cellular automaton, a tower defense game, a Rubik's Cube
+    or a chain of plane flights.\n\nIf you feel adventurous, you can defy the Allmighty
+    Sinnoh and solve 3 randomly-selected challenges in a row.\nOtherwise, they each
+    are contained within their own individual Plate module.\n\nCreated by: thunder725\n\nIncludes
+    the following 19 modules:\n- Allmighty Sinnoh\n- Blank Plate\n- Draco Plate\n-
+    Dread Plate\n- Earth Plate\n- Fist Plate\n- Flame Plate\n- Icicle Plate\n- Insect
+    Plate\n- Iron Plate\n- Meadow Plate\n- Mind Plate\n- Pixie Plate\n- Sky Plate\n-
+    Splash Plate\n- Spooky Plate\n- Stone Plate\n- Toxic Plate\n- Zap Plate\n\nManuals
+    can be found at https://ktane.timwi.de/\n\nIncludes Twitch Plays compatibility.\n\n=-=
+    Version History =-=\n=-= 0.8\n- Open for Public Beta Testing\n\n=-= 0.8.1\n- Fixed
+    Draco Plate and Blank Plate modules not having proper reset buttons.\n\n=-= 0.8.2\n-
+    Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its attack stat
+    was negative.\n\n=-= 0.8.3\n- Pixie Plate: Void now affects player movement during
+    the setup phase\n\n=-= 0.8.4\r\n- Allmighty Sinnoh: Fixed a bug where Step Two
+    would not apply if only the Mark of Antimatter was affected.\r\n- Fist Plate:
+    Made D5 and D7 unable to get Voided.\r\n- Blank Plate: Adjusted Path generation
+    to be a shorter part of the module. Compressed Log for clearer explanations.\r\n-
+    Sky Plate: Favorized path being affected by Voided Cities\r\nThanks Blan!"
+  version: 0.8.4
   outputFolder: build
   debugBuild: 1
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}
