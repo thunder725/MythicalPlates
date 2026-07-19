@@ -170,7 +170,7 @@ public class DreadPlate : PlateBase {
         // This discrepency between Number and Index needs to be corrected in the logs, since internally we use Index, but we show Number to the user
         summoningModule.ModuleLog(moduleId, "After removing Voided words, the new text is:");
         summoningModule.ModuleLog(moduleId, _voidlessText.Join(" "));
-        summoningModule.ModuleLog(moduleId, "Since it has a total of {0}  words, we can modulo the concatenated numbers to become {1} (index {2}).",
+        summoningModule.ModuleLog(moduleId, "Since it has a total of {0} words, we can modulo the concatenated numbers to become {1} (index {2}).",
             _voidlessText.Count, concatenatedSerialNumberDigit + 1, concatenatedSerialNumberDigit);
 
 

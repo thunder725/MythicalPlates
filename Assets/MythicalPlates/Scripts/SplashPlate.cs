@@ -278,7 +278,7 @@ public class SplashPlate : PlateBase {
         // "numbersAsBinary" goes from 00000 to 11111; we only want the rightmost 4 bits though
         requiredPlayerAnswer = numberOfIntersections == 0 ? "1111" : numbersAsBinary[numberOfIntersections].Remove(0, 1);
 
-        summoningModule.ModuleLog(moduleId, "Found a total of {0} intersections with the given point order! The awaited binary number then is {1}",
+        summoningModule.ModuleLog(moduleId, "Found a total of {0} intersections with the given point order! The awaited binary number is {1}",
             numberOfIntersections, numberOfIntersections == 0 ? "1111 because 0 should be represented as all presses" : requiredPlayerAnswer);
     }
 
@@ -418,7 +418,8 @@ public class SplashPlate : PlateBase {
         List<Vector2> _intersectionPointsFound = new List<Vector2>();
 
 
-        summoningModule.ModuleLog(moduleId, "For the intersections giving coordinates, point A is in (-1; 2), C is in (2; 1), E is in (1; -2), and G is in (-2; -1)");
+        summoningModule.ModuleLog(moduleId, "Intersection searching is done by giving coordinates to points, consisting of +- 1 and 2.");
+        summoningModule.ModuleLog(moduleId, "For reference, point A is in (-1; 2), C is in (2; 1), E is in (1; -2), and G is in (-2; -1)");
 
         // Do intersection check for all 7 segment pairs; but we do not need to check for interversions: 
         // Checks between 0-1 and 1-0 are the same

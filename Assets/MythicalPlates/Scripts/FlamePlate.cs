@@ -152,6 +152,8 @@ public class FlamePlate : PlateBase {
         SingleMove(3);
         VoidNextLine();
         SingleMove(4);
+
+        summoningModule.ModuleLog(moduleId, "Submit passcode {0} to solve the module.", finalPasscode);
     }
 
     /// <summary> Do a movement in the table, depending on the rule number [1-4] in the manual. </summary>

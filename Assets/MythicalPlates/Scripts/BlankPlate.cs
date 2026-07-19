@@ -283,7 +283,7 @@ public class BlankPlate : PlateBase {
             {
                 _sumOfCharacters = 0;
 
-                string _lettersFromIndicators = String.Empty;
+                string _lettersFromIndicators = "Characters " + (i+1) + ": ";
 
                 foreach (string _indicator in _allIndicators)
                 {
@@ -293,7 +293,7 @@ public class BlankPlate : PlateBase {
                     _sumOfCharacters += _characterValue;
 
                     // Log 
-                    _lettersFromIndicators += String.Format("Letter {0} from {1} has value {2}; ", _indicator[i].ToString(), _indicator, _characterValue);
+                    _lettersFromIndicators += String.Format("letter {0} from {1} has value {2}; ", _indicator[i].ToString(), _indicator, _characterValue);
                 }
 
                 // remove the final "; "

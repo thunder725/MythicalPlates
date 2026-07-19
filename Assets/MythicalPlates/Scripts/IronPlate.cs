@@ -28,6 +28,8 @@ public class IronPlate : PlateBase {
     bool isPlayerSimulatingGame;
     Coroutine timeFlowingCoroutine;
 
+    List<string> loggingData = new List<string>();
+
     int previousSeenTimerSecond = 0;
     int numberOfMovementsDone = 0;
 
@@ -314,6 +316,12 @@ public class IronPlate : PlateBase {
         // So void handling is wayyyy easier, none of that while loop business, just move twice if needed ^^
 
 
+        // Logging is special because we might do multiple rounds of Puzzle Generation (and so of Creature Movements)
+        // so to not flood the Log with discarded generation attempts, Logging will be separated using "isPlayerSimulatingGame"
+        // If true, that's the player's attempt, so it gets Logged directly
+        // If false, that's a puzzle generation attempt, and so it gets added to the loggingData List and kept to be logged only if this attempt's successful
+
+
         Creature _creatureToMove = creatures[creatureId];
 
 
@@ -339,8 +347,19 @@ public class IronPlate : PlateBase {
             // And reset all counters for the creatures 
             _creatureToMove.supplementaryMovementData = 0;
 
-            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1} and reached an edge. New Movement Direction is {2}",
-                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString());
+            // Either log directly, or save data for later
+            if (isPlayerSimulatingGame)
+            {
+                summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1} and reached an edge. It turned 180° to face {2}",
+                    creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString());
+            }
+            else
+            {
+                loggingData.Add(string.Format("{0} moves to Edge {1}, turns to {2}",
+                    creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString()));
+            }
+
+            
 
         }
         // Only apply MovementPattern-specific rotation if edge was not reached
@@ -349,8 +368,6 @@ public class IronPlate : PlateBase {
             // Every single one increases tile by 1
             // And does something once it reaches 2
 
-            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1}.",
-                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9));
 
             _creatureToMove.supplementaryMovementData++;
             if (_creatureToMove.supplementaryMovementData == 2)
@@ -367,8 +384,18 @@ public class IronPlate : PlateBase {
                     case CreatureMovementPattern.L_HorizontalBackAndForth:
                         // Reset counter and turn 180°
                         _creatureToMove.currentMovementDirection = GetOppositeMovementDirection(_creatureToMove.currentMovementDirection);
-                        summoningModule.ModuleLog(moduleId, "Creature {0} has turned 180° to {1}.",
-                            creatureId, _creatureToMove.currentMovementDirection.ToString());
+
+                        if (isPlayerSimulatingGame)
+                        {
+                            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1} and then turned 180° to face {2}.",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString());
+                        }
+                        else
+                        {
+                            loggingData.Add(string.Format("{0} moves to {1}, turns 180° to {2}",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString()));
+                        }
+                            
                         break;
 
 
@@ -377,8 +404,19 @@ public class IronPlate : PlateBase {
                     case CreatureMovementPattern.O_Circular:
                         // Reset counter and turn -60°
                         _creatureToMove.currentMovementDirection = GetRotatedMovementDirection(_creatureToMove.currentMovementDirection, isClockwise: false);
-                        summoningModule.ModuleLog(moduleId, "Creature {0} has turned counter-clockwise once to {1}.",
-                            creatureId, _creatureToMove.currentMovementDirection.ToString());
+
+                        if (isPlayerSimulatingGame)
+                        {
+                            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1} and then turned counter-clockwise once to face {2}.",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString());
+                        }
+                        else
+                        {
+                            loggingData.Add(string.Format("{0} moves to {1}, turns counter-clockwise to {2}",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9), _creatureToMove.currentMovementDirection.ToString()));
+                        }
+                            
+
                         break;
 
                     // (Z) Zig-Zag
@@ -389,10 +427,48 @@ public class IronPlate : PlateBase {
                         // Flip the bit so that it alternates between Clock & Counter
                         _creatureToMove.zigZagShouldDoClockwise ^= true;
 
-                        summoningModule.ModuleLog(moduleId, "Creature {0} has turned {2} to {1}.",
-                            creatureId, _creatureToMove.currentMovementDirection.ToString(), _creatureToMove.zigZagShouldDoClockwise ? "clockwise" : "counter-clockwise");
+                        if (isPlayerSimulatingGame)
+                        {
+                            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1} and then turned {2} to face {3}.",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9),
+                                _creatureToMove.zigZagShouldDoClockwise ? "clockwise" : "counter-clockwise", _creatureToMove.currentMovementDirection.ToString());
+                        }
+                        else
+                        {
+                            loggingData.Add(string.Format("{0} moves to {1}, turns {2} to {3}", creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9),
+                                _creatureToMove.zigZagShouldDoClockwise ? "clockwise" : "counter-clockwise", _creatureToMove.currentMovementDirection.ToString()));
+                        }
+
+                        break;
+
+
+
+                    // Other Patterns that don't do anything
+                    default:
+                        if (isPlayerSimulatingGame)
+                        {
+                            summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1}.",
+                                creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9));
+                        }
+                        else
+                        {
+                            loggingData.Add(string.Format("{0} moves to {1}", creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9)));
+                        }
                         break;
                 }
+            }
+            else // Not a special turn count
+            {
+
+                if (isPlayerSimulatingGame)
+                {
+                    summoningModule.ModuleLog(moduleId, "Creature {0} has moved to {1}.",
+                        creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9));
+                }
+                else
+                {
+                    loggingData.Add(string.Format("{0} moves to {1}", creatureId, GetCoordinateFromCellIndex(_creatureToMove.currentCreatureLocation, 9)));
+                }                    
             }
 
             
@@ -556,8 +632,8 @@ public class IronPlate : PlateBase {
 
             // Target Location will get set after simulation
 
-            summoningModule.ModuleLog(moduleId, "Creature {0} starts in {1} and has Movement Pattern {2}.",
-                i, GetCoordinateFromCellIndex(_generatedCreature.startingLocation, 9), _generatedCreature.movementPattern.ToString());
+            // summoningModule.ModuleLog(moduleId, "Creature {0} starts in {1} and has Movement Pattern {2}.",
+            //     i, GetCoordinateFromCellIndex(_generatedCreature.startingLocation, 9), _generatedCreature.movementPattern.ToString());
 
             creatures[i] = _generatedCreature;
         }
@@ -565,11 +641,17 @@ public class IronPlate : PlateBase {
 
     void StartGenerationSimulation()
     {
-        summoningModule.ModuleLog(moduleId, "Starting Simulation for {0} turns", targetTimestopDuration);
+        // Clear Logging Data as this is a new simulation
+        loggingData.Clear();
+
+
+        // summoningModule.ModuleLog(moduleId, "Starting Simulation for {0} turns", targetTimestopDuration);
 
         for (int _turn = 1; _turn <= targetTimestopDuration; _turn++)
         {
-            summoningModule.ModuleLog(moduleId, "Starting turn {0}.", _turn);
+            // summoningModule.ModuleLog(moduleId, "Starting turn {0}.", _turn);
+
+            loggingData.Add("Turn " + _turn);
 
             for (int _creatureId = 0; _creatureId < 4; _creatureId++)
             {
@@ -595,8 +677,8 @@ public class IronPlate : PlateBase {
             {
                 creatures[_creatureId].targetLocation = _endlocations[_creatureId];
 
-                summoningModule.ModuleLog(moduleId, "Creature {0} starts in {1} and has {2} as a target location",
-                _creatureId,
+                summoningModule.ModuleLog(moduleId, "Creature {0} with Movement Pattern {1} starts in {2} and has {3} as a target location",
+                _creatureId, creatures[_creatureId].movementPattern.ToString(),
                 GetCoordinateFromCellIndex(creatures[_creatureId].startingLocation, 9),
                 GetCoordinateFromCellIndex(creatures[_creatureId].targetLocation, 9));
 
@@ -607,14 +689,37 @@ public class IronPlate : PlateBase {
                     creatures[_creatureId].movementPattern.ToString().Remove(1),
                     GetCoordinateFromCellIndex(creatures[_creatureId].targetLocation, 9));
             }
+
+
+            // Log the correct Information
+            LogPuzzleGenerationData();
         }
         else
         {
             // They aren't all different? Regenrate!
-            summoningModule.ModuleLog(moduleId, "Some of the Creatures ended in the same spot. Regenerating new Simulation");
+            // summoningModule.ModuleLog(moduleId, "Some of the Creatures ended in the same spot. Regenerating new Simulation");
             GenerateFourCreatures();
             StartGenerationSimulation();
         }
+    }
+
+    void LogPuzzleGenerationData()
+    {
+        if (loggingData.Count%5 != 0)
+        {
+            summoningModule.ModuleLogError(moduleId, "Logging Data List is not a multiple of 5. That is very wrong! Please contact thunder725");
+            return;
+        }
+
+        summoningModule.ModuleLog(moduleId, "Puzzle Generation summary:");
+
+        for (int i = 0; i < loggingData.Count / 5; i ++)
+        {
+            summoningModule.ModuleLog(moduleId, "{0}: {1} // {2} // {3} // {4}", loggingData[i * 5],
+                loggingData[1 + i * 5], loggingData[2 + i * 5], loggingData[3 + i * 5], loggingData[4 + i * 5]);
+        }
+
+        summoningModule.ModuleLog(moduleId, "Resume time for {0} seconds to solve this Module.", targetTimestopDuration);
     }
 
 

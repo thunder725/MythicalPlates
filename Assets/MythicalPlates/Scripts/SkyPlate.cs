@@ -170,10 +170,18 @@ public class SkyPlate : PlateBase {
     };
 
 
+    enum TravelType { PlayerMovement, PuzzleGeneration, Logging};
+
 
     string targetCityName, startingCityName;
     [SerializeField] TextMesh citiesInformationText;
     [SerializeField] TextMesh timerInformationText;
+
+    /// <summary>
+    /// List of the Log messages (in reverse order) that make the path to the target.
+    /// They are build upon puzzle generation (in reverse order), and then logged.
+    /// </summary>
+    List<string> expectedPathLog = new List<string>();
 
     City currentCity;
     int currentTimer;
@@ -211,6 +219,11 @@ public class SkyPlate : PlateBase {
     }
 
     // public override void UpdateModule() { base.UpdateModule(); }
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Player Inputs
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     void PressingPlateButton(string buttonType)
     {
@@ -260,7 +273,7 @@ public class SkyPlate : PlateBase {
         int totalTravelTime = 0;
         
         // TryMoveToCity handles the Strikes itself, so we just check result
-        string _landedOnCity = TryMoveToCity(alphabet[_result], currentCity, ref totalTravelTime);
+        string _landedOnCity = TryMoveToCity(alphabet[_result], currentCity, ref totalTravelTime, TravelType.PlayerMovement);
         
         // ¤ is the Error Character, because I like that character
         if (_landedOnCity != "¤")
@@ -274,8 +287,8 @@ public class SkyPlate : PlateBase {
             // WaitForNextPlane => Go to the next 600s or 10 minutes interval
             currentTimer -= (currentTimer % 600);
 
-            summoningModule.ModuleLog(moduleId, "Landed in City {0}, with a current timer (after Waiting for Next Plane To Arrive) of {1} seconds or {2}.",
-                currentCity.cityName, currentTimer, GetReadableHourNotationFromTime(currentTimer));
+            summoningModule.ModuleLog(moduleId, "Landed in City {0}, with a current timer (after Waiting for Next Plane To Arrive) of {1}.",
+                currentCity.cityName, GetFullyLoggableTime(currentTimer));
 
             if (currentTimer <= 0)
             {
@@ -309,6 +322,11 @@ public class SkyPlate : PlateBase {
     }
 
 
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Puzzle Initialization
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
     void GenerateSkyPuzzle()
     {
         // Generate Void cities
@@ -319,11 +337,88 @@ public class SkyPlate : PlateBase {
 
         // Generate the puzzle in reverse:
         // Start at the end city, move 3-5 times, and that's the starting city
-        // The Timer starts at 00:00:00, adds the Flight Duration for each movement, and rounds up to the nearest XX:X0:00 time
-        // This becomes the time at which you leave the previous City, to which we add a random 00:0X:XX value to account for Waiting for the Next Plane to Arrive
+        // The Timer starts at 00:00:00
+        // For each movement, we add the Flight Duration for each movement, and rounds up to XX:X0:00 time
+        // The Round Up is equivalent to the WaitingForPlaneToArrive; which is a RoundDown
+        // This becomes the time at which you leave the previous City
         // After moving a few times (making sure not to go above 23:59:59), stop here, at the Starting City
 
 
+        DetermineTargetCity();
+
+
+        // Random maximum number of movements between 2 and 4
+        // With Void, this can already turn into a Nightmare because there are A LOT of paths to search for
+        // The longer the path, the more this turns into TFC-abuse, and I don't wan't that
+        int _maximumMovements = UnityEngine.Random.Range(2, 5);
+
+        // Initialize variables
+        currentTimer = 0;
+        int _timerToAdd = 0;
+        string _landedOnCity;
+        string _initialFlightTargetCity;
+
+        // Move several times
+        for (int i = 0; i < _maximumMovements; i ++)
+        {
+            // Reset timer for this singular movement
+            _timerToAdd = 0;
+
+            _initialFlightTargetCity = currentCity.allConnectedFlights.PickRandom().otherConnectedCityName;
+
+            // Try to move to a new, random valid city
+            _landedOnCity = TryMoveToCity(_initialFlightTargetCity, currentCity, ref _timerToAdd, TravelType.PuzzleGeneration);
+
+            // If this would bring us above the Maximum Time, then ignore and break right now with the current values
+            // Instead of 86399 (23:59:59), verify against 85799 (23:49:59) so that we still can round up and add a random value safely
+            if ((currentTimer + _timerToAdd) > 85799)
+            {
+                summoningModule.ModuleLog(moduleId, "Expected flight duration from {0} to {1} would exceed the of 24 hours; so it has been aborted and removed from expected movements.",
+                    currentCity.cityName, _initialFlightTargetCity);
+
+                // Movement has been aborted, so remove it from the expected path!
+                expectedPathLog.RemoveAt(0);
+                
+                break;
+            }
+
+            // Otherwise, add to Timer
+            currentTimer += _timerToAdd;
+
+            // Round up to the nearest higher 600 seconds value
+            // to take into account the Waiting for the Next Plane to Arrive
+            currentTimer = Mathf.CeilToInt((float)currentTimer / 600f) * 600;
+
+
+            // Apply the current city
+            currentCity = GetCityFromName(_landedOnCity);
+
+
+            // Log
+            // summoningModule.ModuleLog(moduleId, "Successfully moved to {0} in a total time of {1}. Accounting for Next Plane to Arrive, current Timer is now {2}",
+            //    _landedOnCity, GetFullyLoggableTime(_timerToAdd), GetFullyLoggableTime(currentTimer));
+        }
+
+
+
+        // Save Starting City
+        startingCityName = currentCity.cityName;
+        finalTimerToSolve = currentTimer;
+
+        summoningModule.ModuleLog(moduleId, "Puzzle Generation Finished - You have {0} to go from City {1} to City {2}",
+            GetFullyLoggableTime(finalTimerToSolve), startingCityName, targetCityName);
+
+
+        // Log Expected Path
+        LogExpectedPath();
+
+        // Show on Plate
+        MarkDataOnPlateText();
+    }
+
+
+    void DetermineTargetCity()
+    {
         // Start at the TargetCity
         // Take only a city neighboring with Void to favorize a path that goes through it.
         List<string> _nonVoidAlphabet = new List<string>();
@@ -348,78 +443,101 @@ public class SkyPlate : PlateBase {
         currentCity = GetCityFromName(targetCityName);
 
         // Log
-        summoningModule.ModuleLog(moduleId, "Target City will be {0}.", targetCityName);
+        // summoningModule.ModuleLog(moduleId, "Starting Puzzle Generation with Target City {0}.", targetCityName);
+    }
+
+    void LogExpectedPath()
+    {
+        // Due to the way the puzzle is generated, "expectedPathLog" stores data in this way
+        // MovingTo_1A {MovingTo_1B MovingTo_1C} TotalTimeOfMovement1 
+        // MovingTo_2A {MovingTo_2B MovingTo_2C} TotalTimeOfMovement1 
+        // MovingTo_3A {MovingTo_3B MovingTo_3C} TotalTimeOfMovement1 
+
+        // B and C might not exist if A is not Voided
+        // Total Time of Movement does NOT take into account the TimeBetweenFlights so that's all good
+        // We can just use those values and do the path in the correct time by subtracting the times!
+
+        summoningModule.ModuleLog(moduleId, "Expected Path is:");
+
+        // summoningModule.ModuleLog(moduleId, "All recorded movements: {0}", expectedPathLog.Join(" // "));
+
+        int _timeRemaining = finalTimerToSolve;
+        summoningModule.ModuleLog(moduleId, "Starting in City {0} with {1} left.", startingCityName, GetFullyLoggableTime(finalTimerToSolve));
 
 
+        // Prepare Data
+        int flightDuration;
+        int timeAfterMovement;
+        int timeAfterWaitingToArrive;
+        // End Prepare Data
 
-        // Random maximum number of movements between 2 and 4
-        // With Void, this can already turn into a Nightmare because there are A LOT of paths to search for
-        // The longer the path, the more this turns into TFC-abuse, and I don't wan't that
-        int _maximumMovements = UnityEngine.Random.Range(2, 5);
-
-        // Initialize variables
-        currentTimer = 0;
-        int _timerToAdd = 0;
-        string _landedOnCity;
-
-        summoningModule.ModuleLog(moduleId, "Puzzle Generation will now move up to {0} times to generate a valid path.", _maximumMovements);
-
-        // Move random amount of times
-        for (int i = 0; i < _maximumMovements; i ++)
+        foreach (string _movementLog in expectedPathLog)
         {
-            // Reset timer for this singular movement
-            _timerToAdd = 0;
-
-            // Try to move to a new, random valid city
-            _landedOnCity = TryMoveToCity(currentCity.allConnectedFlights.PickRandom().otherConnectedCityName, currentCity, ref _timerToAdd);
-
-            // If this would bring us above the Maximum Time, then ignore and break right now with the current values
-            // Instead of 86399 (23:59:59), verify against 85799 (23:49:59) so that we still can round up and add a random value safely
-            if (currentTimer + _timerToAdd > 85799)
+            // Movement does NOT have any Void
+            if (_movementLog[1] == '-')
             {
-                break;
+                // Time computation
+                flightDuration = int.Parse(_movementLog.Substring(2));
+                timeAfterMovement = _timeRemaining - flightDuration;
+                timeAfterWaitingToArrive = timeAfterMovement - (timeAfterMovement % 600);
+
+                summoningModule.ModuleLog(moduleId, "Moving directly to City {0} takes {1}. Time remaining upon landing is {2}. After Waiting For Plane To Arrive it becomes {3}.",
+                    _movementLog[0], GetFullyLoggableTime(flightDuration), GetFullyLoggableTime(timeAfterMovement), GetFullyLoggableTime(timeAfterWaitingToArrive));
+
+            }
+            // Movement DOES have Void
+            else
+            {
+                int _pointer = 0;
+                string voidedCitiesPath = "";
+
+                // Check the Voided Cities
+                while (alphabet.Contains(_movementLog[_pointer].ToString()))
+                {
+                    if (_pointer > 1)
+                    {
+                        voidedCitiesPath += " then " + _movementLog[_pointer];
+                    }
+                    else if (_pointer == 1)
+                    {
+                        voidedCitiesPath += _movementLog[_pointer];
+                    }
+                    _pointer++;
+                }
+
+                // Skip over the "-" separator
+                _pointer++;
+
+                // Time computation
+                flightDuration = int.Parse(_movementLog.Substring(_pointer));
+                timeAfterMovement = _timeRemaining - flightDuration;
+                timeAfterWaitingToArrive = timeAfterMovement - (timeAfterMovement % 600);
+
+                summoningModule.ModuleLog(moduleId, "Moving to Voided City {0} takes you to {4}, taking a total of {1}. Time upon landing is {2}. After Waiting For Plane To Arrive it becomes {3}.",
+                    _movementLog[0], GetFullyLoggableTime(flightDuration), GetFullyLoggableTime(timeAfterMovement), GetFullyLoggableTime(timeAfterWaitingToArrive), voidedCitiesPath);
             }
 
-            // Otherwise, add to Timer
-            currentTimer += _timerToAdd;
-
-            // Add random interval that will get absorbed by Waiting for the Next Plane to Arrive
-            currentTimer += UnityEngine.Random.Range(0, 600);
-
-
-
-            // Apply the current city
-            currentCity = GetCityFromName(_landedOnCity);
-
-            // Log
-            summoningModule.ModuleLog(moduleId, "Successfully moved to {0} in a total time of {1} seconds or {2}. Accounting for Next Plane to Arrive, current Timer is now {3} seconds or {4}",
-                _landedOnCity, _timerToAdd, GetReadableHourNotationFromTime(_timerToAdd), currentTimer, GetReadableHourNotationFromTime(currentTimer));
+            // Apply time
+            _timeRemaining = timeAfterWaitingToArrive;
         }
 
 
-        // Save Starting City
-        startingCityName = currentCity.cityName;
-        finalTimerToSolve = currentTimer;
-
-        summoningModule.ModuleLog(moduleId, "You have {0} seconds or {1} to go from City {2} to City {3}",
-            finalTimerToSolve, GetReadableHourNotationFromTime(finalTimerToSolve), startingCityName, targetCityName);
-
-        // Show on Plate
-        MarkDataOnPlateText();
     }
 
     void GenerateVoidedCities()
     {
-        char[] letters = bombInfo.GetSerialNumberLetters().ToArray();
+        char[] letters = bombInfo.GetSerialNumberLetters().Distinct().ToArray();
+        string voidedCities = "";
 
         foreach (char _letter in letters)
         {
             // Add the index of the Letter, we don't care about repeats
             voidedCellsIndices.Add(Array.IndexOf(alphabet, _letter.ToString().ToUpper()));
 
-            // Log
-            summoningModule.ModuleLog(moduleId, "Added {0} as a Voided City", alphabet[voidedCellsIndices.Last()]);
+            voidedCities += alphabet[voidedCellsIndices.Last()] + " ";
         }
+
+        summoningModule.ModuleLog(moduleId, "Using the Serial Number, the Voided Cities are {0}.", voidedCities.Remove(voidedCities.Length-1));
     }
 
     void MarkDataOnPlateText()
@@ -429,8 +547,9 @@ public class SkyPlate : PlateBase {
     }
     
 
-    /// <summary> Returns the string of the new City, and the travel time; because multiple travels can happen due to Void </summary>
-    string TryMoveToCity(string flightCityTargetName, City departCity, ref int totalTravelTime)
+    /// <summary> Returns the string of the new City, and the travel time; because multiple travels can happen due to Void.
+    /// Travel Type determines which info is saved, or what can be logged.</summary>
+    string TryMoveToCity(string flightCityTargetName, City departCity, ref int totalTravelTime, TravelType travelType, string previousVoid = "")
     {
         // Verify if the City is available for travel right now
         bool _isFlightValid = false;
@@ -481,14 +600,31 @@ public class SkyPlate : PlateBase {
                 if (_connectedFlight.otherConnectedCityName == departCity.cityName)
                 { continue; }
 
-                // Otherwise, Move!
-                summoningModule.ModuleLog(moduleId, "Landed in city {0}, but since it is Voided, continue moving forward!", _landedOnCity.cityName);
 
+                // Otherwise, Move once more!
+                // Log only if the Player is moving
+                if (travelType == TravelType.PlayerMovement)
+                {
+                    summoningModule.ModuleLog(moduleId, "Landed in city {0}, but since it is Voided, continue moving forward!", _landedOnCity.cityName);
+                }
+                
 
                 // Save the new City that gets returned up the chain of Voided Flights
-                finalCity = TryMoveToCity(_connectedFlight.otherConnectedCityName, _landedOnCity, ref totalTravelTime);
+                // Pass the list of previous Voided cities so we finish a good chain
+                finalCity = TryMoveToCity(_connectedFlight.otherConnectedCityName, _landedOnCity, ref totalTravelTime, travelType, departCity.cityName + previousVoid);
             }
 
+        }
+        // Not Voided!
+        // We landed somewhere Valid!
+        else if (travelType == TravelType.PuzzleGeneration)
+        {
+            // Just log that information
+            // previousVoid is empty if no Void has been moved to, so it's okay
+            expectedPathLog.Insert(0, departCity.cityName + previousVoid + "-" + totalTravelTime);
+            
+            
+            // summoningModule.ModuleLog(moduleId, "Added reverse movement from {0} in {1}!", _landedOnCity.cityName, totalTravelTime);
         }
 
         // Return the city we landed on at the very end
@@ -516,13 +652,23 @@ public class SkyPlate : PlateBase {
         AllFlightDurations = new Dictionary<FlightDurationType, int>();
 
 
+
+        // // Fake high durations to test over-24h limit
+        // AllFlightDurations.Add(FlightDurationType.Circle, 30000);
+        // AllFlightDurations.Add(FlightDurationType.Square, 32500);
+        // AllFlightDurations.Add(FlightDurationType.Triangle, 35000);
+        // AllFlightDurations.Add(FlightDurationType.Star, 37500);
+        // return;
+
+
+
         // Circle => 00:35:20 per Battery => 2120
 
         edgeworkOne = bombInfo.GetBatteryCount();
-        _duration = 2120 * Mathf.Max(edgeworkOne, 1);
+        _duration = 2120 * Mathf.Clamp(edgeworkOne, 1, 9);
 
         AllFlightDurations.Add(FlightDurationType.Circle, _duration);
-        summoningModule.ModuleLog(moduleId, "Circle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Batteries.");
+        summoningModule.ModuleLog(moduleId, "Circle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Batteries.");
 
 
 
@@ -531,22 +677,22 @@ public class SkyPlate : PlateBase {
 
         edgeworkOne = bombInfo.GetIndicators().Count();
         edgeworkTwo = bombInfo.GetPortPlateCount();
-        _duration = 3045 * Mathf.Max(edgeworkOne + edgeworkTwo, 1);
+        _duration = 3045 * Mathf.Clamp(edgeworkOne + edgeworkTwo, 1, 9);
 
         AllFlightDurations.Add(FlightDurationType.Square, _duration);
 
-        summoningModule.ModuleLog(moduleId, "Square: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.");
+        summoningModule.ModuleLog(moduleId, "Square: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.");
 
 
 
         // Triangle => 01:15:30 per Port => 4530
 
         edgeworkOne = bombInfo.GetPortCount();
-        _duration = 4530 * Mathf.Max(edgeworkOne, 1);
+        _duration = 4530 * Mathf.Clamp(edgeworkOne, 1, 9);
 
         AllFlightDurations.Add(FlightDurationType.Triangle, _duration);
 
-        summoningModule.ModuleLog(moduleId, "Triangle: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration) + " because of the " + edgeworkOne + " Ports.");
+        summoningModule.ModuleLog(moduleId, "Triangle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Ports.");
 
 
 
@@ -555,7 +701,7 @@ public class SkyPlate : PlateBase {
 
         AllFlightDurations.Add(FlightDurationType.Star, _duration);
 
-        summoningModule.ModuleLog(moduleId, "Star: " + _duration + " seconds, or " + GetReadableHourNotationFromTime(_duration));
+        summoningModule.ModuleLog(moduleId, "Star: " + GetFullyLoggableTime(_duration));
     }
 
     string GetReadableHourNotationFromTime(int time)
@@ -576,6 +722,11 @@ public class SkyPlate : PlateBase {
     City GetCityFromName(string cityName)
     {
         return allCities[Array.IndexOf(alphabet, cityName)];
+    }
+
+    string GetFullyLoggableTime(int time)
+    {
+        return String.Format("{0} seconds or {1}", time, GetReadableHourNotationFromTime(time));
     }
 
     void VerifyDataIntegrity()

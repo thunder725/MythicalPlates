@@ -288,8 +288,10 @@ public class InsectPlate : PlateBase {
         // N) Is there an empty Port Plate?
         questionNAnswer = bombInfo.GetPortPlates().Any(x => x.Length == 0);
 
-        summoningModule.ModuleLog(moduleId, "Answers that be precomputed: Question A {0}, Question B {1}, Question C {2}, Question D {3}, Question E {4}, Question F {5}, Question H {6}, Question K {7}, Question L {8}, Question M {9}",
+        summoningModule.ModuleLog(moduleId, "Some answers to questions do not change over time, so they can be pre-computed before Player Input.");
+        summoningModule.ModuleLog(moduleId, "They are: Question A {0}, Question B {1}, Question C {2}, Question D {3}, Question E {4}, Question F {5}, Question H {6}, Question K {7}, Question L {8}, Question M {9}",
             questionAAnswer, questionBAnswer, questionCAnswer, questionDAnswer, questionEAnswer, questionFAnswer, questionHAnswer, questionKAnswer, questionLAnswer, questionMAnswer);
+        summoningModule.ModuleLog(moduleId, "Questions G, I and J will be checked upon Player Input only.");
     }
     
     

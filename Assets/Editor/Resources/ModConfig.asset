@@ -36,8 +36,12 @@ MonoBehaviour:
     would not apply if only the Mark of Antimatter was affected.\r\n- Fist Plate:
     Made D5 and D7 unable to get Voided.\r\n- Blank Plate: Adjusted Path generation
     to be a shorter part of the module. Compressed Log for clearer explanations.\r\n-
-    Sky Plate: Favorized path being affected by Voided Cities\r\nThanks Blan!"
-  version: 0.8.4
+    Sky Plate: Favorized path being affected by Voided Cities\r\nThanks Blan!\n\n=-=
+    0.8.5\r\n- Sky Plate: Fixed several bugs in the puzzle generation, and rewrote
+    Logging to be much clearer for players.\r\n- Iron Plate, Meadow Plate: Cleaned
+    Logging by only including the final puzzle generation and not the aborted ones.\r\n-
+    Dread Plate, Flame Plate, Splash Plate, Toxic Plate: Slightly tweaked logging"
+  version: 0.8.5
   outputFolder: build
   debugBuild: 1
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

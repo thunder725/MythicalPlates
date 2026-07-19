@@ -384,7 +384,7 @@ public class ToxicPlate : PlateBase {
             // Check player location to send strike
            if (voidedCellsIndices[i] == currentPlayerLocationIndex)
            {
-               summoningModule.ModuleLog(moduleId, "The Void that started in room {0} moved to cell {1}, which is where you currently stand. Strike given. Reset module",
+               summoningModule.ModuleLog(moduleId, "The Void that started in room {0} moved to cell {1}, which is where you currently stand. Strike given. Module reset.",
                    _voidStartingLocation, currentPlayerLocationIndex);
            
                summoningModule.ReceiveStrike();
@@ -396,7 +396,7 @@ public class ToxicPlate : PlateBase {
 
         }
 
-        summoningModule.ModuleLog(moduleId, "Voids that started in rooms {0} moved to rooms {1} respectively.", startingVoidLocationsIndices.Join(), voidedCellsIndices.Join());
+        summoningModule.ModuleLog(moduleId, "Voids that started in rooms {0} moved to rooms {1} respectively.", startingVoidLocationsIndices.Join("-"), voidedCellsIndices.Join("-"));
     }
 
 

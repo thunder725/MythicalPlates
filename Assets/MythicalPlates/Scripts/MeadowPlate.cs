@@ -45,6 +45,7 @@ public class MeadowPlate : PlateBase {
     int targetBerryMonth;
 
     string[] selectedBerries = new string[4];
+    List<string> failedBerriesSelection = new List<string>();
 
     [SerializeField] TextMesh PlateBerriesText;
 
@@ -270,12 +271,12 @@ public class MeadowPlate : PlateBase {
 
             // Randomly pick Berry
             _attemptedBerryName = berries.PickRandom().Key;
-            summoningModule.ModuleLog(moduleId, "Attempting with {0}.", _attemptedBerryName);
+            // summoningModule.ModuleLog(moduleId, "Attempting with {0}.", _attemptedBerryName);
 
             // Make sure it's not already picked
             if (selectedBerries.Contains(_attemptedBerryName))
             {
-                summoningModule.ModuleLog(moduleId, "{0} is already picked; skipping.", _attemptedBerryName);
+                // summoningModule.ModuleLog(moduleId, "{0} is already picked; skipping.", _attemptedBerryName);
                 goto tryNewBerry;
             }
 
@@ -287,8 +288,8 @@ public class MeadowPlate : PlateBase {
             {
                 // Berry is valid? Well do that!
                 selectedBerries[i] = _attemptedBerryName;
-                summoningModule.ModuleLog(moduleId, "{0} can be planted in {1}. Picking it for berry {2}",
-                    _attemptedBerryName, GetReadableMonthName(targetBerryMonth), i);
+                // summoningModule.ModuleLog(moduleId, "{0} can be planted in {1}. Picking it for berry {2}",
+                //     _attemptedBerryName, GetReadableMonthName(targetBerryMonth), i);
                 continue;
             }
 
@@ -303,15 +304,17 @@ public class MeadowPlate : PlateBase {
             // If Voided Month is not plantable; then get rid of it
             if (_attemptedBerryMonths.Contains(voidedMonth) == false)
             {
-                summoningModule.ModuleLog(moduleId, "{0} cannot be planted in {1} nor in the Voided {2}; so it is invalid",
-                    _attemptedBerryName, GetReadableMonthName(targetBerryMonth), GetReadableMonthName(voidedMonth));
+                // summoningModule.ModuleLog(moduleId, "{0} cannot be planted in {1} nor in the Voided {2}; so it is invalid",
+                //     _attemptedBerryName, GetReadableMonthName(targetBerryMonth), GetReadableMonthName(voidedMonth));
+
+                failedBerriesSelection.Add(_attemptedBerryName);
                 goto tryNewBerry;
             }
 
                 
 
-            summoningModule.ModuleLog(moduleId, "Will check the {0} months in between Voided {1} and Target {2}",
-                _numOfMonthsToCheck, GetReadableMonthName(voidedMonth), GetReadableMonthName(targetBerryMonth));
+            // summoningModule.ModuleLog(moduleId, "Will check the {0} months in between Voided {1} and Target {2}",
+            //     _numOfMonthsToCheck, GetReadableMonthName(voidedMonth), GetReadableMonthName(targetBerryMonth));
 
 
             // Check the X months in-between the Voided and Target months
@@ -319,21 +322,30 @@ public class MeadowPlate : PlateBase {
             {
                 if (_attemptedBerryMonths.Contains(_monthToCheck) == false)
                 {
-                    summoningModule.ModuleLog(moduleId, "{0} can be planted during Voided {1}, but there is not a continuous plantable chain until target {2}. Discarding it.",
-                        _attemptedBerryName, GetReadableMonthName(voidedMonth), GetReadableMonthName(targetBerryMonth));
+                    failedBerriesSelection.Add(_attemptedBerryName);
+
+                    // summoningModule.ModuleLog(moduleId, "{0} can be planted during Voided {1}, but there is not a continuous plantable chain until target {2}. Discarding it.",
+                    //     _attemptedBerryName, GetReadableMonthName(voidedMonth), GetReadableMonthName(targetBerryMonth));
                     goto tryNewBerry;
                 }
             }
 
             // We land here only if all months were valid!
             selectedBerries[i] = _attemptedBerryName;
-            summoningModule.ModuleLog(moduleId, "{0} can be planted in {1} thanks to the Void. Picking it for berry {2}",
-                _attemptedBerryName, GetReadableMonthName(targetBerryMonth), i);
+            // summoningModule.ModuleLog(moduleId, "{0} can be planted in {1} thanks to the Void. Picking it for berry {2}",
+            //     _attemptedBerryName, GetReadableMonthName(targetBerryMonth), i);
             continue;
         }
 
         // All 4 berries have been found
-        summoningModule.ModuleLog(moduleId, "Found our four Berries to be planted: {0}", selectedBerries.Join());
+
+        if (failedBerriesSelection.Count != 0)
+        {
+            summoningModule.ModuleLog(moduleId, "Some berries were attempted by the Puzzle Generator but couldn't be picked for the selected Target Month: {0}",
+                failedBerriesSelection.Join(", "));
+        }
+        
+        summoningModule.ModuleLog(moduleId, "The four Berries to be planted and shown on the Plate are {0}", selectedBerries.Join(", "));
         PlateBerriesText.text = selectedBerries.Join("\n").ToUpper();
     }
 
