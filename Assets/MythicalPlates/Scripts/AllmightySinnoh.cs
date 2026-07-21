@@ -157,6 +157,7 @@ public class AllmightySinnoh : SummoningModule {
         if (markToPress > 2)
         { return; }
 
+
         // Determine which Plate was expected to be pressed
         int expectedPlate = 0;
         switch (markToPress)
@@ -486,7 +487,7 @@ public class AllmightySinnoh : SummoningModule {
 
     IEnumerator SolvablePlateDisparitionAnimation(PlateBase _plateScript, GameObject _plateObject)
     {
-        AllmightySinnohModuleLog(allmightySinnohModuleId, "Starting Previous Plate Disparition Animation");
+        // AllmightySinnohModuleLog(allmightySinnohModuleId, "Starting Previous Plate Disparition Animation");
 
 
         // Avoid the Colliders being scared of negative or close-to-zero sizes
@@ -785,7 +786,7 @@ public class AllmightySinnoh : SummoningModule {
             // Dot product between this module's Forward (blue) and the vector to the Timer
             Vector3 toTimer = (timerPos - modulePos).normalized;
             float dot = Vector3.Dot(transform.forward, toTimer);
-            AllmightySinnohModuleLog(allmightySinnohModuleId, "timerPos = {0}; modulePos = {1}; vectorToTimer = {2}; transform.up = {3}; dot = {4}",
+            AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six Debug Info: timerPos = {0}; modulePos = {1}; vectorToTimer = {2}; transform.up = {3}; dot = {4}",
                 timerPos, modulePos, toTimer, transform.forward, dot);
 
             // That Dot Product will be 1 if the timer is above this module,
@@ -810,6 +811,10 @@ public class AllmightySinnoh : SummoningModule {
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is vertically aligned with the timer.");
                 MoveMarks(15, 2, 5);
+            }
+            else
+            {
+                AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should NOT be applied.");
             }
         }
         else
@@ -863,6 +868,11 @@ public class AllmightySinnoh : SummoningModule {
         {
             AllmightySinnohModuleLogError(allmightySinnohModuleId, "BOMB IS INVALID!! Please report this to thunder725");
         }
+
+
+        // Different log if an Offset-By-One has been needed, for clarity's sake
+        AllmightySinnohModuleLog(allmightySinnohModuleId, "Press in order the {0} Plate, {1} Plate then {2} Plate to pass Judgement.",
+            GetPlateNameFromIndex(finalTimeMark), GetPlateNameFromIndex(finalSpaceMark), GetPlateNameFromIndex(finalAntimaterMark));
     }
 
 
@@ -956,7 +966,7 @@ public class AllmightySinnoh : SummoningModule {
     /// but Allmighty Sinnoh has its own beforehand! </summary>
     void InitializeAllmightySinnohTwitchHelpMessage()
     {
-        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} shownames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”. Press the SINNOH casing button using “!{0} sinnoh”.");
+        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} shownames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”. If that wiggle isn't enough, use “!{0} read” to get that information. Press the SINNOH casing button using “!{0} sinnoh”.");
     }
 
     /// <summary> Called by Plates when they are summoned to set their custom Twitch Help Message </summary>
@@ -1016,8 +1026,8 @@ public class AllmightySinnoh : SummoningModule {
             float timer = 0;
 
             float rotationX, rotationZ;
-            const float rotationFrequency = 25f;
-            const float rotationAmplitude = 5f;
+            const float rotationFrequency = 20f;
+            const float rotationAmplitude = 7f;
 
 
             // Rotate for 3 seconds
@@ -1028,7 +1038,7 @@ public class AllmightySinnoh : SummoningModule {
 
                 // Compute cos & sin
                 // Move the bomb side to side while bringing it up a bit
-                rotationX = Mathf.Sin(timer) * rotationAmplitude;
+                rotationX = Mathf.Sin(timer * 3f) * rotationAmplitude;
                 rotationZ = Mathf.Cos(timer * rotationFrequency) * rotationAmplitude;
 
                 // Return that to rotate the bomb
@@ -1041,6 +1051,14 @@ public class AllmightySinnoh : SummoningModule {
             yield return _startingBombRotation;
 
             yield break;
+        }
+
+
+        // In case that wiggle isn't enough due to stream quality issues,
+        // command "read" will give the initial Mark of Time
+        if (commandParts.Length == 1 && commandParts[0] == "read")
+        {
+            yield return "sendtochat {0}, the initial Plate Marked by Time is " + GetPlateNameFromIndex(initialTimeMark);
         }
 
 
@@ -1073,6 +1091,9 @@ public class AllmightySinnoh : SummoningModule {
                 yield return processedCommand.Current;
             }
 
+            // return null to prevent TP from thinking the command was invalid since it returned nothing
+            // This specifically is true when the last command that results in the solve of Allmighty Sinnoh is received.
+            yield return null;
             yield break;
         }
 
@@ -1084,43 +1105,44 @@ public class AllmightySinnoh : SummoningModule {
         }
 
 
-        if (commandParts.Length != 4)
+        // We need at least one Plate to be pressed
+        if (commandParts.Length < 2)
         {
-            yield return "sendtochaterror {0} Please submit 3 plate names";
+            yield return "sendtochaterror {0} Please send at least one valid Plate.";
+            yield break;
+        }
+
+        // Pressing more than 3 Plates is useless!
+        if (commandParts.Length > 4)
+        {
+            yield return "sendtochaterror {0} You cannot press more than 3 Plates!";
             yield break;
         }
 
 
+        // Safety yield return null to prevent being locked out of the method
+        yield return null;
 
-        // transform the Plate Names so that they have a capitalized first letter
-        for (int i = 1; i < 4; i ++)
+
+        for (int i = 1; i < commandParts.Length; i ++)
         {
+            // transform the Plate Names so that they have a capitalized first letter
+
             // Credit https://stackoverflow.com/questions/4135317/make-first-letter-of-a-string-upper-case-with-maximum-performance
             commandParts[i] = commandParts[i].First().ToString().ToUpper() + commandParts[i].Substring(1);
-        }
+        
+            
+            // Verify that this Plate exists
+            if (plateNames.Contains(commandParts[i]) == false)
+            {
+                yield return "sendtochaterror {0} Plate name " + commandParts[i] + " is not recognized! Stopping submission";
+                yield break;
+            }
 
-
-        // Verify existence of the 3 submitted plates
-        if (plateNames.Contains(commandParts[1]) == false)
-        {
-            yield return "sendtochaterror {0} Plate name " + commandParts[1] + " is not recognized!";
-            yield break;
-        }
-        if (plateNames.Contains(commandParts[2]) == false)
-        {
-            yield return "sendtochaterror {0} Plate name " + commandParts[2] + " is not recognized!";
-            yield break;
-        }
-        if (plateNames.Contains(commandParts[3]) == false)
-        {
-            yield return "sendtochaterror {0} Plate name " + commandParts[3] + " is not recognized!";
-            yield break;
-        }
-
-        // Press the Visual Plates
-        for (int i = 1; i < 4; i++)
-        {
+            // Press the Plate
             eighteenVisualPlateSelectables[Array.IndexOf(plateNames, commandParts[i])].OnInteract();
+
+            // Wait before pressing the next one
             yield return new WaitForSeconds(0.3f);
         }
     }

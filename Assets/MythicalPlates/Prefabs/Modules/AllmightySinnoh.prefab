@@ -338,7 +338,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1589639358081898}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: 0, z: 0.8}
+  m_LocalPosition: {x: -1, y: 0, z: 2.5540001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4405442905658290}
@@ -553,7 +553,7 @@ MonoBehaviour:
   visualPlatesScaleFactor: 0.23
   platesWaveSpeed: 0.15
   RotationCenter: {fileID: 4831544731590382}
-  timeMarkedPlateLagSpeed: 0.4
+  timeMarkedPlateLagSpeed: 0.35
   SolvablePlateSpawnPoint: {fileID: 4296127056590486}
   individualPlateNameText: {fileID: 102033760961614694}
   platePressedSounds:

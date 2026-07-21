@@ -249,7 +249,7 @@ public class MindPlate : PlateBase
         // Which direction should we Actually move towards?
         MovementDirection _directionToGoInto = GetMovementDirectionFromInput(pressedDirection);
 
-        summoningModule.ModuleLog(moduleId, "From {0}, pressed Direction button {1}. Due to current orientation, that represents a {2} on the net.",
+        summoningModule.ModuleLog(moduleId, "- New Movement - From {0}, pressed {1}. Due to current orientation, that represents a {2} on the net.",
             GetAnistarCoordinateFormatting(currentPlayerLocationIndex), pressedDirection, _directionToGoInto);
 
 
@@ -294,7 +294,7 @@ public class MindPlate : PlateBase
             // No new Orientation
             if (_newOrientation == 0)
             {
-                summoningModule.ModuleLog(moduleId, "Landed in {0}, without any orientation change relative to the Net (current Up is {1}).",
+                summoningModule.ModuleLog(moduleId, "Landed in {0}, with no orientation change relative to the Net (current Up is {1}).",
                     GetAnistarCoordinateFormatting(currentPlayerLocationIndex), currentPlayerUpDirection);
             }
             // New Orientation needed, switch it up!
@@ -324,8 +324,7 @@ public class MindPlate : PlateBase
             }
             else
             {
-                summoningModule.ModuleLog(moduleId, "{0} is not Voided.",
-                    GetAnistarCoordinateFormatting(currentPlayerLocationIndex));
+                // summoningModule.ModuleLog(moduleId, "{0} is not Voided.", GetAnistarCoordinateFormatting(currentPlayerLocationIndex));
 
                 // Exit Loop
                 _searchingForAnswer = false;
@@ -398,7 +397,7 @@ public class MindPlate : PlateBase
         }
 
         // Shouldn't happen
-        summoningModule.ModuleLogError(moduleId, "Uh-oh, tried to convert {0} with current {1} and landed at the bottom??", input, currentPlayerUpDirection);
+        summoningModule.ModuleLogError(moduleId, "Uh-oh, tried to convert {0} with current {1} and got an error. Please report this to thunder725", input, currentPlayerUpDirection);
         return MovementDirection.Up;
     }
 
@@ -416,6 +415,8 @@ public class MindPlate : PlateBase
         DetermineScramblingMovesToExecute();
 
         ResetValuesToStart();
+
+        summoningModule.ModuleLog(moduleId, "=-= Scambling Finished. The Rubik's Cube is ready to be explored with inputs =-=");
     }
 
     void SelectConstellation()

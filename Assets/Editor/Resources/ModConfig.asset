@@ -40,8 +40,16 @@ MonoBehaviour:
     0.8.5\r\n- Sky Plate: Fixed several bugs in the puzzle generation, and rewrote
     Logging to be much clearer for players.\r\n- Iron Plate, Meadow Plate: Cleaned
     Logging by only including the final puzzle generation and not the aborted ones.\r\n-
-    Dread Plate, Flame Plate, Splash Plate, Toxic Plate: Slightly tweaked logging"
-  version: 0.8.5
+    Dread Plate, Flame Plate, Splash Plate, Toxic Plate: Slightly tweaked logging\n\n=-=
+    0.8.6\r\n- Allmighty Sinnoh: Made the Mark of Time wiggle more noticeable. Added
+    TP command to get Mark of Time read if needed. Fixed TP command Plate sub-handler
+    being treated as invalid by TP due to empty return.\r\n- Zap Plate: Fixed TP handler
+    not working.\r\n- Dread Plate: Added \"press\" as a valid keyword for TP command
+    submission.\n\n=-= 0.8.7\r\n- Zap Plate: Changed Table Looping behaviour to make
+    the module slightly more interesting\r\n- Mind Plate: Made movement logging slightly
+    more readable\r\n- Icicle Plate: Fixed incorrect logging of the last movement
+    on a successful attempt"
+  version: 0.8.7
   outputFolder: build
   debugBuild: 1
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

@@ -464,7 +464,7 @@ public class DreadPlate : PlateBase {
             yield break;
         }
 
-        if (commandParts[0] != "submit" && commandParts[0] != "s")
+        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
             yield return "sendtochaterror {0} please make sure you Submit with either “Submit” or “s”.";
             yield break;

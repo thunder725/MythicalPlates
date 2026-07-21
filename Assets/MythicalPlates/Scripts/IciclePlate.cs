@@ -145,18 +145,20 @@ public class IciclePlate : PlateBase {
     {
         // Move in direction with Void!
         VoidMovementData _movementData = MoveAroundGridWithVoid(direction, 221, ref currentBoatLocationIndex, 13, false);
-        summoningModule.ModuleLog(moduleId, "Boat moved {0} into {1}", direction.ToString(), GetCoordinateFromCellIndex(currentBoatLocationIndex, 13));
-
-
+       
         // Where we land is checked against multiple conditions.
-
 
         // Did we leave the board upwards?
         if (_movementData.ranIntoGridEdges)
         {
-            summoningModule.ModuleLog(moduleId, "The boat correctly escaped Crebase River! Solving module!!");
+            summoningModule.ModuleLog(moduleId, "The boat moved Up and correctly escaped Crebase River! Solving module!!");
             summoningModule.ReceiveSolve();
             return;
+        }
+        else
+        {
+            // If not, we can just log like usual
+            summoningModule.ModuleLog(moduleId, "Boat moved {0} into {1}", direction.ToString(), GetCoordinateFromCellIndex(currentBoatLocationIndex, 13));
         }
 
         // To avoid submitting an infinite loop

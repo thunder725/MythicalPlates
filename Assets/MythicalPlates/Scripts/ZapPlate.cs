@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using UnityEngine;
 
 
 public class ZapPlate : PlateBase {
@@ -112,13 +113,27 @@ public class ZapPlate : PlateBase {
     /// <summary> Finds the Six-Digit number for all 5 stages </summary>
     void FindAllSixDigitNumbers()
     {
+        // Get the codes for each stage
         for (currentStage = 0; currentStage < 5; currentStage++)
         {
             VoidLineFromIterationNumber(6 - currentStage);
 
+            // Get the letters
             while (sixDigitStageValues[currentStage].Length < 6)
             {
-                MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true);
+                // If we move back up the grid
+                if (MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true).ranIntoGridEdges)
+                {
+                    // Move one column right
+                    if (MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true).ranIntoGridEdges)
+                    {
+                        summoningModule.ModuleLog(moduleId, "Moved back up the grid. Changing column to the leftmost one (it is looping).");
+                    }
+                    else
+                    {
+                        summoningModule.ModuleLog(moduleId, "Moved back up the grid. Moving column to the right.");
+                    }
+                }
 
                 sixDigitStageValues[currentStage] += tableDynamo[currentLocation].ToString();
             }
@@ -158,6 +173,8 @@ public class ZapPlate : PlateBase {
     {
         if (summoningModule.isModuleSolved) { yield break; }
 
+        
+
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -180,11 +197,19 @@ public class ZapPlate : PlateBase {
             yield break;
         }
 
-        while (  (int)bombInfo.GetTime() % 10 != _timeToPressAt  )
+
+        // Without this yield return null, the yield return sendtochat exits the command instantly
+        // since that sendtochat is the first yield return.
+        yield return null;
+
+        yield return "sendtochat {0} will press the Plate on " + _timeToPressAt + " seconds. The command is cancellable.";
+
+        while ((int)bombInfo.GetTime() % 10 != secondsToPressOn)
         {
-            yield return null;
+            // Allow chat to cancel the command.
             yield return "trycancel Command was cancelled before the Plate was pressed.";
-            yield break;
+
+            yield return new WaitForSeconds(0.2f);
         }
 
         platePressableButtons[0].OnInteract();
