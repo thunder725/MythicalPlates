@@ -120,8 +120,13 @@ public class AllmightySinnoh : SummoningModule {
     {
         base.Update();
 
-        RotatePlatesOnUpdate();
-        LagTimePlateBehind();
+        // Rotate the plates and apply Lag; but only if the module isn't solved.
+        // Afterwards; the Plates stop existing!!
+        if (isModuleSolved == false)
+        {
+            RotatePlatesOnUpdate();
+            LagTimePlateBehind();
+        }
 
 
         // Send Updates to the summoned Plate
@@ -210,8 +215,7 @@ public class AllmightySinnoh : SummoningModule {
         // This doesn't outright solve Allmighty Sinnoh since it does need to solve the 3 Solvable Plates in a row.
         numberOfPlatesSolved++;
 
-        // Visual Feedback to make the Plates spin faster
-        StartCoroutine(IncreaseVisualRotationSpeedForFeedback());
+        PlaySound(SolvablePlateSolvedSound);
 
         // Different text for each "Stage"
         switch (numberOfPlatesSolved)
@@ -224,16 +228,16 @@ public class AllmightySinnoh : SummoningModule {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Received solve from the summoned {0}, Marked by Time. Summoning the Space-Marked one next.", currentSummonedPlateScript.fullPlateName);
                 SpawnSolvablePlate(finalSpaceMark);
 
-                // Play sound only on NOT solve, because solve has a different sound
-                PlaySound(SolvablePlateSolvedSound);
+                // Visual Feedback to make the Plates spin faster
+                StartCoroutine(IncreaseVisualRotationSpeedForFeedback());
                 break;
 
             case 2:
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Received solve from the summoned {0}, Marked by Space. Summoning the Antimatter-Marked one next.", currentSummonedPlateScript.fullPlateName);
                 SpawnSolvablePlate(finalAntimaterMark);
 
-                // Play sound only on NOT solve, because solve has a different sound
-                PlaySound(SolvablePlateSolvedSound);
+                // Visual Feedback to make the Plates spin faster
+                StartCoroutine(IncreaseVisualRotationSpeedForFeedback());
                 break;
 
             case 3:
@@ -258,10 +262,9 @@ public class AllmightySinnoh : SummoningModule {
     void SolveAllmightySinnoh()
     {
         isModuleSolved = true;
-
-        PlaySound(AllmightySinnohSolveSound);
-
         thisModule.HandlePass();
+
+        StartCoroutine(CompleteSolvingAnimation());
     }
 
 
@@ -648,6 +651,91 @@ public class AllmightySinnoh : SummoningModule {
         return plateNames[plateIndex];
     }
 
+    IEnumerator CompleteSolvingAnimation()
+    {
+        float timer = 0;
+
+        float _localRotationTime;
+
+        const float eighteenthRadianRotation = 0.34906585f;
+        const float eighteenthDegreesRotation = 20f;
+
+        Vector3 _localPlateParentPosition = Vector3.zero;
+        Vector3 _localPlateParentRotation = Vector3.zero;
+        Vector3 _localPlateRotation = Vector3.zero;
+
+        Vector3 _localRotationCenter = RotationCenter.localPosition;
+
+        // Step 1, rotate the plates more and more quickly
+        while (timer < 4f)
+        {
+            timer += Time.deltaTime;
+
+            visualPlatesRotationTime = (visualPlatesRotationTime + (Time.deltaTime * timer * timer * -0.25f)) % 1;
+
+
+            // Rotate each plate individually
+            for (int i = 0; i < 18; i++)
+            {
+                // Set the plate's Horizontal and Vertical locations
+                // Offset the time by 1/18th of a circle turn (in Radians),
+                // so that each plate is visually offset in a nice circle. Otherwise they'd all rotate at the same spot!
+                _localRotationTime = 6.283185f * visualPlatesRotationTime + i * eighteenthRadianRotation;
+                _localPlateParentPosition.x = Mathf.Cos(_localRotationTime) * visualPlatesRotationCircleRadius;
+                _localPlateParentPosition.z = Mathf.Sin(_localRotationTime) * visualPlatesRotationCircleRadius;
+
+
+                // Set the plate's depth wiggle to avoid Z-Fighting
+                _localPlateParentPosition.y = Mathf.Sin(i + i + i) * 0.002f;
+
+                // Set the plate's yaw so they point inwards and everything is prettier
+                _localPlateParentRotation.y = 90 - i * eighteenthDegreesRotation - (visualPlatesRotationTime * 360);
+
+
+                // Move the PlateParent around the circle
+                // Rotate the Plate Parent's Yaw (since that's linked to position)
+                visualPlatesParents[i].transform.localPosition = _localRotationCenter + _localPlateParentPosition;
+                visualPlatesParents[i].transform.localEulerAngles = _localPlateParentRotation;
+
+                // Smoothly rotate the plate so that it goes back to 0 0 0 rotation
+                visualPlates[i].transform.localEulerAngles = Vector3.Slerp(visualPlates[i].transform.localEulerAngles, Vector3.zero, 0.02f);
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+
+
+        // Step 2, pause the Plates
+        yield return new WaitForSeconds(1.5f);
+
+
+        // Step 3, launch the Plates away
+
+        PlaySound(AllmightySinnohSolveSound);
+        timer = 0;
+
+        while (timer < 4)
+        {
+
+            // Move away each plate individually, and shrink
+            for (int i = 0; i < 18; i++)
+            {
+                visualPlates[i].transform.localPosition += Vector3.forward * Time.deltaTime * 5f;
+                visualPlates[i].transform.localScale = Vector3.one * Mathf.Lerp(1, 0, timer / 4);
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+
+
+        // Step 4, make the Plates disappear (and come back to avoid destroying the module's Bounds for rendering performance)
+        for (int i = 0; i < 18; i++)
+        {
+            visualPlates[i].transform.localPosition += Vector3.zero;
+            visualPlates[i].transform.localScale = Vector3.zero;
+        }
+    }
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Puzzle Methods
@@ -706,7 +794,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_foundPrime && _foundNonPrime)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step One should be applied.");
-            MoveMarks(3, 12, 5);
+            MoveAllMarks(3, 12, 5);
         }
 
 
@@ -721,7 +809,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_ironSplashOrSpookyIndices.Intersect(_initialMarks).Count() > 0)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Two should be applied.");
-            MoveMarks(8, 8, 7);
+            MoveAllMarks(8, 8, 7);
         }
 
 
@@ -731,7 +819,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombPorts.Contains("StereoRCA"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Three should be applied.");
-            MoveMarks(3, 10, 2);
+            MoveAllMarks(3, 10, 2);
         }
 
 
@@ -741,7 +829,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombPorts.Contains("RJ45"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Four should be applied.");
-            MoveMarks(3, 1, 6);
+            MoveAllMarks(3, 1, 6);
         }
 
 
@@ -751,7 +839,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombIndicators.Contains("CLR"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Five should be applied.");
-            MoveMarks(5, 5, 5);
+            MoveAllMarks(5, 5, 5);
         }
 
 
@@ -786,8 +874,9 @@ public class AllmightySinnoh : SummoningModule {
             // Dot product between this module's Forward (blue) and the vector to the Timer
             Vector3 toTimer = (timerPos - modulePos).normalized;
             float dot = Vector3.Dot(transform.forward, toTimer);
-            AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six Debug Info: timerPos = {0}; modulePos = {1}; vectorToTimer = {2}; transform.up = {3}; dot = {4}",
-                timerPos, modulePos, toTimer, transform.forward, dot);
+
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Step Six Debug Info: timerPos = {1}; modulePos = {2}; vectorToTimer = {3}; transform.up = {4}; dot = {5}",
+                allmightySinnohModuleId, timerPos, modulePos, toTimer, transform.forward, dot);
 
             // That Dot Product will be 1 if the timer is above this module,
             // 0 if it is horizontally adjacent
@@ -805,12 +894,12 @@ public class AllmightySinnoh : SummoningModule {
             if (dot == 0)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is horizontally aligned with the timer.");
-                MoveMarks(15, 2, 5);
+                MoveAllMarks(15, 2, 5);
             }
             else if (dot == 1)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is vertically aligned with the timer.");
-                MoveMarks(15, 2, 5);
+                MoveAllMarks(15, 2, 5);
             }
             else
             {
@@ -829,7 +918,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombNumberOfLits > _bombNumberOfUnlits)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Seven should be applied.");
-            MoveMarks(5, 4, 3);
+            MoveAllMarks(5, 4, 3);
         }
 
 
@@ -839,7 +928,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombHasAaBatteries && _bombHasDBatteries)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Eight should be applied.");
-            MoveMarks(2, 6, 0);
+            MoveAllMarks(2, 6, 0);
         }
 
 
@@ -849,7 +938,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombNumberOfLits < _bombNumberOfUnlits)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Nine should be applied.");
-            MoveMarks(3, 4, 5);
+            MoveAllMarks(3, 4, 5);
         }
 
 
@@ -861,7 +950,7 @@ public class AllmightySinnoh : SummoningModule {
             if (bombReference.GetComponentInChildren<IndividualPlateModule>() != null)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Ten should be applied.");
-                MoveMarks(4, 9, 3);
+                MoveAllMarks(4, 9, 3);
             }
         }
         else
@@ -877,7 +966,7 @@ public class AllmightySinnoh : SummoningModule {
 
 
     /// <summary> Method for moving the Marks around a specific amount </summary>
-    void MoveMarks(int TimeMovement, int SpaceMovement, int AntimatterMovement)
+    void MoveAllMarks(int TimeMovement, int SpaceMovement, int AntimatterMovement)
     {
         bool _uniqueOffsetNeeded = false;
 
@@ -966,7 +1055,7 @@ public class AllmightySinnoh : SummoningModule {
     /// but Allmighty Sinnoh has its own beforehand! </summary>
     void InitializeAllmightySinnohTwitchHelpMessage()
     {
-        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} shownames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”. If that wiggle isn't enough, use “!{0} read” to get that information. Press the SINNOH casing button using “!{0} sinnoh”.");
+        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} shownames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”; and if that's not enough, use “!{0} read” to get the information. Press the SINNOH casing button using “!{0} sinnoh”.");
     }
 
     /// <summary> Called by Plates when they are summoned to set their custom Twitch Help Message </summary>

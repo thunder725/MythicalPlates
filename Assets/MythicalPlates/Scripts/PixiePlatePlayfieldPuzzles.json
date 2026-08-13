@@ -62,5 +62,29 @@
     "pixieIDs": [ 9, 6, 3, 0, 2 ],
     "voidCellLocations": [ "30", "41", "33" ],
     "intendedPixiePlacementSolution": [ "73", "12", "11", "00", "13" ]
+  },
+  {
+    "puzzleID": 8, // Many Fléau and Dashaz!!
+    "demonIDs": [ 5, 2, 4, 3, 4, 2 ],
+    "demonLocations": [ "43", "41", "73", "32", "61", "50" ],
+    "pixieIDs": [ 9, 3, 3, 0 ],
+    "voidCellLocations": [ "03", "23", "51" ],
+    "intendedPixiePlacementSolution": [ "71", "31", "22", "13" ]
+  },
+  {
+    "puzzleID": 9, // Area of Denial
+    "demonIDs": [ 8, 7, 0, 1 ],
+    "demonLocations": [ "33", "51", "70", "12" ],
+    "pixieIDs": [ 5, 6, 3 ],
+    "voidCellLocations": [ "40", "22", "63" ],
+    "intendedPixiePlacementSolution": [ "02", "20", "21" ]
+  },
+  {
+    "puzzleID": 10, // Zagan Wall with side of Basel
+    "demonIDs": [ 2, 3, 3, 5, 8, 0 ],
+    "demonLocations": [ "60", "53", "52", "63", "61", "13" ],
+    "pixieIDs": [ 1, 8, 6, 2, 3 ],
+    "voidCellLocations": [ "32", "20", "41" ],
+    "intendedPixiePlacementSolution": [ "03", "43", "50", "12", "22" ]
   }
 ]

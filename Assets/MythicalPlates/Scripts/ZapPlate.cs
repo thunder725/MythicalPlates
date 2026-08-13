@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class ZapPlate : PlateBase {
 
-    /// <summary> Table DYN4M0 from the manual. I checked for typos 3 times so I hope there's none!! </summary>
-    readonly int[] tableDynamo = new int[150]
+    /// <summary> Table DYN4M0. This is the starting position for Ruleseed 1.</summary>
+    int[] tableDynamo = new int[150]
     {   8, 5, 0, 3, 2, 6, 7, 9, 1, 4,
         3, 8, 4, 2, 0, 7, 1, 5, 6, 9,
         4, 1, 8, 9, 5, 0, 6, 7, 2, 3,
@@ -56,6 +56,7 @@ public class ZapPlate : PlateBase {
         sixDigitStageValues = new string[5] { "", "", "", "", "" };
 
         CalculateStartingCoordinate();
+        ConstructTableFromRuleseed();
         FindAllSixDigitNumbers();
         FindSubmissionTimerNumber();
     }
@@ -107,6 +108,30 @@ public class ZapPlate : PlateBase {
         // Log
         summoningModule.ModuleLog(moduleId, "Starting Coordinate in the table is column {0}, row {1}, also known as {2}",
             GetColumnFromCellIndex(currentLocation, 10), GetRowFromCellIndex(currentLocation, 10), GetCoordinateFromCellIndex(currentLocation, 10));
+    }
+
+    void ConstructTableFromRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1)
+        { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Grid.", Rng.Seed);
+
+        FisherYatesShuffle(ref tableDynamo, Rng);
+
+        string _log = string.Empty;
+        for (int i = 0; i < 15; i ++)
+        {
+            for (int j = 0; j < 10; j ++)
+            {
+                _log += tableDynamo[10 * i + j];
+            }
+            _log += " ";
+        }
+
+        Debug.LogFormat("<Zap Plate #{0}> For verification purposes, the whole grid is {1}.", moduleId, _log);
     }
 
 

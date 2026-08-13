@@ -10,7 +10,7 @@ public class MeadowPlate : PlateBase {
     readonly string[] ReadableMonths = new string[12] { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
 
     /// <summary> ALL BERRIES, with the months they can be planted in. 1 is January, not 0. </summary>
-    readonly Dictionary<string, int[]> berries = new Dictionary<string, int[]>()
+    Dictionary<string, int[]> berries = new Dictionary<string, int[]>()
     {
         { "Aguav", new int[4]{ 2, 3, 8, 9 } }, { "Apicot", new int[6]{ 1, 2, 3, 10, 11, 12 } }, { "Aspear", new int[6]{ 1, 2, 3, 10, 11, 12} },
         { "Babiri", new int[4]{ 5, 6, 7, 8 } }, { "Belue", new int[4]{ 1, 2, 11, 12 } }, { "Bluk", new int[6]{ 1, 2, 3, 4, 11, 12 } },
@@ -195,6 +195,8 @@ public class MeadowPlate : PlateBase {
 
         DetermineTargetMonth();
 
+        ManageRuleseed();
+
         FindFourCompatibleBerries();
 
     }
@@ -222,6 +224,29 @@ public class MeadowPlate : PlateBase {
         { targetBerryMonth = UnityEngine.Random.Range(1, 13); }
 
         summoningModule.ModuleLog(moduleId, "Will generate 4 berries that can be planted in {0}.", GetReadableMonthName(targetBerryMonth));
+    }
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling valid months around!", Rng.Seed);
+
+        // Thankfully, for some reason, the Keys and Values stay in order!
+        string[] allBerryNames = berries.Keys.ToArray();
+        int[][] allBerryMonths = berries.Values.ToArray();
+
+        // We can then just shuffle the Months, and for each Berry Name we give it the new month
+        FisherYatesShuffle(ref allBerryMonths, Rng);
+
+        for (int i = 0; i < allBerryMonths.Length; i++)
+        {
+            berries[allBerryNames[i]] = allBerryMonths[i];
+        }
+
+        Debug.LogFormat("<Meadow Plate #{0}> Berry-Month table has been shuffled. Here it is: {1}", moduleId, berries.Select(x => x.Key + ": " + x.Value.Join()).Join(" | "));
     }
 
     void FindFourCompatibleBerries()

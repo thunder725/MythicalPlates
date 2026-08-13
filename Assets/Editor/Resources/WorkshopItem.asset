@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Name: WorkshopItem
   m_EditorClassIdentifier: 
   WorkshopPublishedFileID: 3757544895
-  Title: '[PUBLIC BETA] Mythical Plates'
+  Title: Mythical Plates
   Tags:
   - Regular Module

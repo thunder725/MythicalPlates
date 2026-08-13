@@ -32,8 +32,18 @@ public class SplashPlate : PlateBase {
     readonly Vector2[] points = new Vector2[8] { new Vector2(-1, 2), new Vector2(1, 2), new Vector2(2, 1), new Vector2(2, -1),
         new Vector2(1, -2), new Vector2(-1, -2), new Vector2(-2, -1), new Vector2(-2, 1)};
 
-    /// <summary> The 8 points in the new order they must be connected in. </summary>
-    int[] LustrousPointIndices;
+
+    /// <summary> Ruleseed can randomize which point is where in the Wheel. This the index of the new letter/point, given the old index. </summary>
+    int[] ruleseededLustrousWheel = new int[8] { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+    /// <summary> Because of Ruleseed, the index in the wheel is not the same index as the letter! Wheel index 2 could be H, which is index 7 in the Points.
+    /// We can translate from Wheel to Point using ruleseededLustrousWheel.</summary>
+    int[] LustrousWheelIndices;
+
+    /// <summary> The 8 points in the order they must be connected in. This represents the LETTERS (A=0, B=1, etc.) </summary>
+    int[] ConnectedPointIndices;
+
+
 
     /// <summary> Structure to represent a 2D segment between two points </summary>
     public struct Segment { public Vector2 p1; public Vector2 p2; };
@@ -164,6 +174,7 @@ public class SplashPlate : PlateBase {
     {
         // StartCoroutine(DeterminePermutationWithMostIntersections());
 
+        ManageRuleseed();
 
         DeterminePlateText();
         ApplyLustrousWheelMovements();
@@ -172,12 +183,22 @@ public class SplashPlate : PlateBase {
         currentPlayerAnswer = "0000";
     }
 
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Lustrous Wheel letters!", Rng.Seed);
+
+        FisherYatesShuffle(ref ruleseededLustrousWheel, Rng);
+
+        summoningModule.ModuleLog(moduleId, "Starting in the NNW corner, going clockwise, letters are {0}", ruleseededLustrousWheel.Select(x => alphabet[x]).Join());
+    }
+
     void DeterminePlateText()
     {
         // Determine the letter + 6 numbers shown on the plate
-
         startingLetter = alphabet[UnityEngine.Random.Range(0, 8)][0];
-
 
         // I do not wish for the same number to appear too much, so a random shuffle is better than actual randomness
         LustrousMovements = new int[] { 2, 2, 3, 4, 5, 5, 6, 6, 7, 8, 8, 9 }.Shuffle().Take(6).ToArray();
@@ -193,7 +214,8 @@ public class SplashPlate : PlateBase {
 
     void ApplyLustrousWheelMovements()
     {
-        LustrousPointIndices = new int[8];
+        ConnectedPointIndices = new int[8];
+        LustrousWheelIndices = new int[8];
 
         // Determine if movement is clockwise or not
         // Does the Serial Number contain a letter from "PALKIA", or "AIKLP" when sorted alphabetically
@@ -209,10 +231,14 @@ public class SplashPlate : PlateBase {
 
 
         // Starting character
-        LustrousPointIndices[0] = Array.IndexOf(alphabet, startingLetter.ToString());
+        // Point is determined by the letter, so that's correct
+        ConnectedPointIndices[0] = Array.IndexOf(alphabet, startingLetter.ToString());
+        // But we need another reverse check to determine where that letter is in the Wheel if Ruleseeded
+        LustrousWheelIndices[0] = Array.IndexOf(ruleseededLustrousWheel, ConnectedPointIndices[0]);
+
 
         // Void Characters
-        voidedCellsIndices.Add(LustrousPointIndices[0]);
+        voidedCellsIndices.Add(LustrousWheelIndices[0]);
 
         summoningModule.ModuleLog(moduleId, "First Point given from the Plate is {0}.", startingLetter);
 
@@ -224,7 +250,7 @@ public class SplashPlate : PlateBase {
         for (int i = 0; i < 6; i++)
         {
             // Start at the previous chracter's index
-            _indexToLookAt = LustrousPointIndices[i];
+            _indexToLookAt = LustrousWheelIndices[i];
 
             // Offset, only positive for now
             _offset = LustrousMovements[i];
@@ -247,33 +273,35 @@ public class SplashPlate : PlateBase {
                 }
             }
 
-            // Movements done, register where we landed  
-            LustrousPointIndices[i + 1] = _indexToLookAt;
+            // Movements done, register where we landed in the wheel
+            LustrousWheelIndices[i + 1] = _indexToLookAt;
+            // Convert that wheel position to a point to Void
+            ConnectedPointIndices[i + 1] = ruleseededLustrousWheel[_indexToLookAt];
+
 
             // Void Character
             voidedCellsIndices.Add(_indexToLookAt);
 
+
             summoningModule.ModuleLog(moduleId, "After moving {0} times and passing a total of {1} Voided cells, the next point is {2}",
-                LustrousMovements[i], _offset - LustrousMovements[i], alphabet[LustrousPointIndices[i + 1]]);
+                LustrousMovements[i], _offset - LustrousMovements[i], alphabet[ConnectedPointIndices[i + 1]]);
         }
 
 
         // Last character
         // Get the only index [0-7] that is not voided
-        LustrousPointIndices[7] = new int[] { 0, 1, 2, 3, 4, 5, 6, 7 }.Where(x => voidedCellsIndices.Contains(x) == false).First();
+        // That index is the position in the wheel, don't forget to convert it to the letter following Ruleseed
+        ConnectedPointIndices[7] = ruleseededLustrousWheel[new int[] { 0, 1, 2, 3, 4, 5, 6, 7 }.Where(x => voidedCellsIndices.Contains(x) == false).First()];
 
-        for (int i = 0; i < 8; i ++)
-        {
-            finalPointsSequence += alphabet[LustrousPointIndices[i]] + " ";
-        }
+        finalPointsSequence = ConnectedPointIndices.Select(x => alphabet[x]).Join();
 
         summoningModule.ModuleLog(moduleId, "Last Point is {0}; so the points in order are {1}",
-            alphabet[LustrousPointIndices[7]], finalPointsSequence);
+            alphabet[ConnectedPointIndices[7]], finalPointsSequence);
     }
 
     void DetermineRequiredPlayerInput()
     {
-        numberOfIntersections = ComputeNumberOfIntersectionsInPermutation(LustrousPointIndices);
+        numberOfIntersections = ComputeNumberOfIntersectionsInPermutation(ConnectedPointIndices);
 
         // "numbersAsBinary" goes from 00000 to 11111; we only want the rightmost 4 bits though
         requiredPlayerAnswer = numberOfIntersections == 0 ? "1111" : numbersAsBinary[numberOfIntersections].Remove(0, 1);

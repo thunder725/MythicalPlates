@@ -14,42 +14,48 @@ MonoBehaviour:
   id: MythicalPlates
   title: Mythical Plates
   author: thunder725
-  description: "=-= This module pack is currently in Public Beta. It needs to be subscribed
-    voluntarily to function. The up-to-date manuals are available in #mod-creation
-    in the public KTANE Discord =-=\n\n\"The rightful bearer of a Plate draws from
-    the Plate it holds.\"\n\nHarness the power of the Mythical Plates and defy the
-    very fabric of reality!\n\n18 new challenges all centered around a mechanic of
-    Void, combined with a cellular automaton, a tower defense game, a Rubik's Cube
-    or a chain of plane flights.\n\nIf you feel adventurous, you can defy the Allmighty
-    Sinnoh and solve 3 randomly-selected challenges in a row.\nOtherwise, they each
-    are contained within their own individual Plate module.\n\nCreated by: thunder725\n\nIncludes
-    the following 19 modules:\n- Allmighty Sinnoh\n- Blank Plate\n- Draco Plate\n-
-    Dread Plate\n- Earth Plate\n- Fist Plate\n- Flame Plate\n- Icicle Plate\n- Insect
-    Plate\n- Iron Plate\n- Meadow Plate\n- Mind Plate\n- Pixie Plate\n- Sky Plate\n-
-    Splash Plate\n- Spooky Plate\n- Stone Plate\n- Toxic Plate\n- Zap Plate\n\nManuals
-    can be found at https://ktane.timwi.de/\n\nIncludes Twitch Plays compatibility.\n\n=-=
-    Version History =-=\n=-= 0.8\n- Open for Public Beta Testing\n\n=-= 0.8.1\n- Fixed
-    Draco Plate and Blank Plate modules not having proper reset buttons.\n\n=-= 0.8.2\n-
-    Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its attack stat
-    was negative.\n\n=-= 0.8.3\n- Pixie Plate: Void now affects player movement during
-    the setup phase\n\n=-= 0.8.4\r\n- Allmighty Sinnoh: Fixed a bug where Step Two
-    would not apply if only the Mark of Antimatter was affected.\r\n- Fist Plate:
-    Made D5 and D7 unable to get Voided.\r\n- Blank Plate: Adjusted Path generation
-    to be a shorter part of the module. Compressed Log for clearer explanations.\r\n-
-    Sky Plate: Favorized path being affected by Voided Cities\r\nThanks Blan!\n\n=-=
-    0.8.5\r\n- Sky Plate: Fixed several bugs in the puzzle generation, and rewrote
-    Logging to be much clearer for players.\r\n- Iron Plate, Meadow Plate: Cleaned
-    Logging by only including the final puzzle generation and not the aborted ones.\r\n-
-    Dread Plate, Flame Plate, Splash Plate, Toxic Plate: Slightly tweaked logging\n\n=-=
-    0.8.6\r\n- Allmighty Sinnoh: Made the Mark of Time wiggle more noticeable. Added
-    TP command to get Mark of Time read if needed. Fixed TP command Plate sub-handler
-    being treated as invalid by TP due to empty return.\r\n- Zap Plate: Fixed TP handler
-    not working.\r\n- Dread Plate: Added \"press\" as a valid keyword for TP command
-    submission.\n\n=-= 0.8.7\r\n- Zap Plate: Changed Table Looping behaviour to make
-    the module slightly more interesting\r\n- Mind Plate: Made movement logging slightly
-    more readable\r\n- Icicle Plate: Fixed incorrect logging of the last movement
-    on a successful attempt"
-  version: 0.8.7
+  description: "\"The rightful bearer of a Plate draws from the Plate it holds.\"\r\n\r\nHarness
+    the power of the Mythical Plates and defy the very fabric of reality!\r\n\r\n18
+    new challenges all centered around a mechanic of Void, combined with a cellular
+    automaton, a tower defense game, a Rubik's Cube or a chain of plane flights.\r\n\r\nIf
+    you feel adventurous, you can defy the Allmighty Sinnoh and solve 3 randomly-selected
+    Plates in a row.\r\nOtherwise, they each are contained within their own individual
+    Plate module.\r\n\r\nCreated by: thunder725\r\n\r\nIncludes the following 19 modules:\r\n-
+    Allmighty Sinnoh\r\n- Blank Plate\r\n- Draco Plate\r\n- Dread Plate\r\n- Earth
+    Plate\r\n- Fist Plate\r\n- Flame Plate\r\n- Icicle Plate\r\n- Insect Plate\r\n-
+    Iron Plate\r\n- Meadow Plate\r\n- Mind Plate\r\n- Pixie Plate\r\n- Sky Plate\r\n-
+    Splash Plate\r\n- Spooky Plate\r\n- Stone Plate\r\n- Toxic Plate\r\n- Zap Plate\r\n\r\nManuals
+    can be found at https://ktane.timwi.de/\r\n\r\nIncludes full Twitch Plays compatibility.\r\nIncludes
+    Ruleseed compatibility except for Pixie Plate and Toxic Plate.\r\n\r\n=-= Version
+    History =-=\r\n=-= 0.8\r\n- Open for Public Beta Testing\r\n\r\n=-= 0.8.1\r\n-
+    Fixed Draco Plate and Blank Plate modules not having proper reset buttons.\r\n\r\n=-=
+    0.8.2\r\n- Pixie Plate: Fixed Ifle-Sym healing Demons when attacking them if its
+    attack stat was negative.\r\n\r\n=-= 0.8.3\r\n- Pixie Plate: Void now affects
+    player movement during the setup phase\r\n\r\n=-= 0.8.4\r\n- Allmighty Sinnoh:
+    Fixed a bug where Step Two would not apply if only the Mark of Antimatter was
+    affected.\r\n- Fist Plate: Made D5 and D7 unable to get Voided.\r\n- Blank Plate:
+    Adjusted Path generation to be a shorter part of the module. Compressed Log for
+    clearer explanations.\r\n- Sky Plate: Favorized path being affected by Voided
+    Cities\r\nThanks Blan!\r\n\r\n=-= 0.8.5\r\n- Sky Plate: Fixed several bugs in
+    the puzzle generation, and rewrote Logging to be much clearer for players.\r\n-
+    Iron Plate, Meadow Plate: Cleaned Logging by only including the final puzzle generation
+    and not the aborted ones.\r\n- Dread Plate, Flame Plate, Splash Plate, Toxic Plate:
+    Slightly tweaked logging\r\n\r\n=-= 0.8.6\r\n- Allmighty Sinnoh: Made the Mark
+    of Time wiggle more noticeable. Added TP command to get Mark of Time read if needed.
+    Fixed TP command Plate sub-handler being treated as invalid by TP due to empty
+    return.\r\n- Zap Plate: Fixed TP handler not working.\r\n- Dread Plate: Added
+    \"press\" as a valid keyword for TP command submission.\r\n\r\n=-= 0.8.7\r\n-
+    Zap Plate: Changed Table Looping behaviour to make the module slightly more interesting\r\n-
+    Mind Plate: Made movement logging slightly more readable\r\n- Icicle Plate: Fixed
+    incorrect logging of the last movement on a successful attempt\r\n\r\n=-= 0.9.0\r\n-
+    Added Ruleseed Support to Blank Plate, Sky Plate, Earth Plate, Stone Plate, Insect
+    Plate, Spooky Plate, Flame Plate, Splash Plate, Meadow Plate, Zap Plate, Mind
+    Plate, Icicle Plate, Draco Plate and Dread Plate.\r\n- Dread Plate: Changed letter-symbol
+    pairing\r\n- Removed timer question for Insect Plate due to Allmighty Sinnoh summoning\r\n\r\n=-=
+    1.0.0\r\n- Ruleseed Support added to Fist Plate and Iron Plate.\n- Added solving
+    animation to Allmighty Sinnoh\r.\n- Fixed Blank Plate's solution generation being
+    incomplete.\n- Added more puzzles to Pixie Plate."
+  version: 1.0.0
   outputFolder: build
-  debugBuild: 1
+  debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

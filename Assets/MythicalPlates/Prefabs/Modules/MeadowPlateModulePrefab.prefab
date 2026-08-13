@@ -57,6 +57,7 @@ GameObject:
   - component: {fileID: 114208841272621400}
   - component: {fileID: 114696624720405076}
   - component: {fileID: 114699165774622088}
+  - component: {fileID: 114778827548376834}
   m_Layer: 0
   m_Name: MeadowPlateModulePrefab
   m_TagString: Untagged
@@ -443,6 +444,18 @@ MonoBehaviour:
   m_Script: {fileID: -1675560866, guid: 45b809be76fd7a3468b6f517bced6f28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114778827548376834
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1589639358081898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf69c2de51bd3c43bbd9bc22578ee08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _seed: 1
 --- !u!114 &114835988387058444
 MonoBehaviour:
   m_ObjectHideFlags: 1

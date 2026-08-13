@@ -1,4 +1,5 @@
 ﻿using KModkit;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,18 +8,25 @@ using UnityEngine;
 
 public class StonePlate : PlateBase{
 
-    readonly int[][] VoidPatterns = new int[4][]
+    readonly int[][] VoidPatterns = new int[11][]
     {
-        new int[16]{ 1, 6, 8, 15, 18, 21, 27, 28, 35, 36, 42, 45, 48, 55, 57, 62 },
-        new int[23]{ 9, 17, 18, 21, 22, 25, 26, 29, 30, 31, 37, 38, 39, 42, 43, 46, 47, 48, 49, 50, 51, 56, 57},
-        new int[22]{ 4, 6, 12, 13, 14, 20, 22, 25, 26, 27, 30, 33, 36, 37, 38, 41, 43, 49, 50, 51, 57, 59 },
-        new int[24]{ 0, 1, 3, 8, 9, 11, 12, 15, 20, 22, 23, 30, 33, 34, 35, 36, 47, 49, 50, 51, 55, 57, 62, 63 }
+        new int[16]{ 1, 6, 8, 15, 18, 21, 27, 28, 35, 36, 42, 45, 48, 55, 57, 62 }, // Corners and X
+        new int[23]{ 9, 17, 18, 21, 22, 25, 26, 29, 30, 31, 37, 38, 39, 42, 43, 46, 47, 48, 49, 50, 51, 56, 57}, // Big Blobs
+        new int[22]{ 4, 6, 12, 13, 14, 20, 22, 25, 26, 27, 30, 33, 36, 37, 38, 41, 43, 49, 50, 51, 57, 59 }, // Underground tunnels
+        new int[24]{ 0, 1, 3, 8, 9, 11, 12, 15, 20, 22, 23, 30, 33, 34, 35, 36, 47, 49, 50, 51, 55, 57, 62, 63 }, // Tetris Pieces
+        new int[20]{ 1, 4, 5, 10, 11, 16, 17, 19, 28, 31, 32, 37, 39, 41, 46, 49, 54, 55, 58, 61}, // Cracks in reality
+        new int[20]{ 1, 2, 8, 11, 16, 19, 21, 22, 23, 25, 26, 29, 31, 37, 38, 39, 43, 50, 52, 59 }, // Bubbles!
+        new int[17]{ 5, 12, 13, 20, 27, 28, 33, 34, 35, 36, 40, 41, 44, 45, 54, 55, 63 }, // Windmill
+        new int[20]{ 3, 4, 10, 13, 14, 18, 23, 27, 28, 30, 37, 44, 45, 50, 51, 52, 54, 57, 60, 63 }, // Torterra Tree
+        new int[20]{ 2, 5, 7, 9, 10, 11, 12, 14, 17, 19, 30, 36, 37, 39, 41, 46, 48, 50, 51, 57 }, // Infernape Flame + Shoulder
+        new int[19]{ 1, 8, 9, 10, 12, 17, 18, 21, 27, 30, 33, 36, 38, 42, 45, 46, 51, 52, 53 }, // Empoleon Trident
+        new int[13]{ 2, 7, 12, 17, 22, 27, 32, 37, 42, 47, 52, 57, 62 } // Dots all around
     };
 
 
     /// <summary> Starting from the top-left corner of the Treasure, add the top-left corner's index
     /// to the indices in this table to get the final indices of the treasure, in an 8x8 table.</summary>
-    readonly int[][] TreasurePositionOffsets = new int[10][]
+    readonly int[][] TreasurePositionOffsets = new int[17][]
     {
         new int[14]{ 1, 2, 3, 8, 9, 10, 11, 12, 16, 20, 27, 28, 34, 35 },
         new int[14]{ 0, 2, 8, 9, 10, 11, 12, 16, 17, 18, 19, 20, 25, 27 },
@@ -29,11 +37,19 @@ public class StonePlate : PlateBase{
         new int[14]{ 0, 8, 9, 16, 17, 19, 24, 25, 26, 27, 32, 35, 42, 43 },
         new int[12]{ 1, 8, 9, 16, 17, 18, 25, 26, 34, 35, 42, 43 },
         new int[12]{ 1, 9, 10, 16, 17, 18, 19, 24, 32, 33, 34, 41 },
-        new int[13]{ 0, 8, 9, 17, 18, 24, 25, 26, 27, 34, 35, 41, 42 }
+        new int[13]{ 0, 8, 9, 17, 18, 24, 25, 26, 27, 34, 35, 41, 42 },
+        new int[13]{ 0, 1, 5, 6, 9, 10, 11, 12, 13, 16, 17, 21, 22 },
+        new int[15]{ 0, 2, 4, 9, 10, 11, 12, 16, 17, 18, 19, 26, 27, 33, 36 },
+        new int[14]{ 0, 3, 8, 9, 10, 11, 17, 19, 20, 24, 25, 26, 27, 35 },
+        new int[13]{ 2, 4, 11, 12, 16, 17, 18, 19, 24, 25, 26, 32, 34 },
+        new int[13]{ 2, 3, 10, 11, 12, 17, 18, 20, 24, 25, 26, 33, 34 },
+        new int[10]{ 1, 8, 10, 13, 16, 17, 20, 22, 29, 30 },
+        new int[14]{ 1, 2, 3, 8, 12, 16, 20, 25, 27, 34, 35, 36, 43, 44 }
     };
 
-    /// <summary> For each Treasure, gives the latest Column and Row allowed for the Treasure to be correctly placed. 0-indexed </summary>
-    readonly int[] furthestAllowedCoordinatesPerTreasure = new int[20]
+    /// <summary> For each Treasure, gives the latest Column and Row allowed for the Treasure to be correctly placed.
+    /// 0-indexed. This is equal to "8 - size" for width and height. </summary>
+    readonly int[] furthestAllowedCoordinatesPerTreasure = new int[34]
     { 
         3, 3,
         3, 4,
@@ -44,8 +60,40 @@ public class StonePlate : PlateBase{
         4, 2,
         4, 2,
         4, 2,
-        4, 2
+        4, 2,
+        1, 5,
+        3, 3,
+        3, 3, 
+        3, 3,
+        3, 3,
+        1, 4,
+        3, 2
     };
+
+    /// <summary> Description of the items that can be found in the underground </summary>
+    readonly string[] itemDescriptions = new string[17]
+    {
+        "a croissant",
+        "a horizontal zig-zag line",
+        "a distorted dumbbell",
+        "an elongated donut",
+        "a distorted W",
+        "a whale with a big tail",
+        "a castle with two towers",
+        "a backslash",
+        "a cent symbol",
+        "a crooked 3",
+        "an open spanner/wrench",
+        "a spiky ball",
+        "a turtle pointing right",
+        "a raindeer looking to the right",
+        "a music note",
+        "a pair of rings",
+        "a necklace"
+    };
+
+    int[] ruleseedPossibleVoids = new int[4];
+    int[] ruleseedPossibleTreasures = new int[10];
 
     List<int> allTreasureTiles = new List<int>();
     List<int> remainingDrillableTreasureTiles = new List<int>();
@@ -147,9 +195,9 @@ public class StonePlate : PlateBase{
 
         currentNumberOfDrillsDone++;
 
-        if (currentNumberOfDrillsDone == 25)
+        if (currentNumberOfDrillsDone == 20)
         {
-            summoningModule.ModuleLog(moduleId, "25th drill done, Striking and resetting the puzzle");
+            summoningModule.ModuleLog(moduleId, "20th drill done, Striking and resetting the puzzle");
             summoningModule.ReceiveStrike();
             ReGeneratePuzzleAtRuntime();
             return;
@@ -197,6 +245,8 @@ public class StonePlate : PlateBase{
 
     void InitializePuzzle()
     {
+        ManageRuleseed();
+
         DetermineVoidPattern();
 
         GenerateStartingCoordinate();
@@ -205,6 +255,32 @@ public class StonePlate : PlateBase{
 
         currentCoordinate = startingCoordinate;
         startingCoordinateTextMesh.text = GetCoordinateFromCellIndex(startingCoordinate, 8);
+    }
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1)
+        {
+            ruleseedPossibleVoids = new int[4] { 0, 1, 2, 3 };
+            ruleseedPossibleTreasures = new int[10] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+            return;
+        }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling possible Void patterns and Treasures.", Rng.Seed);
+
+        int[] allowedVoids = new int[11] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        int[] allowedTreasures = new int[17] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
+
+        FisherYatesShuffle(ref allowedVoids, Rng);
+        FisherYatesShuffle(ref allowedTreasures, Rng);
+
+        Array.Copy(allowedVoids, ruleseedPossibleVoids, 4);
+        Array.Copy(allowedTreasures, ruleseedPossibleTreasures, 10);
+
+        Debug.LogFormat("<Stone Plate #{0}> Allowed Void Patterns are numbers {1}", moduleId, ruleseedPossibleVoids.Join(", "));
+        Debug.LogFormat("<Stone Plate #{0}> Allowed Treasures are {1}", moduleId, ruleseedPossibleTreasures.Select(x => itemDescriptions[x]).Join(", "));
     }
 
 
@@ -217,7 +293,7 @@ public class StonePlate : PlateBase{
         summoningModule.ModuleLog(moduleId, "Found {0} indicators, so Void Pattern used will be number {1}", _numberOfIndicators, selectedVoidPaternIndex);
 
         voidedCellsIndices.Clear();
-        voidedCellsIndices = VoidPatterns[selectedVoidPaternIndex].ToList();
+        voidedCellsIndices = VoidPatterns[ruleseedPossibleVoids[selectedVoidPaternIndex]].ToList();
     }
 
     /// <summary> Randomly select a Starting coordinate that is not Voided </summary>
@@ -241,9 +317,10 @@ public class StonePlate : PlateBase{
     void GenerateAndPlaceNewTreasure()
     {
         // Determine the Treasure shape
-        selectedTreasureIndex = UnityEngine.Random.Range(0, 9);
-        summoningModule.ModuleLog(moduleId, "Selected Treasure with index {0} (first in reading order is 0). It looks like {1}",
-            selectedTreasureIndex, GetLogDescriptionFromTreasureIndex(selectedTreasureIndex));
+        int _treasureIndexOnPage = UnityEngine.Random.Range(0, 9);
+        selectedTreasureIndex = ruleseedPossibleTreasures[_treasureIndexOnPage];
+        summoningModule.ModuleLog(moduleId, "Selected Treasure with index {0} (first in reading order is 0). It looks like {1}.",
+            _treasureIndexOnPage, itemDescriptions[selectedTreasureIndex]);
 
 
         int _treasureColumn = UnityEngine.Random.Range(0, furthestAllowedCoordinatesPerTreasure[2 * selectedTreasureIndex]);
@@ -263,25 +340,6 @@ public class StonePlate : PlateBase{
         remainingDrillableTreasureTiles = allTreasureTiles.Where(x => voidedCellsIndices.Contains(x) == false).ToList();
         summoningModule.ModuleLog(moduleId, "With the selected Void Pattern, all remaining non-voided Treasure tile indices are {0}",
             remainingDrillableTreasureTiles.Select(x => GetCoordinateFromCellIndex(x, 8)).Join(" "));
-    }
-
-    string GetLogDescriptionFromTreasureIndex(int treasureIndex)
-    {
-        switch (treasureIndex)
-        {
-            case 0: return "a croissant.";
-            case 1: return "a horizontal zig-zag line.";
-            case 2: return "a distorted dumbbell.";
-            case 3: return "an elongated donut.";
-            case 4: return "a distorted W.";
-            case 5: return "a whale with a big tail.";
-            case 6: return "a castle with two towers.";
-            case 7: return "a backslash";
-            case 8: return "a cent symbol.";
-            case 9: return "a crooked 3";
-        }
-
-        return "";
     }
 
     /// <summary> Does a Puzzle Generation while also resetting the Player Data </summary>

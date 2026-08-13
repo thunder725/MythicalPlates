@@ -19,6 +19,7 @@ public abstract class SummoningModule : MonoBehaviour {
     protected KMBombInfo bombInfo;
     protected KMAudio audioSubsystem;
     protected KMSelectable moduleSelectable;
+    protected KMRuleSeedable ruleSeed;
     [SerializeField] protected KMSelectable casingPressableButton;
     
 
@@ -58,6 +59,7 @@ public abstract class SummoningModule : MonoBehaviour {
         thisModule = GetComponent<KMBombModule>();
         audioSubsystem = GetComponent<KMAudio>();
         moduleSelectable = GetComponent<KMSelectable>();
+        ruleSeed = GetComponent<KMRuleSeedable>();
 
         thisModule.OnActivate += OnModuleActivate;
     }
@@ -92,6 +94,8 @@ public abstract class SummoningModule : MonoBehaviour {
         currentSummonedPlateScript.bombInfo = bombInfo;
         currentSummonedPlateScript.thisModule = thisModule;
         currentSummonedPlateScript.summoningModule = this;
+        if (ruleSeed != null) { currentSummonedPlateScript.ruleseedManager = ruleSeed; }
+        
 
         if (casingPressableButton != null)
         { currentSummonedPlateScript.casingPressableButton = casingPressableButton; }

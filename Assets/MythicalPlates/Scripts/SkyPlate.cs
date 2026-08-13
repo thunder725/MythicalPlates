@@ -7,10 +7,31 @@ using UnityEngine;
 
 public class SkyPlate : PlateBase {
 
-    /// <summary> All four possible Flight Duration Types as described in the manual </summary>
-    public enum FlightDurationType { Circle, Square, Triangle, Star }
+    /*
+    *   Ruleseed Support:
+    *   The time calculation for each Travel Type is randomized
+    */
 
-    Dictionary<FlightDurationType, int> AllFlightDurations;
+    /// <summary> Which Edgework elements can be used as Flight Duration Dependencies </summary>
+    public enum FlightDurationEdgeworkElement { Battery, Port, Indicator, BatteryHolder, PortPlate, AABattery, DBattery, LitIndicator, UnlitIndicator, SerialNumberDigit, SerialNumberLetter }
+    /// <summary> Struct representing the Rules and Dependencies used to compute a Flight Duration </summary>
+    public struct RuleseedFlightDuration
+    {
+        public int numberOfEdgeworkDependencies;
+        public FlightDurationEdgeworkElement firstEdgeworkType;
+        public FlightDurationEdgeworkElement secondEdgeworkType;
+        public int singularDuration;
+    }
+
+    /// <summary> Array containing the four Ruleseeded Flight Duration, ready to be computed </summary>
+    RuleseedFlightDuration[] determinedRuleseedDurations = new RuleseedFlightDuration[4];
+
+
+    /// <summary> All four possible Flight Duration Types as described in the manual </summary>
+    public enum FlightDurationSymbol { Circle, Square, Triangle, Star }
+
+    /// <summary> Duration of the flights after they've been computed as a fixed value </summary>
+    Dictionary<FlightDurationSymbol, int> ComputedFlightDurations;
 
     /// <summary> The two possible Line Parities, used to determine what happens with Voided Cities </summary>
     public enum FlightLineParity { Full, Dotted };
@@ -21,7 +42,7 @@ public class SkyPlate : PlateBase {
         /// <summary> String of the City you land on after taking this flight. Flights are considered one-way in this case. </summary>
         public string otherConnectedCityName;
         /// <summary> Duration of this flight </summary>
-        public FlightDurationType flightDuration;
+        public FlightDurationSymbol flightDuration;
         /// <summary> Line Parity of this flight </summary>
         public FlightLineParity lineParity;
     }
@@ -38,135 +59,135 @@ public class SkyPlate : PlateBase {
     /// <summary> All Cities in the graph, each with their own 4 flights </summary>
     readonly City[] allCities = new City[26] {
     new City{ cityName = "A", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "B", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "C", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "D", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "E", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "F", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "G", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "H", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Q", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "I", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "J", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "K", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "L", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "M", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "N", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "W", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "V", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "O", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "P", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "Q", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "H", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "R", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "A", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "Y", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "S", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "U", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "T", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "X", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "Z", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "U", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "E", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "V", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "I", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "W", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationType.Triangle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "J", flightDuration = FlightDurationSymbol.Triangle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "K", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "B", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "N", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "X", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted } } },
+        new Flight { otherConnectedCityName = "C", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "G", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "O", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted } } },
     new City{ cityName = "Y", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationType.Star, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Full } } },
+        new Flight { otherConnectedCityName = "P", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "R", flightDuration = FlightDurationSymbol.Star, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "D", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "L", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Full } } },
     new City{ cityName = "Z", allConnectedFlights = new Flight[4] {
-        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted },
-        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationType.Square, lineParity = FlightLineParity.Full },
-        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationType.Circle, lineParity = FlightLineParity.Dotted } } }
+        new Flight { otherConnectedCityName = "S", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "M", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted },
+        new Flight { otherConnectedCityName = "F", flightDuration = FlightDurationSymbol.Square, lineParity = FlightLineParity.Full },
+        new Flight { otherConnectedCityName = "T", flightDuration = FlightDurationSymbol.Circle, lineParity = FlightLineParity.Dotted } } }
     };
 
 
@@ -212,7 +233,7 @@ public class SkyPlate : PlateBase {
         // No need to log, this is done in the summoningModule
         base.InitializeModuleStart();
 
-        // VerifyDataIntegrity();
+        // VerifyFlightDataIntegrity();
 
         GenerateSkyPuzzle();
 
@@ -632,25 +653,170 @@ public class SkyPlate : PlateBase {
     }
 
 
-    int GetFlightDuration(FlightDurationType flightDurationType)
+    int GetFlightDuration(FlightDurationSymbol flightDurationType)
     {
         int _value = 0;
 
-        AllFlightDurations.TryGetValue(flightDurationType, out _value);
+        ComputedFlightDurations.TryGetValue(flightDurationType, out _value);
 
         return _value;
     }
 
+    void GenerateRuleseedRules()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+        if (Rng.Seed == 1)
+        { GetDefaultFlightDurationRules(); return; }
+
+        summoningModule.ModuleLog(moduleId, "Detected Ruleseed {0}. Rules are:", Rng.Seed);
+
+        /*
+        *   Flight Durations can be dependant on:
+        *   - no edgework at all (time between 2h and 5h)
+        *   - one piece of edgework (time between 20' and 1h20')
+        *   - sum of two pieces of edgework (time between 15' and 45')
+        *   
+        *   Randomization Array to make sure not too much degeneracy is here:
+        *   { None, None, One, One, One, Two }
+        *   
+        *   Time is rounded to the nearest 5 for both seconds and minutes (no 0:24:23, but 0:25:25 accepted)
+        *   
+        *   
+        *   Edgework allowed (single or with pair)
+        *   - Battery
+        *   - Port
+        *   - Indicator
+        *   - Battery Holder
+        *   - Port Plate
+        *   - AA Battery
+        *   - D Battery
+        *   - Lit Indicator
+        *   - Unlit Indicator
+        *   - Digit in SN
+        *   - Letter in SN
+        *   
+        *   
+        *   Default is 
+        *   CIRCLE  -00:35:20 per Battery
+        *   SQUARE  -00:40:15 per (Port Plate and Indicator)
+	    *   TRIANG  -01:15:30 per Port
+	    *   STAR    -03:45:05 
+        */
+
+        // Create the arrays for the Ruleseed to make sure it's not entirely RNG
+        int[] _possibleDependencyNumbers = new int[6] { 0, 0, 1, 1, 1, 2};
+
+        FlightDurationEdgeworkElement[] _possibleDurationEdgeworks = new FlightDurationEdgeworkElement[11] { FlightDurationEdgeworkElement.Battery, FlightDurationEdgeworkElement.Port, FlightDurationEdgeworkElement.Indicator,
+            FlightDurationEdgeworkElement.BatteryHolder, FlightDurationEdgeworkElement.PortPlate, FlightDurationEdgeworkElement.AABattery, FlightDurationEdgeworkElement.DBattery, FlightDurationEdgeworkElement.LitIndicator,
+            FlightDurationEdgeworkElement.UnlitIndicator, FlightDurationEdgeworkElement.SerialNumberDigit, FlightDurationEdgeworkElement.SerialNumberLetter};
+
+        // Shuffle those according to Ruleseed
+        FisherYatesShuffle(ref _possibleDependencyNumbers, Rng);
+        FisherYatesShuffle(ref _possibleDurationEdgeworks, Rng);
+
+
+
+        // Construct the RuleseedFlightDurations
+        RuleseedFlightDuration _generatedFlightDuration;
+        for (int i = 0; i < 4; i ++)
+        {
+            // Construct the struct
+            _generatedFlightDuration = new RuleseedFlightDuration();
+
+            // Give it the Dependency Type
+            _generatedFlightDuration.numberOfEdgeworkDependencies = _possibleDependencyNumbers[i];
+
+            // Give it up to two edgework data, even if they are unused it's okay
+            _generatedFlightDuration.firstEdgeworkType = _possibleDurationEdgeworks[i * 2];
+            _generatedFlightDuration.secondEdgeworkType = _possibleDurationEdgeworks[i * 2 + 1];
+
+
+            // Randomly get a value depending on the Flight Duration Dependency 
+            int _generatedSingularDuration = 0;
+            switch (_generatedFlightDuration.numberOfEdgeworkDependencies)
+            {
+                case 0:
+                    // Time between [2h; 5h[
+
+                    // 2h00' and 4h55' minutes inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(24, 60) * 300;
+                    // 0 and 55 seconds inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(0, 12) * 5;
+
+
+                    // Log
+                    summoningModule.ModuleLog(moduleId, "{0}: No Edgework dependency. Flat duration is {1}.",
+                        ((FlightDurationSymbol)i).ToString(), GetFullyLoggableTime(_generatedSingularDuration));
+                    break;
+
+                case 1:
+                    // Time between [20'; 1h20'[
+
+                    // 20 and 80 minutes inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(4, 16) * 300;
+                    // 0 and 55 seconds inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(0, 12) * 5;
+
+                    // Log
+                    summoningModule.ModuleLog(moduleId, "{0}: One Edgework dependency. Duration is {1} per {2}.",
+                        ((FlightDurationSymbol)i).ToString(), GetFullyLoggableTime(_generatedSingularDuration), _generatedFlightDuration.firstEdgeworkType.ToString());
+                    break;
+
+                case 2:
+                    // Time between [15'; 45'[
+
+                    // 15 and 40 minutes inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(3, 9) * 300;
+                    // 0 and 55 seconds inclusive (in range of 5)
+                    _generatedSingularDuration += Rng.Next(0, 12) * 5;
+
+                    // Log
+                    summoningModule.ModuleLog(moduleId, "{0}: Two Edgework dependencies. Duration is {1} per ({2} + {3}).",
+                        ((FlightDurationSymbol)i).ToString(), GetFullyLoggableTime(_generatedSingularDuration),
+                        _generatedFlightDuration.firstEdgeworkType.ToString(), _generatedFlightDuration.secondEdgeworkType.ToString());
+                    break;
+            }
+            // Apply that value
+            _generatedFlightDuration.singularDuration = _generatedSingularDuration;
+
+
+            // Save that generated Flight Duration
+            determinedRuleseedDurations[i] = _generatedFlightDuration;
+        }
+    }
+
+    void GetDefaultFlightDurationRules()
+    {
+        // Default values are
+        // CIRCLE  -00:35:20 per Battery
+        // SQUARE  -00:40:15 per (Port Plate and Indicator)
+        // TRIANG  -01:15:30 per Port
+        // STAR    -03:45:05
+
+        // Circle
+        determinedRuleseedDurations[0] = new RuleseedFlightDuration()
+            { numberOfEdgeworkDependencies = 1, firstEdgeworkType = FlightDurationEdgeworkElement.Battery, singularDuration = 2120 };
+
+        // Square
+        determinedRuleseedDurations[1] = new RuleseedFlightDuration()
+            { numberOfEdgeworkDependencies = 2, firstEdgeworkType = FlightDurationEdgeworkElement.PortPlate, 
+            secondEdgeworkType = FlightDurationEdgeworkElement.Indicator, singularDuration = 2415 };
+
+        // Triangle
+        determinedRuleseedDurations[2] = new RuleseedFlightDuration()
+            { numberOfEdgeworkDependencies = 1, firstEdgeworkType = FlightDurationEdgeworkElement.Port, singularDuration = 4530 };
+
+        // Star
+        determinedRuleseedDurations[3] = new RuleseedFlightDuration() { numberOfEdgeworkDependencies = 0, singularDuration = 13505 };
+    }
+
     void ComputeAllFlightDurations()
     {
+        GenerateRuleseedRules();
+
         summoningModule.ModuleLog(moduleId, "All Flight Durations are:");
 
-
-        int _duration = 0;
-        int edgeworkOne, edgeworkTwo;
-
-        AllFlightDurations = new Dictionary<FlightDurationType, int>();
-
+        ComputedFlightDurations = new Dictionary<FlightDurationSymbol, int>();
 
 
         // // Fake high durations to test over-24h limit
@@ -661,47 +827,101 @@ public class SkyPlate : PlateBase {
         // return;
 
 
+        // Prepare Memory Locations
+        FlightDurationSymbol _flightSymbol;
+        int _firstEdgeworkDependency = 0;
+        int _secondEdgeworkDependency = 0;
+        int _totalDuration = 0;
 
-        // Circle => 00:35:20 per Battery => 2120
-
-        edgeworkOne = bombInfo.GetBatteryCount();
-        _duration = 2120 * Mathf.Clamp(edgeworkOne, 1, 9);
-
-        AllFlightDurations.Add(FlightDurationType.Circle, _duration);
-        summoningModule.ModuleLog(moduleId, "Circle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Batteries.");
-
-
-
-
-        // Square => 00:50:45 per Indicator or Port Plate => 3045
-
-        edgeworkOne = bombInfo.GetIndicators().Count();
-        edgeworkTwo = bombInfo.GetPortPlateCount();
-        _duration = 3045 * Mathf.Clamp(edgeworkOne + edgeworkTwo, 1, 9);
-
-        AllFlightDurations.Add(FlightDurationType.Square, _duration);
-
-        summoningModule.ModuleLog(moduleId, "Square: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.");
+        for (int i = 0; i < 4; i ++)
+        {
+            // Circle, Square, Triangle, Star
+            _flightSymbol = (FlightDurationSymbol)i;
 
 
+            switch (determinedRuleseedDurations[i].numberOfEdgeworkDependencies)
+            {
+                case 0:
 
-        // Triangle => 01:15:30 per Port => 4530
+                    // No edgework, just a singular value
+                    _totalDuration = determinedRuleseedDurations[i].singularDuration;
 
-        edgeworkOne = bombInfo.GetPortCount();
-        _duration = 4530 * Mathf.Clamp(edgeworkOne, 1, 9);
-
-        AllFlightDurations.Add(FlightDurationType.Triangle, _duration);
-
-        summoningModule.ModuleLog(moduleId, "Triangle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Ports.");
+                    summoningModule.ModuleLog(moduleId, "{0}: Duration is {1}.", _flightSymbol.ToString(), GetFullyLoggableTime(_totalDuration));
+                    break;
 
 
+                case 1:
 
-        // Star => 3:45:05 flat => 13505
-        _duration = 13505;
+                    // One edgework type
+                    _firstEdgeworkDependency = GetEdgeworkDependencyData(determinedRuleseedDurations[i].firstEdgeworkType);
+                    
+                    _totalDuration = determinedRuleseedDurations[i].singularDuration * Mathf.Clamp(_firstEdgeworkDependency, 1, 9);
 
-        AllFlightDurations.Add(FlightDurationType.Star, _duration);
+                    summoningModule.ModuleLog(moduleId, "{0}: Duration is {1} because of the {2} {3}.",
+                        _flightSymbol.ToString(), GetFullyLoggableTime(_totalDuration), _firstEdgeworkDependency, determinedRuleseedDurations[i].firstEdgeworkType.ToString());
 
-        summoningModule.ModuleLog(moduleId, "Star: " + GetFullyLoggableTime(_duration));
+                    break;
+
+
+                case 2:
+
+                    // Two edgework types
+                    _firstEdgeworkDependency = GetEdgeworkDependencyData(determinedRuleseedDurations[i].firstEdgeworkType);
+                    _secondEdgeworkDependency = GetEdgeworkDependencyData(determinedRuleseedDurations[i].secondEdgeworkType);
+
+                    _totalDuration = determinedRuleseedDurations[i].singularDuration * Mathf.Clamp(_firstEdgeworkDependency + _secondEdgeworkDependency, 1, 9);
+
+                    summoningModule.ModuleLog(moduleId, "{0}: Duration is {1} because of the {2} {3} and {4} {5}.",
+                        _flightSymbol.ToString(), GetFullyLoggableTime(_totalDuration), _firstEdgeworkDependency, determinedRuleseedDurations[i].firstEdgeworkType.ToString(),
+                        _secondEdgeworkDependency, determinedRuleseedDurations[i].secondEdgeworkType.ToString());
+                    break;
+            }
+
+            // It has been computed, it can now be added!
+            ComputedFlightDurations.Add(_flightSymbol, _totalDuration);
+        }
+    }
+
+    int GetEdgeworkDependencyData(FlightDurationEdgeworkElement edgeworkType)
+    {
+        switch (edgeworkType)
+        {
+            case FlightDurationEdgeworkElement.Battery:
+                return bombInfo.GetBatteryCount();
+
+            case FlightDurationEdgeworkElement.Port:
+                return bombInfo.GetPortCount();
+
+            case FlightDurationEdgeworkElement.Indicator:
+                return bombInfo.GetIndicators().Count();
+
+            case FlightDurationEdgeworkElement.BatteryHolder:
+                return bombInfo.GetBatteryHolderCount();
+
+            case FlightDurationEdgeworkElement.PortPlate:
+                return bombInfo.GetPortPlateCount();
+
+            case FlightDurationEdgeworkElement.AABattery:
+                return bombInfo.GetBatteryCount(Battery.AA);
+
+            case FlightDurationEdgeworkElement.DBattery:
+                return bombInfo.GetBatteryCount(Battery.D);
+
+            case FlightDurationEdgeworkElement.LitIndicator:
+                return bombInfo.GetOnIndicators().Count();
+
+            case FlightDurationEdgeworkElement.UnlitIndicator:
+                return bombInfo.GetOffIndicators().Count();
+
+            case FlightDurationEdgeworkElement.SerialNumberDigit:
+                return bombInfo.GetSerialNumberNumbers().Count();
+
+            case FlightDurationEdgeworkElement.SerialNumberLetter:
+                return bombInfo.GetSerialNumberLetters().Count();
+        }
+
+        summoningModule.ModuleLogError(moduleId, "Tried to get unknown FlightDuration Edgework Element value: {0}. Please report this to thunder725", edgeworkType.ToString());
+        return 0;
     }
 
     string GetReadableHourNotationFromTime(int time)
@@ -729,7 +949,7 @@ public class SkyPlate : PlateBase {
         return String.Format("{0} seconds or {1}", time, GetReadableHourNotationFromTime(time));
     }
 
-    void VerifyDataIntegrity()
+    void VerifyFlightDataIntegrity()
     {
         City _connectedCity;
 
@@ -856,4 +1076,55 @@ public class SkyPlate : PlateBase {
         yield break;
     }
 
+
+
+
+    /*
+    =-=-= CODE CEMETARY =-=-=
+
+
+    Pre-ruleseed default values initialization
+    
+    // Circle => 00:35:20 per Battery => 2120
+
+    edgeworkOne = bombInfo.GetBatteryCount();
+    _duration = 2120 * Mathf.Clamp(edgeworkOne, 1, 9);
+
+    ComputedFlightDurations.Add(FlightDurationSymbol.Circle, _duration);
+    summoningModule.ModuleLog(moduleId, "Circle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Batteries.");
+
+
+
+
+    // Square => 00:50:45 per Indicator or Port Plate => 3045
+
+    edgeworkOne = bombInfo.GetIndicators().Count();
+    edgeworkTwo = bombInfo.GetPortPlateCount();
+    _duration = 3045 * Mathf.Clamp(edgeworkOne + edgeworkTwo, 1, 9);
+
+    ComputedFlightDurations.Add(FlightDurationSymbol.Square, _duration);
+
+    summoningModule.ModuleLog(moduleId, "Square: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Indicators and "+ edgeworkTwo + " Port Plates.");
+
+
+
+    // Triangle => 01:15:30 per Port => 4530
+
+    edgeworkOne = bombInfo.GetPortCount();
+    _duration = 4530 * Mathf.Clamp(edgeworkOne, 1, 9);
+
+    ComputedFlightDurations.Add(FlightDurationSymbol.Triangle, _duration);
+
+    summoningModule.ModuleLog(moduleId, "Triangle: " + GetFullyLoggableTime(_duration) + " because of the " + edgeworkOne + " Ports.");
+
+
+
+    // Star => 3:45:05 flat => 13505
+    _duration = 13505;
+
+    ComputedFlightDurations.Add(FlightDurationSymbol.Star, _duration);
+
+    summoningModule.ModuleLog(moduleId, "Star: " + GetFullyLoggableTime(_duration));
+     
+     */
 }

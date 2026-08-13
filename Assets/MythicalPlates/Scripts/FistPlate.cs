@@ -11,6 +11,8 @@ public class FistPlate : PlateBase {
     /// <summary> Location of all possible Redirection Station </summary>
     readonly int[] redirectionStationIndices = new int[29] { 0, 3, 5, 7, 9, 11, 14, 16, 19, 21, 23, 25, 28, 30, 32, 33, 35, 37, 39, 42, 44, 49, 51, 54, 56, 57, 60, 61, 62};
 
+    int[] ruleseedRedirectionModifier = new int[4];
+
     /// <summary> Dictionary containing each ACTIVE Redirection Station's location, with its associated Redirect Direction. </summary>
     Dictionary<int, int> redirectionDirections;
 
@@ -102,10 +104,28 @@ public class FistPlate : PlateBase {
 
     void InitializePuzzle()
     {
+        InitializeRuleseed();
         GenerateVoidTiles();
         GenerateRedirectionString();
         DistributeRedirectionToStations();
         SimulateUnstoppableForcePath();
+    }
+
+    void InitializeRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        ruleseedRedirectionModifier = new int[4] { 0, 1, 2, 3 };
+
+        if (Rng.Seed == 1)
+        { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling which Redirect Direction is associated to which number!", Rng.Seed);
+
+        FisherYatesShuffle(ref ruleseedRedirectionModifier, Rng);
+
+        summoningModule.ModuleLog(moduleId, "0 is now associated to {0}, 1 to {1}, 2 to {2} and 3 to {3}", (MovementDirection)ruleseedRedirectionModifier[0],
+            (MovementDirection)ruleseedRedirectionModifier[1], (MovementDirection)ruleseedRedirectionModifier[2], (MovementDirection)ruleseedRedirectionModifier[3]);
     }
 
     void GenerateVoidTiles()
@@ -196,7 +216,7 @@ public class FistPlate : PlateBase {
             // Cannot directly gather the i-th value from the redirection string, because i might not be
             // "The i-th station to receive a direction" due to Void!
             // Instead we use the number of stations added up until now
-            redirectionDirections.Add(redirectionStationIndices[i], CharToInt(RedirectionString[_numberOfStationsWithDirections]));
+            redirectionDirections.Add(redirectionStationIndices[i], ruleseedRedirectionModifier[CharToInt(RedirectionString[_numberOfStationsWithDirections])]);
 
             _numberOfStationsWithDirections++;
         }

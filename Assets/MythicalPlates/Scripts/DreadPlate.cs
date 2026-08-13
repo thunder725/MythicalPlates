@@ -12,9 +12,9 @@ public class DreadPlate : PlateBase {
 
     readonly Dictionary<char, char> letterToSymbolTable = new Dictionary<char, char>() 
     {
-        {'E', '#'}, {'F', '#'}, {'H', '#'}, {'L', '#'}, {'N', '#'}, {'T', '#'}, {'V', '#'}, {'W', '#'},
-        {'B', '&'}, {'D', '&'}, {'G', '&'}, {'R', '&'}, {'S', '&'}, {'U', '&'},
-        {'K', '%'}, {'M', '%'}, {'P', '%'}, {'X', '%'}, {'Z', '%'},
+        {'F', '#'}, {'H', '#'}, {'L', '#'}, {'N', '#'}, {'T', '#'}, {'V', '#'}, {'W', '#'}, {'X', '#'},
+        {'B', '&'}, {'D', '&'}, {'E', '&'}, {'G', '&'}, {'S', '&'}, {'U', '&'},
+        {'K', '%'}, {'M', '%'}, {'P', '%'}, {'R', '%'}, {'Z', '%'},
         {'A', '@'}, {'C', '@'}, {'O', '@'}, {'Q', '@'},
         {'I', '!'}, {'J', '!'}, {'Y', '!'}
     };
@@ -108,12 +108,50 @@ public class DreadPlate : PlateBase {
 
     void InitializePuzzle()
     {
+        ManageRuleseed();
+
         GenerateVoidedWords();
         ShowWordsOnModule();
 
         GetConcatenatedSerialNumberDigits();
         GatherKeywordsFromText();
         TransformDreadSequence();
+    }
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling letter-symbol pairs!", Rng.Seed);
+
+        string[] splitAlphabet = new string[26];
+        Array.Copy(alphabet, splitAlphabet, 26);
+
+        FisherYatesShuffle(ref splitAlphabet, Rng);
+
+        char _associatedSymbol = '.';
+        for (int i = 0; i < 26; i ++)
+        {
+            if (i < 8) { _associatedSymbol = '#'; }
+            else if (i < 14) { _associatedSymbol = '&'; }
+            else if (i < 19) { _associatedSymbol = '%'; }
+            else if (i < 23) { _associatedSymbol = '@'; }
+            else { _associatedSymbol = '!'; }
+
+            letterToSymbolTable[splitAlphabet[i][0]] = _associatedSymbol;
+        }
+
+
+        // Log but in alphabetical order!
+
+        string _joinedLetters = splitAlphabet.Join("");
+        Debug.LogFormat("<Dread Plate #{0}> Letters associated with # are {1}, with & are {2}, with % are {3}, with @ are {4} and with ! are {5}", moduleId,
+            _joinedLetters.Substring(0,8).OrderBy(x => x).Join(""),
+            _joinedLetters.Substring(8, 6).OrderBy(x => x).Join(""),
+            _joinedLetters.Substring(14, 5).OrderBy(x => x).Join(""),
+            _joinedLetters.Substring(19, 4).OrderBy(x => x).Join(""),
+            _joinedLetters.Substring(23, 3).OrderBy(x => x).Join(""));
     }
 
     void GenerateVoidedWords()

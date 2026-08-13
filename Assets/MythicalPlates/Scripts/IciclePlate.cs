@@ -7,10 +7,15 @@ using UnityEngine;
 
 public class IciclePlate : PlateBase {
 
+    /*
+    * Ruleseed Support
+    * Shuffles around which Boat is given to which SN digit
+    */
+
     struct Boat { public int icebreakingPower; public int currentResistance; };
 
     /// <summary> All 10 possible Boats, depending on the Last digit of SN# </summary>
-    readonly Boat[] possibleBoats = new Boat[10]
+    Boat[] possibleBoats = new Boat[10]
     {
         new Boat(){ icebreakingPower = 4, currentResistance = 2},
         new Boat(){ icebreakingPower = 2, currentResistance = 1},
@@ -302,12 +307,31 @@ public class IciclePlate : PlateBase {
 
     void SelectBoat()
     {
+        // Ruleseed Check!
+        ManageRuleseed();
+
         int _lastDigit = bombInfo.GetSerialNumberNumbers().Last();
         selectedBoat = possibleBoats[_lastDigit];
 
         summoningModule.ModuleLog(moduleId, "Last digit of Serial Number is {0}. The associated Boat has an Icebreaking Power of {1} and Current Resistance of {2}",
             _lastDigit, selectedBoat.icebreakingPower, selectedBoat.currentResistance);
     }
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1)
+        { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling boat statistics.", Rng.Seed);
+
+        FisherYatesShuffle(ref possibleBoats, Rng);
+
+        Debug.LogFormat("<Icicle Plate #{0}> Randomized boat order is: {1}",
+                moduleId, possibleBoats.Select(x => x.icebreakingPower + "-" + x.currentResistance).Join(", "));
+    }
+
 
     void PlaceVoidTiles()
     {

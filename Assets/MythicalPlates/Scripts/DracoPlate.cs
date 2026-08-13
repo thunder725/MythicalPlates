@@ -16,6 +16,14 @@ public class DracoPlate : PlateBase
     // Indices of the three coloured cells
     int cyanCellIndex, magentaCellIndex, yellowCellIndex;
 
+    // Ruleseed can randomize the Rule order
+    enum Rule { Cyan, Magenta, Yellow };
+    Rule[] rulesToDo = new Rule[3] {Rule.Cyan, Rule.Magenta, Rule.Yellow};
+
+    // And can randomize the target for the Manhattan Distances
+    int[] manhattanTargets = new int[3] { 2, 4, 8};
+
+
     /// <summary> Representation of the Distance Field used by the Yellow Cell rule </summary>
     string yellowDistanceField;
 
@@ -51,6 +59,8 @@ public class DracoPlate : PlateBase
         // No need to log, this is done in the summoningModule
         base.InitializeModuleStart();
 
+        ManageRuleseed();
+
         // Initializing the starting state, before any rule
         GenerateVoidCellsFromBombData();
         GenerateStartingGrid();
@@ -61,18 +71,18 @@ public class DracoPlate : PlateBase
 
         cellsMarkedForToggle = new List<int>();
 
-        // Apply the Colored Steps in order
-        ApplyCyanCellRules();
-        ApplyMagentaCellRules();
-        ApplyYellowCellRules();
+
+
+        // Apply the Colored Steps
+        ApplyColoredRules(0);
+        ApplyColoredRules(1);
+        ApplyColoredRules(2);
 
         DetermineFinalRequiredSubmission();
         submittedLine = "";
     }
 
     // public override void UpdateModule() { base.UpdateModule(); }
-
-
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Player Inputs
@@ -128,6 +138,24 @@ public class DracoPlate : PlateBase
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Puzzle Initialization
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Rule order and Manhattan Distance Targets for Yellow Rule!", Rng.Seed);
+
+        manhattanTargets = new int[9] { 2, 4, 8, 1, 3, 5, 6, 7, 9 };
+
+        FisherYatesShuffle(ref rulesToDo, Rng);
+        FisherYatesShuffle(ref manhattanTargets, Rng);
+
+        Array.Resize(ref manhattanTargets, 3);
+
+        summoningModule.ModuleLog(moduleId, "Rules in order will be {0}. The Manhattan Distance Targets are {1}", rulesToDo.Join(", then "), manhattanTargets.Join());
+    }
 
     void GenerateVoidCellsFromBombData()
     {
@@ -252,6 +280,24 @@ public class DracoPlate : PlateBase
 
         summoningModule.ModuleLog(moduleId, "Colored Cells coordiantes are: {0}", _coloredCellsCoordinates);
         coloredCellsCoordinatesInscription.text = _coloredCellsCoordinates;
+    }
+
+
+
+    void ApplyColoredRules(int ruleIndex)
+    {
+        switch (rulesToDo[ruleIndex])
+        {
+            case Rule.Cyan:
+                ApplyCyanCellRules();
+                return;
+            case Rule.Magenta:
+                ApplyMagentaCellRules();
+                return;
+            case Rule.Yellow:
+                ApplyYellowCellRules();
+                return;
+        }
     }
 
     void ApplyCyanCellRules()
@@ -379,7 +425,7 @@ public class DracoPlate : PlateBase
         {
             scratchLocationPointer = CharToInt(yellowDistanceField[i]);
 
-            if (scratchLocationPointer == 2 || scratchLocationPointer == 4 || scratchLocationPointer == 8)
+            if (manhattanTargets.Contains(scratchLocationPointer))
             {
                 cellsMarkedForToggle.Add(i);
             }
@@ -724,11 +770,11 @@ public class DracoPlate : PlateBase
 
         }
 
-        summoningModule.ModuleLog(moduleId, "Debug Yellow Distance Field:");
+        Debug.LogFormat("<Draco Plate #{0}> Debug Yellow Distance Field:", moduleId);
 
         for (int i = 0; i < 8; i++)
         {
-            summoningModule.ModuleLog(moduleId, yellowDistanceField.Substring(8 * i, 8));
+            Debug.LogFormat("<Draco Plate #{0}> {1}", moduleId, yellowDistanceField.Substring(8 * i, 8));
         }
     }
 

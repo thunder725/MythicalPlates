@@ -75,6 +75,7 @@ GameObject:
   - component: {fileID: 114208841272621400}
   - component: {fileID: 114696624720405076}
   - component: {fileID: 114699165774622088}
+  - component: {fileID: 114722604699980134}
   m_Layer: 0
   m_Name: StonePlateModulePrefab
   m_TagString: Untagged
@@ -520,6 +521,18 @@ MonoBehaviour:
   PlateToSummon: {fileID: 1115473799074938, guid: 26ce311b93654f846bdfca82410ea4f8,
     type: 2}
   SolveClip: {fileID: 8300000, guid: e07a1976c2ccff74d98e001c00190003, type: 3}
+--- !u!114 &114722604699980134
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1589639358081898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adf69c2de51bd3c43bbd9bc22578ee08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _seed: 1
 --- !u!114 &114766087948012328
 MonoBehaviour:
   m_ObjectHideFlags: 1

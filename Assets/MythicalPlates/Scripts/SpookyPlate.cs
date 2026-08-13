@@ -7,8 +7,10 @@ using UnityEngine;
 
 public class SpookyPlate : PlateBase {
 
-    readonly Dictionary<string, int> PlatinumTablePortToNumber = new Dictionary<string, int>() {
+    Dictionary<string, int> PlatinumTablePortToNumber = new Dictionary<string, int>() {
     { "StereoRCA", 1}, { "PS2", 7}, { "Serial", 14}, { "RJ45", 21}, { "DVI", 28}, {"Parallel", 35} };
+
+
 
     /// <summary>
     /// Width of each floor, to use in conjuction with MoveAroundGridWithVoid() to get the correct floor shape
@@ -385,6 +387,7 @@ public class SpookyPlate : PlateBase {
 
     void InitializePuzzle()
     {
+        ManageRuleseed();
         GenerateFloorOrder();
 
         DetermineVoidedLines();
@@ -394,6 +397,25 @@ public class SpookyPlate : PlateBase {
         LandInNewFloor(currentFloorIndex);
     }
 
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Table PLATINUM.", Rng.Seed);
+
+        string[] ports = new string[6] { "StereoRCA", "PS2", "Serial", "RJ45", "DVI", "Parallel" };
+        FisherYatesShuffle(ref ports, Rng);
+
+        for (int i = 0; i < 6; i ++)
+        {
+            // Numbers in order are 1 then multiples of 7
+            // 1 7 14 21 28 35
+            PlatinumTablePortToNumber[ports[i]] = (i == 0) ? 1 : i * 7;
+        }
+
+        summoningModule.ModuleLog(moduleId, "New port order in Table PLATINUM is {0}", ports.Join());
+    }
 
     void GenerateFloorOrder()
     {

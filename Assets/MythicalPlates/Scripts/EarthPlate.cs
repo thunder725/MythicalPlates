@@ -25,7 +25,7 @@ public class EarthPlate : PlateBase {
         132, 133,                                    141, 142, 143
     };
 
-    /// <summary> Store the union of the row and columns to void both at once </summary>
+    /// <summary> Store the union of the row and columns to void both at once. Could it have been an int[][]? Yes! </summary>
     readonly Dictionary<int, int[]> voidLines = new Dictionary<int, int[]>()
     {
         {1, new int[23]{0, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95}},
@@ -36,6 +36,7 @@ public class EarthPlate : PlateBase {
         {6, new int[23]{9, 21, 33, 45, 57, 69, 81, 93, 105, 117, 129, 141, 60, 61, 62, 63, 64, 65, 66, 67, 68, 70, 71}}
     };
 
+    string[] portsOrder = new string[6] { "Serial", "StereoRCA", "PS2", "DVI", "RJ45", "Parallel" };
 
     int startingTileIndex, targetTileIndex;
     int currentTileIndex;
@@ -253,6 +254,7 @@ public class EarthPlate : PlateBase {
     void InitializePuzzle()
     {
         DecideStartAndTargetTiles();
+        ApplyRuleseed();
         DetermineVoids();
 
         currentTileIndex = startingTileIndex;
@@ -290,6 +292,20 @@ public class EarthPlate : PlateBase {
         // }
     }
 
+
+    void ApplyRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1) { return; }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} Detected! Shuffling Table CLYDESDALE.", Rng.Seed);
+
+        FisherYatesShuffle(ref portsOrder, Rng);
+
+        summoningModule.ModuleLog(moduleId, "New Ports order is now {0}", portsOrder.Join());
+    }
+
     /// <summary> Void lines and columns using existing Port types </summary>
     void DetermineVoids()
     {
@@ -306,32 +322,7 @@ public class EarthPlate : PlateBase {
 
             foreach (string port in allPorts)
             {
-                switch (port)
-                {
-                    case "Serial":
-                        _portLineNumber = 1;
-                        break;
-
-                    case "StereoRCA":
-                        _portLineNumber = 2;
-                        break;
-
-                    case "PS2":
-                        _portLineNumber = 3;
-                        break;
-
-                    case "DVI":
-                        _portLineNumber = 4;
-                        break;
-
-                    case "RJ45":
-                        _portLineNumber = 5;
-                        break;
-
-                    case "Parallel":
-                        _portLineNumber = 6;
-                        break;
-                }
+                _portLineNumber = Array.IndexOf(portsOrder, port) + 1;
 
                 voidLines.TryGetValue(_portLineNumber, out _cellsToVoid);
 

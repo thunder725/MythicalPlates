@@ -7,6 +7,22 @@ using UnityEngine;
 
 public class MindPlate : PlateBase
 {
+    /*
+     * Ruleseed Support:
+     * Simply the digits used to Scramble the Rubik's Cube have random moves associated with them
+    */
+
+    ScramblingMove[] ruleseedScramblingMoves = new ScramblingMove[24] { 
+        ScramblingMove.Front, ScramblingMove.Front, ScramblingMove.FrontPrime, ScramblingMove.FrontPrime,
+        ScramblingMove.Back, ScramblingMove.Back, ScramblingMove.BackPrime, ScramblingMove.BackPrime,
+        ScramblingMove.Up, ScramblingMove.Up, ScramblingMove.UpPrime, ScramblingMove.UpPrime,
+        ScramblingMove.Down, ScramblingMove.Down, ScramblingMove.DownPrime, ScramblingMove.DownPrime,
+        ScramblingMove.Left, ScramblingMove.Left, ScramblingMove.LeftPrime, ScramblingMove.LeftPrime,
+        ScramblingMove.Right, ScramblingMove.Right, ScramblingMove.RightPrime, ScramblingMove.RightPrime };
+    bool[] ruleseedScramblingMoveDouble = new bool[10] { false, false, false, false, false, true, true, true, true, true };
+
+
+
     /// <summary> Representation of the Rubik's Cube that will get scrambled. Its numbers are 11 through 69, ignoring multiples of 10.
     /// Face I has numbers 11 12 13 14 15 16 17 18 19 in reading order, so when it gets scrambled we instantly know where it came from.
     /// This is just a representation of its original placement. The new location is represented in the number's index in the array.
@@ -104,18 +120,7 @@ public class MindPlate : PlateBase
     };
 
     /// <summary> Content of Table PSI in the manual </summary>
-    readonly ScramblingMove[][] ScramblingMovesPerDigit = new ScramblingMove[10][] {
-        new ScramblingMove[2] { ScramblingMove.Up, ScramblingMove.FrontPrime},
-        new ScramblingMove[1] { ScramblingMove.LeftPrime},
-        new ScramblingMove[1] { ScramblingMove.Back},
-        new ScramblingMove[2] { ScramblingMove.BackPrime, ScramblingMove.UpPrime},
-        new ScramblingMove[2] { ScramblingMove.Right, ScramblingMove.Right},
-        new ScramblingMove[2] { ScramblingMove.LeftPrime, ScramblingMove.UpPrime},
-        new ScramblingMove[1] { ScramblingMove.RightPrime},
-        new ScramblingMove[1] { ScramblingMove.DownPrime},
-        new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.Front},
-        new ScramblingMove[1] { ScramblingMove.Left}
-    };
+    ScramblingMove[][] ScramblingMovesPerDigit;
     readonly string[] romanNumeralsToSix = new string[6] { "I", "II", "III", "IV", "V", "VI" };
 
 
@@ -412,6 +417,7 @@ public class MindPlate : PlateBase
         summoningModule.ModuleLog(moduleId, "Starting Cube State:");
         LogRubiksCube();
 
+        ManageRuleseed();
         DetermineScramblingMovesToExecute();
 
         ResetValuesToStart();
@@ -444,6 +450,56 @@ public class MindPlate : PlateBase
         // Log
         summoningModule.ModuleLog(moduleId, "Selected constellation is {0}, which is the {1} in reading order in the manual.", selectedConstellation, _ordinal);
     }
+
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1)
+        {
+            // Default Values
+            ScramblingMovesPerDigit = new ScramblingMove[10][] {
+                new ScramblingMove[2] { ScramblingMove.Up, ScramblingMove.FrontPrime},
+                new ScramblingMove[1] { ScramblingMove.LeftPrime},
+                new ScramblingMove[1] { ScramblingMove.Back},
+                new ScramblingMove[2] { ScramblingMove.BackPrime, ScramblingMove.UpPrime},
+                new ScramblingMove[2] { ScramblingMove.Right, ScramblingMove.Right},
+                new ScramblingMove[2] { ScramblingMove.LeftPrime, ScramblingMove.UpPrime},
+                new ScramblingMove[1] { ScramblingMove.RightPrime},
+                new ScramblingMove[1] { ScramblingMove.DownPrime},
+                new ScramblingMove[2] { ScramblingMove.Down, ScramblingMove.Front},
+                new ScramblingMove[1] { ScramblingMove.Left} };
+            return;
+        }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} Detected! Shuffling Table PSI.", Rng.Seed);
+
+        FisherYatesShuffle(ref ruleseedScramblingMoves, Rng);
+        FisherYatesShuffle(ref ruleseedScramblingMoveDouble, Rng);
+
+        ScramblingMovesPerDigit = new ScramblingMove[10][];
+
+        // Use a specific order because the HTML is formatted 2-by-2
+        int[] _order = new int[10] { 0, 5, 1, 6, 2, 7, 3, 8, 4, 9 };
+
+        for (int i = 0; i < 10; i ++)
+        {
+            if (ruleseedScramblingMoveDouble[i])
+            {
+                ScramblingMovesPerDigit[_order[i]] = new ScramblingMove[2] { ruleseedScramblingMoves[i * 2], ruleseedScramblingMoves[i * 2 + 1] };
+                Debug.LogFormat("<Mind Plate #{0}> Scrambling Moves associated to {1} are {2} and {3}", moduleId, _order[i],
+                    ruleseedScramblingMoves[i * 2], ruleseedScramblingMoves[i * 2 + 1]);
+            }
+            else
+            {
+                ScramblingMovesPerDigit[_order[i]] = new ScramblingMove[1] { ruleseedScramblingMoves[i * 2] };
+                Debug.LogFormat("<Mind Plate #{0}> Scrambling Moves associated to {1} are {2}", moduleId, _order[i],
+                    ruleseedScramblingMoves[i * 2]);
+            }
+        }
+    }
+
 
     void DetermineScramblingMovesToExecute()
     {

@@ -34,6 +34,7 @@ public abstract class PlateBase : MonoBehaviour {
     [HideInInspector] public KMBombInfo bombInfo;
     [HideInInspector] public SummoningModule summoningModule;
     [HideInInspector] public KMSelectable casingPressableButton;
+    [HideInInspector] public KMRuleSeedable ruleseedManager;
 
     /// <summary> Delegate linked to the Casing Text Button being pressed (BLANK, STONE, DRACO, PIXIE, etc).
     /// Used to remove the delegate upon suppression by Allmighty Sinnoh to avoid phantom code execution. </summary>
@@ -88,6 +89,8 @@ public abstract class PlateBase : MonoBehaviour {
     /// <summary> Called by the Module after Start() is called. Used for puzzle initialization. </summary>
     public virtual void InitializeModuleStart()
     {
+        summoningModule.ModuleLog(moduleId, "Initializing Module");
+
         voidedCellsIndices = new List<int>();
         startingPlateIdleRotationOffset = UnityEngine.Random.Range(0f, 10f);
     }
@@ -154,6 +157,31 @@ public abstract class PlateBase : MonoBehaviour {
         additivePlateRotation = Vector3.zero;
     }
 
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Ruleseed Methods
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    /// <summary> Allows for easy implementation of the Ruleseed. </summary>
+    protected void FisherYatesShuffle<Type>(ref Type[] array, MonoRandom random)
+    {
+        int _length = array.Length;
+        int _index;
+        Type _value;
+        while (_length > 1)
+        {
+            // Get an Index from ruleseed, within [0, _i[
+            _index = random.Next(0, _length);
+            _length--;
+
+            // Get the value from that Index
+            _value = array[_index];
+            // Replace value at that index by the last value (we're stepping through)
+            array[_index] = array[_length];
+            // Replace the last value by that Index
+            array[_length] = _value;
+        }
+    }
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Global Table Methods
@@ -192,24 +220,9 @@ public abstract class PlateBase : MonoBehaviour {
             _whileFailsafe++;
             if (_whileFailsafe > 25)
             {
-                summoningModule.ModuleLog(moduleId, "Reached 25 iterations trying to move around... Send Help!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                summoningModule.ModuleLog(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                summoningModule.ModuleLogError(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                summoningModule.ModuleLogError(moduleId, "Reached 25 iterations trying to move around... Please report this to thunder725 !!!");
+                summoningModule.ModuleLogError(moduleId, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 return _voidMovementData;
             }
 

@@ -22,6 +22,16 @@ public class IronPlate : PlateBase {
 
     [SerializeField] TextMesh[] creaturesDataPlateTexts;
 
+
+    // Ruleseed data
+    string[] readableRuleLog = new string[21] {"AA Batteries", "D Batteries", "Indicator SND", "Indicator CLR", "Indicator CAR",
+            "Indicator IND", "Indicator FRQ", "Indicator SIG", "Indicator NSA", "Indicator MSA", "Indicator TRN",
+            "Indicator BOB", "Indicator FRK", "Empty Port Plate", "Parallel Port", "Serial Port", "DVI-D Port",
+            "PS/2 Port", "RJ-45 Port", "Stereo RCA Port", "Duplicate Port"};
+    int[] selectedPotentialVoidRules = new int[7];
+    int[] selectedPotentialVoidLocations = new int[7];
+
+
     /// <summary> Number of Timesteps used for generating the puzzle, and a forced solution. Sadly not necessary unique; especially with infinity seconds... </summary>
     int targetTimestopDuration;
 
@@ -310,10 +320,8 @@ public class IronPlate : PlateBase {
 
     void MoveCreatureOneTimestep(int creatureId)
     {
-        // Good thing is that Void is never:
-        // a) 2 in a row
-        // b) Next to an edge
-        // So void handling is wayyyy easier, none of that while loop business, just move twice if needed ^^
+        // Good thing is that Void is never next to an edge
+        // So void handling is wayyyy easier; that would pause Game Design questions I do not want to answer
 
 
         // Logging is special because we might do multiple rounds of Puzzle Generation (and so of Creature Movements)
@@ -325,17 +333,13 @@ public class IronPlate : PlateBase {
         Creature _creatureToMove = creatures[creatureId];
 
 
-        // First move once
-        _creatureToMove.currentCreatureLocation = GetTileIndexInDirection(_creatureToMove.currentCreatureLocation, _creatureToMove.currentMovementDirection);
-
-        // Then check for void
-        if (voidedCellsIndices.Contains(_creatureToMove.currentCreatureLocation))
+        // Move while not in void
+        do
         {
-            // Move a second time
-            // Void can't be next to an edge so it's always safe to do that
+            // Void can't be next to an edge so it's always safe to move
             _creatureToMove.currentCreatureLocation = GetTileIndexInDirection(_creatureToMove.currentCreatureLocation, _creatureToMove.currentMovementDirection);
         }
-        
+        while (voidedCellsIndices.Contains(_creatureToMove.currentCreatureLocation));       
 
         
         // Check for tile edge
@@ -490,6 +494,7 @@ public class IronPlate : PlateBase {
         targetTimestopDuration = UnityEngine.Random.Range(3, 16);
         summoningModule.ModuleLog(moduleId, "The intended solution for this generation will be to resume time for {0} seconds.", targetTimestopDuration);
 
+        ManageRuleseed();
 
         DetermineVoidedTiles();
         GenerateFourCreatures();
@@ -499,60 +504,146 @@ public class IronPlate : PlateBase {
         ResetCreatureData();
     }
 
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        if (Rng.Seed == 1)
+        {
+            selectedPotentialVoidRules = new int[7] { 0, 4, 13, 16, 2, 11, 14 };
+
+            // Not the same as the manual, because we directly use the tile indices in here!
+            selectedPotentialVoidLocations = new int[7] { 13, 20, 28, 42, 49, 57, 69 };
+            return;
+        }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling rule and locations of possible Voided Cells!", Rng.Seed);
+
+        int[] possibleRules = new int[21] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        int[] possibleLocations = new int[37] {
+                  10, 11, 12, 13,
+                19, 20, 21, 22, 23,
+              28, 29, 30, 31, 32, 33,
+            37, 38, 39, 40, 41, 42, 43,
+              47, 48, 49, 50, 51, 52,
+                57, 58, 59, 60, 61,
+                  67, 68, 69, 70 };
+
+        FisherYatesShuffle(ref possibleRules, Rng);
+        FisherYatesShuffle(ref possibleLocations, Rng);
+
+        selectedPotentialVoidRules = possibleRules.Take(7).ToArray();
+        selectedPotentialVoidLocations = possibleLocations.Take(7).ToArray();
+
+        for (int i = 0; i < 7; i ++)
+        {
+            Debug.LogFormat("<Iron Plate #{0}> Potential Void has rule {1} and is in location {2}", moduleId, readableRuleLog[selectedPotentialVoidRules[i]],
+                GetCoordinateFromCellIndex(selectedPotentialVoidLocations[i], 9));
+        }
+    }
+
     void DetermineVoidedTiles()
     {
-        // Is there any AA Battery? => Void E2
-        // Happens if there are more Batteries than Holders
-        if (bombInfo.GetBatteryCount() > bombInfo.GetBatteryHolderCount())
+        for (int i = 0; i < 7; i++)
         {
-            voidedCellsIndices.Add(13);
-            summoningModule.ModuleLog(moduleId, "Found AA batteries. Voiding E2");
+            CheckIndividualVoidTile(selectedPotentialVoidRules[i], selectedPotentialVoidLocations[i]);
+        }
+    }
+
+    void CheckIndividualVoidTile(int ruleNumber, int locationId)
+    {
+        bool _isTrue = false;
+        switch (ruleNumber)
+        {
+            case 0: // AA Batteries
+                _isTrue = bombInfo.GetBatteryCount(Battery.AA) > 0;
+                break;
+
+            case 1: // D Batteries
+                _isTrue = bombInfo.GetBatteryCount(Battery.D) > 0;
+                break;
+
+            case 2: // Indicator SND
+                _isTrue = bombInfo.GetIndicators().Contains("SND");
+                break;
+
+            case 3: // Indicator CLR
+                _isTrue = bombInfo.GetIndicators().Contains("CLR");
+                break;
+
+            case 4: // Indicator CAR
+                _isTrue = bombInfo.GetIndicators().Contains("CAR");
+                break;
+
+            case 5: // Indicator IND
+                _isTrue = bombInfo.GetIndicators().Contains("IND");
+                break;
+
+            case 6: // Indicator FRQ
+                _isTrue = bombInfo.GetIndicators().Contains("FRQ");
+                break;
+
+            case 7: // Indicator SIG
+                _isTrue = bombInfo.GetIndicators().Contains("SIG");
+                break;
+
+            case 8: // Indicator NSA
+                _isTrue = bombInfo.GetIndicators().Contains("NSA");
+                break;
+
+            case 9: // Indicator MSA
+                _isTrue = bombInfo.GetIndicators().Contains("MSA");
+                break;
+
+            case 10: // Indicator TRN
+                _isTrue = bombInfo.GetIndicators().Contains("TRN");
+                break;
+
+            case 11: // Indicator BOB
+                _isTrue = bombInfo.GetIndicators().Contains("BOB");
+                break;
+
+            case 12: // Indicator FRK
+                _isTrue = bombInfo.GetIndicators().Contains("FRK");
+                break;
+
+            case 13: // Empty Port Plate
+                _isTrue = bombInfo.GetPortPlates().Any(x => x.Length == 0);
+                break;
+
+            case 14: // Parallel Port
+                _isTrue = bombInfo.GetPorts().Contains("Parallel");
+                break;
+
+            case 15: // Serial Port
+                _isTrue = bombInfo.GetPorts().Contains("Serial");
+                break;
+
+            case 16: // DVI-D Port
+                _isTrue = bombInfo.GetPorts().Contains("DVI");
+                break;
+
+            case 17: // PS/2 Port
+                _isTrue = bombInfo.GetPorts().Contains("PS2");
+                break;
+
+            case 18: // RJ-45 Port
+                _isTrue = bombInfo.GetPorts().Contains("RJ45");
+                break;
+
+            case 19: // Stereo RCA Port
+                _isTrue = bombInfo.GetPorts().Contains("StereoRCA");
+                break;
+
+            case 20: // Duplicate Port
+                _isTrue = bombInfo.GetPorts().Distinct().Count() != bombInfo.GetPortCount();
+                break;
         }
 
-
-        IEnumerable<string> _indicators = bombInfo.GetIndicators();
-        IEnumerable<string> _ports = bombInfo.GetPorts();
-
-        // Is there a CAR indicator? => Void C3
-        if (_indicators.Contains("CAR"))
+        if (_isTrue)
         {
-            voidedCellsIndices.Add(20);
-            summoningModule.ModuleLog(moduleId, "Found CAR Indicator. Voiding C3");
-        }
-
-        // Is there an empty port plate? => Void B4
-        if (bombInfo.GetPortPlates().Any(x => x.Length == 0))
-        {
-            voidedCellsIndices.Add(28);
-            summoningModule.ModuleLog(moduleId, "Found empty port plate. Voiding B4");
-        }
-
-        // Is there a DVI-D Port? => Void G5
-        if (_ports.Contains("DVI"))
-        {
-            voidedCellsIndices.Add(42);
-            summoningModule.ModuleLog(moduleId, "Found DVI-D port. Voiding G5");
-        }
-
-        // Is there SND Indicator? => Void E6
-        if (_indicators.Contains("SND"))
-        {
-            voidedCellsIndices.Add(49);
-            summoningModule.ModuleLog(moduleId, "Found SND Indicator. Voiding E6");
-        }
-
-        // Is there BOB Indicator? => Void D7
-        if (_indicators.Contains("BOB"))
-        {
-            voidedCellsIndices.Add(57);
-            summoningModule.ModuleLog(moduleId, "Found BOB Indicator. Voiding D7");
-        }
-
-        // Is there a Parallel Port? => Void G8
-        if (_ports.Contains("Parallel"))
-        {
-            voidedCellsIndices.Add(69);
-            summoningModule.ModuleLog(moduleId, "Found Parallel port. Voiding G8");
+            voidedCellsIndices.Add(locationId);
+            summoningModule.ModuleLog(moduleId, "Found {0}. Voiding {1}", readableRuleLog[ruleNumber], GetCoordinateFromCellIndex(locationId, 9));
         }
     }
 

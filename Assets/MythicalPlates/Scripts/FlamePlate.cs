@@ -8,8 +8,10 @@ using UnityEngine;
 
 public class FlamePlate : PlateBase {
 
-    readonly int[] magmaTable = new int[100]
-    {  4, 8, 5, 1, 6, 3, 1, 7, 9, 2,
+    int[] magmaTable = new int[100];
+
+    int[] magmaContent = new int[94]
+    {           1, 6, 3, 1, 7, 9, 2,
        9, 3, 8, 2, 1, 7, 5, 2, 6, 4,
        2, 9, 3, 4, 3, 8, 6, 5, 1, 7,
        7, 4, 2, 9, 5, 1, 3, 8, 4, 6,
@@ -18,7 +20,7 @@ public class FlamePlate : PlateBase {
        7, 4, 3, 1, 7, 6, 9, 2, 5, 8,
        5, 1, 6, 8, 9, 4, 7, 3, 2, 8,
        6, 2, 7, 5, 4, 3, 8, 9, 9, 1,
-       3, 7, 1, 6, 7, 9, 2, 4, 8, 5};
+       3, 7, 1, 6, 7, 9, 2,        };
 
     int currentLocation;
     int xMovement, yMovement;
@@ -66,6 +68,7 @@ public class FlamePlate : PlateBase {
         voidedLines = new List<int>();
         nextPasscodeDigitToSubmit = 0;
 
+        ManageRuleseed();
         DetermineXAndY();
         DoAllMoveCycles();
     }
@@ -118,6 +121,39 @@ public class FlamePlate : PlateBase {
     //    Puzzle Initialization
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleseedManager.GetRNG();
+
+        // Table MAGMA always starts and ends with the numbers 485
+        // so we shuffle only the internal 94 other values.
+
+        if (Rng.Seed == 1)
+        {
+            magmaContent.CopyTo(magmaTable, 3);
+            magmaTable[0] = 4;
+            magmaTable[1] = 8;
+            magmaTable[2] = 5;
+            magmaTable[97] = 4;
+            magmaTable[98] = 8;
+            magmaTable[99] = 5;
+            return;
+        }
+
+        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Table MAGMA!", Rng.Seed);
+
+        FisherYatesShuffle(ref magmaContent, Rng);
+        magmaContent.CopyTo(magmaTable, 3);
+        magmaTable[0] = 4;
+        magmaTable[1] = 8;
+        magmaTable[2] = 5;
+        magmaTable[97] = 4;
+        magmaTable[98] = 8;
+        magmaTable[99] = 5;
+
+        Debug.LogFormat("<Flame Plate #{0}> For debug purposes, the shuffled Table MAGMA looks like {1}.", moduleId, magmaTable.Join(""));
+    }
 
     void DetermineXAndY()
     {

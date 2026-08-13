@@ -159,8 +159,11 @@ public class PixiePlate : PlateBase {
         // No need to log, this is done in the summoningModule
         base.InitializeModuleStart();
 
+        // Way to generate multiple puzzles so I can verify them manually
+        // StartCoroutine(StartGeneratingPuzzles()); return;
+
         // Debug Method to verify Preset Playfield Puzzles Integrity, and make sure all of them are in a valid state;
-        // VerifyPresetPlayfieldPuzzleIntegrity();
+        // VerifyPresetPlayfieldPuzzleIntegrity(); return;
 
         SelectPresetPlayfieldPuzzle();
         InitializePlayfieldFromPresetPuzzle(false, selectedPresetPuzzle);
@@ -671,7 +674,8 @@ public class PixiePlate : PlateBase {
     // Playfield Timestep Functions - Main Minigame Logic
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    void SimulatePlay()
+    /// <summary> Returns True if the Play is valid </summary>
+    bool SimulatePlay()
     {
         // Here we freaking go:
         currentTimestepIndex = 0;
@@ -698,6 +702,7 @@ public class PixiePlate : PlateBase {
                 isSimulatingPlay = false;
                 summoningModule.ModuleLog(moduleId, "Arrived at 100 Timesteps... What the hell did you even do? You get a pass this time, but be careful! (this shouldn't ever happen)");
                 ModuleShouldSolve();
+                return true;
             }
 
 
@@ -719,7 +724,7 @@ public class PixiePlate : PlateBase {
                 }
                 else
                 {  ModuleShouldStrike(); }
-                return;
+                return false;
             }
 
 
@@ -734,12 +739,13 @@ public class PixiePlate : PlateBase {
                 { 
                     ModuleShouldSolve(); 
                 }
-                return;
+                return true;
             }
 
             // And Repeat, until a DemonMovement arrives left, or an Attack Phase kills the last Demon!
         }
 
+        return false;
     }
 
 
@@ -2025,6 +2031,86 @@ public class PixiePlate : PlateBase {
         {
             summoningModule.ModuleLog(moduleId, "{0} represents the {1} with current Health {2} and Damage {3}.",
             _pixie.pixiePlayfieldNumber, _pixie.debugFriendlyName, _pixie.currentHealth, _pixie.currentDamage);
+        }
+    }
+
+
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    //    Puzzle Generation
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+    /* None of this code should be run during actual gameplay,
+     * and none of those puzzles should appear.
+     * 
+     * This is just a way to generate a bunch of possible puzzles so I can manually filter them
+     * and add the ones I want to the collection for players to try out
+     */
+
+    IEnumerator StartGeneratingPuzzles()
+    {
+        for (int i = 0; i < 5000; i ++)
+        {
+            GenerateSinglePuzzle();
+            yield return null;
+        }
+    }
+
+    void GenerateSinglePuzzle()
+    {
+        PresetPlayfieldPuzzle _puzzle = new PresetPlayfieldPuzzle();
+
+        // 4 to 6 Demons (id + location)
+        // 2 to 5 Pixies (id + location)
+        // 3 Voids (location)
+        // Generate those values, then Run.
+        // If it turns out to be correct; then save that!
+
+        List<int> _remainingFreeSpots = new List<int> { 00, 01, 02, 03, 10, 11, 12, 13, 20, 21, 22, 23, 30, 31, 32, 33, 40, 41, 42, 43, 50, 51, 52, 53, 60, 61, 62, 63, 70, 71, 72, 73 }.Shuffle();
+        int _freeSpotId = 0;
+
+
+        // Demons
+        int _numberOfDemons = UnityEngine.Random.Range(4, 7);
+        _puzzle.demonIds = new int[_numberOfDemons];
+        _puzzle.demonLocations = new string[_numberOfDemons];
+
+        for (int i = 0;  i < _numberOfDemons; i++)
+        {
+            _puzzle.demonLocations[i] = String.Format("{0:D2}", _remainingFreeSpots[_freeSpotId++]);
+            _puzzle.demonIds[i] = UnityEngine.Random.Range(0, 9);
+        }
+
+
+        // Pixies
+        int _numberOfPixies = UnityEngine.Random.Range(2, 6);
+        _puzzle.pixieIds = new int[_numberOfPixies];
+        _puzzle.intendedPixiePlacementSolution = new string[_numberOfPixies];
+
+        for (int i = 0; i < _numberOfPixies; i++)
+        {
+            _puzzle.intendedPixiePlacementSolution[i] = String.Format("{0:D2}", _remainingFreeSpots[_freeSpotId++]);
+            _puzzle.pixieIds[i] = UnityEngine.Random.Range(0, 10);
+        }
+
+
+        // Voids
+        _puzzle.voidCellLocations = new string[3];
+        for (int i = 0; i < 3; i++)
+        {
+            _puzzle.voidCellLocations[i] = String.Format("{0:D2}", _remainingFreeSpots[_freeSpotId++]);
+        }
+
+        summoningModule.ModuleLog(moduleId, "Testing Puzzle. Demons IDs: {0}; Demons Locations: {1}; Pixie Id: {2}; Pixie Locations: {3}; Void Locations; {4}",
+                _puzzle.demonIds.Join(), _puzzle.demonLocations.Join(), _puzzle.pixieIds.Join(), _puzzle.intendedPixiePlacementSolution.Join(), _puzzle.voidCellLocations.Join());
+
+
+        InitializePlayfieldFromPresetPuzzle(true, _puzzle);
+        isInIntegrityVisualizationMode = true;
+        if (SimulatePlay())
+        {
+            summoningModule.ModuleLogWarning(moduleId, "Demons IDs: {0}; Demons Locations: {1}; Pixie Id: {2}; Pixie Locations: {3}; Void Locations; {4}",
+                _puzzle.demonIds.Join(), _puzzle.demonLocations.Join(), _puzzle.pixieIds.Join(), _puzzle.intendedPixiePlacementSolution.Join(), _puzzle.voidCellLocations.Join());
         }
     }
 

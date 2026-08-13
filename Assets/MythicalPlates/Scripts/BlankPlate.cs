@@ -3,51 +3,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using UnityEngine;
 
 public class BlankPlate : PlateBase {
 
-    /// <summary> Dictionary containing the different Paths associated with each letter. </summary>
-    readonly Dictionary<char, string> PathConversionTable = new Dictionary<char, string>() {
-        {'A', "__x_x_*__"},
-        {'B', "___"},
-        {'C', "__*_*__"},
-        {'D', "__*__"},
-        {'E', "_*__*_*__"},
-        {'F', "_*__"},
-        {'G', "__x_"},
-        {'H', "_*___xx_"},
-        {'I', "_xxx__*_"},
-        {'J', "xx___*_"},
-        {'K', "*___x__"},
-        {'L', "_*_"},
-        {'M', "_xxx_*__"},
-        {'N', "_xx_*__"},
-        {'O', "x_x_**_"},
-        {'P', "*__*__"},
-        {'Q', "_*__xx__"},
-        {'R', "xx___x__"},
-        {'S', "_**__*_"},
-        {'T', "_*_xx__"},
-        {'U', "xxx_"},
-        {'V', "_xx__*_"},
-        {'W', "**_x_x_"},
-        {'X', "__x__*_"},
-        {'Y', "___x__x__"},
-        {'Z', "__*__xx_"},
-        {'0', "__"},
-        {'1', "**__*_"},
-        {'2', "_x_x_x___"},
-        {'3', "_**_xx__"},
-        {'4', "_xx__x_x_"},
-        {'5', "_**__"},
-        {'6', "**_x____*_"},
-        {'7', "_xx_"},
-        {'8', "x_x_x_x_"},
-        {'9', "x___**__"},
+    /*
+    *   Ruleseed Support:
+    *   The modules for each character is randomized
+    */
+
+    /// <summary> All 50 possible Level Design Modules for the characters. The first 36 are in order the ones for A-9. </summary>
+    string[] allPossibleModules = new string[50]
+    {
+        "__x_x_*__", "___", "__*_*__", "__*__", "_*__*_*__", "_*__", "__x_",     "_*___xx_", "_xxx__*_", "xx___*_",
+        "*___x__", "_*_", "_xxx_*__", "_xx_*__", "x_x_**_", "*__*__", "_*__xx__", "xx___x__", "_**__*_", "_*_xx__",
+        "xxx_", "_xx__*_",  "**_x_x_", "__x__*_", "___x__x__", "__*__xx_", "__", "**__*_", "_x_x_x___", "_**_xx__",
+        "_xx__x_x_", "_**__", "**_x____*_", "_xx_", "x_x_x_x_", "x___**__", "_*_*__", "x____*_", "_x__*__", "x_x__*_",
+        "_*_x___", "__*_**__", "_xx__xxx_", "**_", "__x_x_", "xx___", "**___x_", "_*_*___*_", "x_x_", "_x__"
     };
+
+    /// <summary> Dictionary containing the different Paths associated with each letter. </summary>
+    Dictionary<char, string> PathConversionTable = new Dictionary<char, string>();
+
     enum PabloMovementType { Step, Jump, Slide };
 
     /// <summary> Constructed Path that Pablo will have to traverse </summary>
@@ -125,6 +102,12 @@ public class BlankPlate : PlateBase {
                 // Move 3 tiles forward
                 for (int i = 0; i < 3; i ++)
                 {
+                    // Exit of the path!
+                    if (currentPabloIndex >= pabloPath.Length)
+                    {
+                        break;
+                    }
+
                     // Only can get hit by SlideObstacles (you jump over the Jump Obstacles)
                     if (pabloPath[currentPabloIndex] == '*')
                     {
@@ -134,6 +117,12 @@ public class BlankPlate : PlateBase {
 
                     // If no obstacle we can move of course.
                     MovePabloForwardWhileWatchingForVoid();
+                }
+
+                // Exit of the path!
+                if (currentPabloIndex >= pabloPath.Length)
+                {
+                    break;
                 }
 
                 // Then on the 4th, verify that it's a valid empty tile
@@ -151,6 +140,12 @@ public class BlankPlate : PlateBase {
                 // For 2 tiles, only get hit by JumpObstacles (you pass under the Slide Obstacles)
                 for (int i = 0; i < 2; i++)
                 {
+                    // Exit of the path!
+                    if (currentPabloIndex >= pabloPath.Length)
+                    {
+                        break;
+                    }
+
                     if (pabloPath[currentPabloIndex] == 'x')
                     {
                         GiveStrike();
@@ -159,6 +154,12 @@ public class BlankPlate : PlateBase {
 
                     // If no obstacle we can move of course.
                     MovePabloForwardWhileWatchingForVoid();
+                }
+
+                // Exit of the path!
+                if (currentPabloIndex >= pabloPath.Length)
+                {
+                    break;
                 }
 
                 // Then on the 3rd, verify that it's a valid empty tile
@@ -246,11 +247,36 @@ public class BlankPlate : PlateBase {
 
     void InitializePuzzle()
     {
+        ManageRuleseed();
         GeneratePath();
         StartCoroutine(StartVoidTileSearching());
     }
 
 
+    void ManageRuleseed()
+    {
+        // Ruleseed 1 doesn't randomize anything, the first 36 are already in order
+
+        MonoRandom rng = ruleseedManager.GetRNG();
+
+        if (rng.Seed != 1)
+        {
+            summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected. Shuffling modules around", rng.Seed);
+            FisherYatesShuffle<string>(ref allPossibleModules, rng);
+        }
+
+        char[] _associatedLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".ToCharArray();
+        for (int i = 0; i < 36; i ++)
+        {
+            PathConversionTable.Add(_associatedLetters[i], allPossibleModules[i]);
+        }
+
+        if (rng.Seed != 1)
+        {
+            Debug.LogFormat("<Blank Plate #{0}> For verification purposes, here are all modules present in the table, in order ABC...789: {1}",
+                moduleId, allPossibleModules.Take(36).Join(" || "));
+        }
+    }
 
     void GeneratePath()
     {
@@ -525,9 +551,9 @@ public class BlankPlate : PlateBase {
         if (tileToLookAt == pabloPath.Length)
         {
             // It's past the Path, so no matter what Movement we did, it's correct!
-            // Cannot return just an empty string since that's invalidity; so instead return a space; close enough!
             // summoningModule.ModuleLog(moduleId, "Got to the Leaf in tileIndex {0} with movement", tileToLookAt, movementType.ToString());
-            return " ";
+
+            return GetCharacterFromMovementType(movementType);
         }
 
 
