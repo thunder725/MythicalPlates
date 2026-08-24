@@ -121,9 +121,10 @@ public class DreadPlate : PlateBase {
     void ManageRuleseed()
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
-        if (Rng.Seed == 1) { return; }
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling letter-symbol pairs!", Rng.Seed);
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
+        if (Rng.Seed == 1) { return; }
 
         string[] splitAlphabet = new string[26];
         Array.Copy(alphabet, splitAlphabet, 26);

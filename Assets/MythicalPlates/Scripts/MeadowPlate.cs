@@ -230,9 +230,9 @@ public class MeadowPlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
-        if (Rng.Seed == 1) { return; }
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling valid months around!", Rng.Seed);
+        if (Rng.Seed == 1) { return; }
 
         // Thankfully, for some reason, the Keys and Values stay in order!
         string[] allBerryNames = berries.Keys.ToArray();
@@ -366,8 +366,8 @@ public class MeadowPlate : PlateBase {
 
         if (failedBerriesSelection.Count != 0)
         {
-            summoningModule.ModuleLog(moduleId, "Some berries were attempted by the Puzzle Generator but couldn't be picked for the selected Target Month: {0}",
-                failedBerriesSelection.Join(", "));
+            Debug.LogFormat("<Meadow Plate #{0}> Some berries were attempted by the Puzzle Generator but couldn't be picked for the selected Target Month: {1}",
+                moduleId, failedBerriesSelection.Join(", "));
         }
         
         summoningModule.ModuleLog(moduleId, "The four Berries to be planted and shown on the Plate are {0}", selectedBerries.Join(", "));

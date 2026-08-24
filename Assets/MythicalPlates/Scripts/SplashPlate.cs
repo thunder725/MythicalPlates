@@ -186,9 +186,10 @@ public class SplashPlate : PlateBase {
     void ManageRuleseed()
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
-        if (Rng.Seed == 1) { return; }
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Lustrous Wheel letters!", Rng.Seed);
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
+        if (Rng.Seed == 1) { return; }
 
         FisherYatesShuffle(ref ruleseededLustrousWheel, Rng);
 

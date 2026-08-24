@@ -901,10 +901,6 @@ public class AllmightySinnoh : SummoningModule {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is vertically aligned with the timer.");
                 MoveAllMarks(15, 2, 5);
             }
-            else
-            {
-                AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should NOT be applied.");
-            }
         }
         else
         {

@@ -105,6 +105,10 @@ public class FistPlate : PlateBase {
     void InitializePuzzle()
     {
         InitializeRuleseed();
+
+        summoningModule.ModuleLog(moduleId, "0 is associated to {0}, 1 to {1}, 2 to {2} and 3 to {3}", (MovementDirection)ruleseedRedirectionModifier[0],
+            (MovementDirection)ruleseedRedirectionModifier[1], (MovementDirection)ruleseedRedirectionModifier[2], (MovementDirection)ruleseedRedirectionModifier[3]);
+
         GenerateVoidTiles();
         GenerateRedirectionString();
         DistributeRedirectionToStations();
@@ -117,15 +121,12 @@ public class FistPlate : PlateBase {
 
         ruleseedRedirectionModifier = new int[4] { 0, 1, 2, 3 };
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         { return; }
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling which Redirect Direction is associated to which number!", Rng.Seed);
-
         FisherYatesShuffle(ref ruleseedRedirectionModifier, Rng);
-
-        summoningModule.ModuleLog(moduleId, "0 is now associated to {0}, 1 to {1}, 2 to {2} and 3 to {3}", (MovementDirection)ruleseedRedirectionModifier[0],
-            (MovementDirection)ruleseedRedirectionModifier[1], (MovementDirection)ruleseedRedirectionModifier[2], (MovementDirection)ruleseedRedirectionModifier[3]);
     }
 
     void GenerateVoidTiles()
@@ -167,32 +168,29 @@ public class FistPlate : PlateBase {
         // Concatenate them, mod 4
         RedirectionString = _serialNumberDigits.Select(x => x%4).Join("");
 
-        summoningModule.ModuleLog(moduleId, "Redirection String gets the Serial Number Digits {0}; which when Modulo 4 and concatenated becomes {1}",
-            _serialNumberDigits.Join(), RedirectionString);
+        summoningModule.ModuleLog(moduleId, "Serial Number Digits {0}, modulo 4, get appended to the Redirection String: {1}",_serialNumberDigits.Join(), RedirectionString);
 
 
         // Number of Batteries % 4
         int _numberOfBatteries = bombInfo.GetBatteryCount();
         RedirectionString += (_numberOfBatteries % 4).ToString();
-        summoningModule.ModuleLog(moduleId, "There are {0} batteries; which when Modulo 4 and added to the Redirection String gives {1}",
-            _numberOfBatteries, RedirectionString);
+        summoningModule.ModuleLog(moduleId, "The {0} batteries, modulo 4, get appended to the Redirection String: {1}", _numberOfBatteries, RedirectionString);
 
 
         // Number of Indicators % 4
         int _numberOfIndicators = bombInfo.GetIndicators().Count();
         RedirectionString += (_numberOfIndicators % 4).ToString();
-        summoningModule.ModuleLog(moduleId, "There are {0} indicators; which when Modulo 4 and added to the Redirection String gives {1}",
-            _numberOfIndicators, RedirectionString);
+        summoningModule.ModuleLog(moduleId, "The {0} indicators, modulo 4, get appended to the Redirection String: {1}", _numberOfIndicators, RedirectionString);
 
 
         // Number of Ports % 4
         int _numberOfPorts = bombInfo.GetPortCount();
         RedirectionString += (_numberOfPorts % 4).ToString();
-        summoningModule.ModuleLog(moduleId, "There are {0} ports; which when Modulo 4 and added to the Redirection String gives {1}",
+        summoningModule.ModuleLog(moduleId, "The {0} ports, modulo 4, get appended to the Redirection String: {1}",
             _numberOfPorts, RedirectionString);
 
 
-        summoningModule.ModuleLog(moduleId, "Final Redirection string is {0} repeated indefinitely", RedirectionString);
+        summoningModule.ModuleLog(moduleId, "Final Redirection string is {0}, repeated indefinitely", RedirectionString);
 
         // For ease of use, the Redirection string will be repeated 6 times so that even with its shortest length of 5 (2 SN# + battery + indic + port)
         // its length becomes 30 which is enough to cover the 29 Redirection Stations
@@ -220,6 +218,9 @@ public class FistPlate : PlateBase {
 
             _numberOfStationsWithDirections++;
         }
+
+        summoningModule.ModuleLog(moduleId, "The non-voided Redirect Stations now have those directions: {0}",
+            redirectionDirections.Select(x => GetCoordinateFromCellIndex(x.Key, 8) + '_' + ((MovementDirection)(x.Value)).ToString()).Join(" ") );
     }
 
     void SimulateUnstoppableForcePath()
@@ -302,7 +303,7 @@ public class FistPlate : PlateBase {
                 if (_stationDirection == unstoppableForceDirection || GetOppositeMovementDirection(_stationDirection) == unstoppableForceDirection)
                 {
                     // Ignore redirection station, do nothing
-                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}. The Redirection Station didn't affect it as its direction is aligned!",
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, but didn't get redirected as its direction is aligned with the Redirection Station!",
                         unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
                     continue;
                 }

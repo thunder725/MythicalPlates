@@ -143,9 +143,9 @@ public class DracoPlate : PlateBase
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
-        if (Rng.Seed == 1) { return; }
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Rule order and Manhattan Distance Targets for Yellow Rule!", Rng.Seed);
+        if (Rng.Seed == 1) { return; }
 
         manhattanTargets = new int[9] { 2, 4, 8, 1, 3, 5, 6, 7, 9 };
 
@@ -302,7 +302,7 @@ public class DracoPlate : PlateBase
 
     void ApplyCyanCellRules()
     {
-        summoningModule.ModuleLog(moduleId, "Applying Cyan rules.");
+        summoningModule.ModuleLog(moduleId, "Applying Cyan rules:");
 
         // For every cell in the row and column of Cyan Cell
         // Toggle, then try to apply GoL rules

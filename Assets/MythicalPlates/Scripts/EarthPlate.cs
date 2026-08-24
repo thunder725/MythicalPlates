@@ -267,7 +267,7 @@ public class EarthPlate : PlateBase {
         startingTileIndex = 1;
         targetTileIndex = 142;
 
-        summoningModule.ModuleLog(moduleId, "Starting cell is B1 and target cell is K12");
+        // summoningModule.ModuleLog(moduleId, "Starting cell is B1 and target cell is K12");
 
         return;
 
@@ -297,9 +297,9 @@ public class EarthPlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
-        if (Rng.Seed == 1) { return; }
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} Detected! Shuffling Table CLYDESDALE.", Rng.Seed);
+        if (Rng.Seed == 1) { return; }
 
         FisherYatesShuffle(ref portsOrder, Rng);
 

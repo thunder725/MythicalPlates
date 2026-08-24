@@ -456,6 +456,8 @@ public class MindPlate : PlateBase
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         {
             // Default Values
@@ -472,8 +474,6 @@ public class MindPlate : PlateBase
                 new ScramblingMove[1] { ScramblingMove.Left} };
             return;
         }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} Detected! Shuffling Table PSI.", Rng.Seed);
 
         FisherYatesShuffle(ref ruleseedScramblingMoves, Rng);
         FisherYatesShuffle(ref ruleseedScramblingMoveDouble, Rng);

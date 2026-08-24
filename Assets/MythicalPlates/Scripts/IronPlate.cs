@@ -508,6 +508,8 @@ public class IronPlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         {
             selectedPotentialVoidRules = new int[7] { 0, 4, 13, 16, 2, 11, 14 };
@@ -516,8 +518,6 @@ public class IronPlate : PlateBase {
             selectedPotentialVoidLocations = new int[7] { 13, 20, 28, 42, 49, 57, 69 };
             return;
         }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling rule and locations of possible Voided Cells!", Rng.Seed);
 
         int[] possibleRules = new int[21] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
         int[] possibleLocations = new int[37] {

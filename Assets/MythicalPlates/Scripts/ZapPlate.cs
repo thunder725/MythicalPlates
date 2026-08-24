@@ -114,10 +114,10 @@ public class ZapPlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         { return; }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Grid.", Rng.Seed);
 
         FisherYatesShuffle(ref tableDynamo, Rng);
 

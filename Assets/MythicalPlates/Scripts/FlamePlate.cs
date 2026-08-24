@@ -129,6 +129,8 @@ public class FlamePlate : PlateBase {
         // Table MAGMA always starts and ends with the numbers 485
         // so we shuffle only the internal 94 other values.
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         {
             magmaContent.CopyTo(magmaTable, 3);
@@ -140,8 +142,6 @@ public class FlamePlate : PlateBase {
             magmaTable[99] = 5;
             return;
         }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Table MAGMA!", Rng.Seed);
 
         FisherYatesShuffle(ref magmaContent, Rng);
         magmaContent.CopyTo(magmaTable, 3);

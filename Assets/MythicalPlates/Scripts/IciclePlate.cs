@@ -296,7 +296,7 @@ public class IciclePlate : PlateBase {
         // It adds currents to make that path possible by Extracting Data from that path
         // Then adds fake currents that do not affect the current path but are here to populate the rest of the river
 
-
+        ManageRuleseed();
         SelectBoat();
         PlaceVoidTiles();
         SelectStartingLocation();
@@ -307,9 +307,6 @@ public class IciclePlate : PlateBase {
 
     void SelectBoat()
     {
-        // Ruleseed Check!
-        ManageRuleseed();
-
         int _lastDigit = bombInfo.GetSerialNumberNumbers().Last();
         selectedBoat = possibleBoats[_lastDigit];
 
@@ -321,10 +318,10 @@ public class IciclePlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         { return; }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling boat statistics.", Rng.Seed);
 
         FisherYatesShuffle(ref possibleBoats, Rng);
 

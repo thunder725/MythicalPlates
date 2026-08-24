@@ -400,9 +400,10 @@ public class SpookyPlate : PlateBase {
     void ManageRuleseed()
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
-        if (Rng.Seed == 1) { return; }
 
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling Table PLATINUM.", Rng.Seed);
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
+        if (Rng.Seed == 1) { return; }
 
         string[] ports = new string[6] { "StereoRCA", "PS2", "Serial", "RJ45", "DVI", "Parallel" };
         FisherYatesShuffle(ref ports, Rng);

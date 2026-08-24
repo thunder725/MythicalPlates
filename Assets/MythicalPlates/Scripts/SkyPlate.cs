@@ -665,10 +665,11 @@ public class SkyPlate : PlateBase {
     void GenerateRuleseedRules()
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
+
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         { GetDefaultFlightDurationRules(); return; }
-
-        summoningModule.ModuleLog(moduleId, "Detected Ruleseed {0}. Rules are:", Rng.Seed);
 
         /*
         *   Flight Durations can be dependant on:

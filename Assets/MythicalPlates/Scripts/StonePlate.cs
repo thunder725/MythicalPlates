@@ -261,14 +261,14 @@ public class StonePlate : PlateBase{
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         {
             ruleseedPossibleVoids = new int[4] { 0, 1, 2, 3 };
             ruleseedPossibleTreasures = new int[10] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
             return;
         }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected! Shuffling possible Void patterns and Treasures.", Rng.Seed);
 
         int[] allowedVoids = new int[11] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         int[] allowedTreasures = new int[17] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
@@ -290,10 +290,11 @@ public class StonePlate : PlateBase{
         int _numberOfIndicators = bombInfo.GetIndicators().Count();
         selectedVoidPaternIndex = Mathf.Clamp(_numberOfIndicators, 0, 3);
 
-        summoningModule.ModuleLog(moduleId, "Found {0} indicators, so Void Pattern used will be number {1}", _numberOfIndicators, selectedVoidPaternIndex);
-
         voidedCellsIndices.Clear();
         voidedCellsIndices = VoidPatterns[ruleseedPossibleVoids[selectedVoidPaternIndex]].ToList();
+
+        summoningModule.ModuleLog(moduleId, "Found {0} indicators, so Void Pattern used will be number {1}", _numberOfIndicators, selectedVoidPaternIndex);
+        summoningModule.ModuleLog(moduleId, "Void locations are {0}", voidedCellsIndices.Select(x => GetCoordinateFromCellIndex(x, 8)).Join());
     }
 
     /// <summary> Randomly select a Starting coordinate that is not Voided </summary>
@@ -331,7 +332,7 @@ public class StonePlate : PlateBase{
         allTreasureTiles = TreasurePositionOffsets[selectedTreasureIndex].Select(x => x + _topLeftTreasureCorner).ToList();
 
         // Log its placement
-        summoningModule.ModuleLog(moduleId, "With top-left corner at {0} (column {1} row {2}), all of its tiles are at index {3}.",
+        summoningModule.ModuleLog(moduleId, "With top-left corner at {0} (column {1} row {2}), all of its tiles are at index {3}",
             GetCoordinateFromCellIndex(_topLeftTreasureCorner, 8), _treasureColumn, _treasureRow,
             allTreasureTiles.Select(x => GetCoordinateFromCellIndex(x, 8)).Join(" "));
 

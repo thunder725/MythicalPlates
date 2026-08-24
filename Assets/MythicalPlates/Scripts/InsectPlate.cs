@@ -311,13 +311,13 @@ public class InsectPlate : PlateBase {
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
+
         if (Rng.Seed == 1)
         {
             InitializeDefaultQuestions();
             return;
         }
-
-        summoningModule.ModuleLog(moduleId, "Ruleseed {0} Detected! Shuffling Questions.", Rng.Seed);
 
         Question[] allPossibleQuestions = new Question[28] { Question.LastDigitOfSnParity, Question.MinNonNeedyModuleCount,
             Question.MinBatteryCount, Question.SpecificBatteryPresent, Question.MinIndicatorPresent, Question.SpecificIndicatorPresent,

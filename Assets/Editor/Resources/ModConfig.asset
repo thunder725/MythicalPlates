@@ -54,7 +54,8 @@ MonoBehaviour:
     pairing\r\n- Removed timer question for Insect Plate due to Allmighty Sinnoh summoning\r\n\r\n=-=
     1.0.0\r\n- Ruleseed Support added to Fist Plate and Iron Plate.\n- Added solving
     animation to Allmighty Sinnoh\r.\n- Fixed Blank Plate's solution generation being
-    incomplete.\n- Added more puzzles to Pixie Plate."
+    incomplete.\n- Added more puzzles to Pixie Plate.\n\n=-= 1.0.1\n- Tweaked some
+    Logs to be clearer and help with future LFA support."
   version: 1.0.0
   outputFolder: build
   debugBuild: 0

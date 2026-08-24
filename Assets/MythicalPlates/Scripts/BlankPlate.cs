@@ -177,12 +177,12 @@ public class BlankPlate : PlateBase {
         
         if (currentPabloIndex >= pabloPath.Length)
         {
-            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo to the exit of the Path. Well done!", pressedButtonType.ToString());
+            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo out of the Path. Well done!", pressedButtonType.ToString());
             summoningModule.ReceiveSolve();
         }
         else
         {
-            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo to tile index {1}.", pressedButtonType.ToString(), currentPabloIndex);
+            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo onto tile number {1}.", pressedButtonType.ToString(), currentPabloIndex);
         }
     }
 
@@ -259,9 +259,10 @@ public class BlankPlate : PlateBase {
 
         MonoRandom rng = ruleseedManager.GetRNG();
 
+        summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", rng.Seed);
+
         if (rng.Seed != 1)
         {
-            summoningModule.ModuleLog(moduleId, "Ruleseed {0} detected. Shuffling modules around", rng.Seed);
             FisherYatesShuffle<string>(ref allPossibleModules, rng);
         }
 
