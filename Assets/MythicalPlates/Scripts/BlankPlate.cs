@@ -77,6 +77,8 @@ public class BlankPlate : PlateBase {
 
     void OnPressedMovementButton(PabloMovementType pressedButtonType)
     {
+        bool shouldGiveStrike = false;
+
         // Feedbacks
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.5f);
@@ -94,7 +96,7 @@ public class BlankPlate : PlateBase {
                 }
 
                 // But otherwise... That's bad!
-                GiveStrike();
+                shouldGiveStrike = true;
                 break;
 
             case PabloMovementType.Jump:
@@ -111,7 +113,7 @@ public class BlankPlate : PlateBase {
                     // Only can get hit by SlideObstacles (you jump over the Jump Obstacles)
                     if (pabloPath[currentPabloIndex] == '*')
                     {
-                        GiveStrike();
+                        shouldGiveStrike = true;
                         break;
                     }
 
@@ -133,7 +135,7 @@ public class BlankPlate : PlateBase {
                 }
 
                 // But otherwise... That's bad!
-                GiveStrike();
+                shouldGiveStrike = true;
                 break;
 
             case PabloMovementType.Slide:
@@ -148,7 +150,7 @@ public class BlankPlate : PlateBase {
 
                     if (pabloPath[currentPabloIndex] == 'x')
                     {
-                        GiveStrike();
+                        shouldGiveStrike = true;
                         break;
                     }
 
@@ -170,20 +172,28 @@ public class BlankPlate : PlateBase {
                 }
 
                 // But otherwise... That's bad!
-                GiveStrike();
+                shouldGiveStrike = true;
                 break;
         }
 
-        
-        if (currentPabloIndex >= pabloPath.Length)
+
+        if (shouldGiveStrike)
         {
-            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo out of the Path. Well done!", pressedButtonType.ToString());
-            summoningModule.ReceiveSolve();
+            summoningModule.ModuleLog(moduleId, "You pressed {0}, but you move into an obstacle!", pressedButtonType.ToString());
+            GiveStrike();
         }
         else
         {
-            summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo onto tile number {1}.", pressedButtonType.ToString(), currentPabloIndex);
-        }
+            if (currentPabloIndex >= pabloPath.Length)
+            {
+                summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo out of the Path. Well done!", pressedButtonType.ToString());
+                summoningModule.ReceiveSolve();
+            }
+            else
+            {
+                summoningModule.ModuleLog(moduleId, "Pressing {0} safely moved Pablo onto tile number {1}.", pressedButtonType.ToString(), currentPabloIndex);
+            }
+        }        
     }
 
     /// <summary> Give a Strike for bad movement, and then move Pablo forward until the next Obstacle-less Voidless tile </summary>
