@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PdfSharp.Pdf.Content.Objects;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -506,10 +507,13 @@ public abstract class PlateBase : MonoBehaviour {
 
     // Digital Root is apparently exactly equivalent to taking the %9 of the number!!
     // But be careful to return a 9 if you get a 0 (18 digital root is 9, not 0)
+    // Also be careful because Digital Root of 0 is 0, which is the only number it's true for
+    // This specific code was given to me by Blan! Thanks Blan!
     protected int DigitalRoot(int number)
     {
-        int _result = number % 9;
-        return _result == 0 ? 9 : _result;
+        number -= 1;
+        number = number % 9;
+        return number + 1;
     }
 
     /// <summary> Converts a character into an Int. For String, try int.Parse(string) </summary>

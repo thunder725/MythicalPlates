@@ -56,7 +56,8 @@ MonoBehaviour:
     animation to Allmighty Sinnoh\r.\n- Fixed Blank Plate's solution generation being
     incomplete.\n- Added more puzzles to Pixie Plate.\n\n=-= 1.0.1\n- Tweaked some
     Logs to be clearer and help with future LFA support.\n\n=-= 1.0.2\n- Made Blank
-    Plate log the pressed button if you Strike."
+    Plate log the pressed button if you Strike.\n\n=-= 1.0.3\n- Tweaked Insect Plate's
+    colour to be closer to green than yellow."
   version: 1.0.0
   outputFolder: build
   debugBuild: 0

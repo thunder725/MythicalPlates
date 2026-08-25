@@ -36,12 +36,11 @@ public class BlankPlate : PlateBase {
     /// <summary> Example sequence of movements that correctly solves the module </summary>
     string correctMovementPattern;
 
-    /// <summary> Current location of where Pablo will move on the next step.
-    /// A current location +1.
-    /// What this means is that Pablo starts outside of the path, in an "index -1",
-    /// and this is represented by currentPabloIndex being 0.
+    /// <summary> Current location of where Pablo is.
+    /// What this means is that Pablo starts outside of the path, in an "index 0",
+    /// but the Path proper only starts at number 1.
     /// This index could be thought as "The next tile that Pablo will Traverse".</summary>
-    int currentPabloIndex;
+    int currentPabloTileNumber;
 
 
     // Universal Logging Data
@@ -85,11 +84,13 @@ public class BlankPlate : PlateBase {
 
         if (summoningModule.isModuleSolved) { return; }
 
+        // Since we store the Tile Number (Path starts at 1) but the Path in the array starts with 0,
+        // it means using the current Pablo Tile Number as an index gives the obstacle in front of us.
         switch (pressedButtonType)
         {
             case PabloMovementType.Step:
                 // Step is only correct if the tile to move into is empty
-                if (pabloPath[currentPabloIndex] == '_')
+                if (pabloPath[currentPabloTileNumber] == '_')
                 {
                     MovePabloForwardWhileWatchingForVoid();
                     break;
@@ -105,13 +106,13 @@ public class BlankPlate : PlateBase {
                 for (int i = 0; i < 3; i ++)
                 {
                     // Exit of the path!
-                    if (currentPabloIndex >= pabloPath.Length)
+                    if (currentPabloTileNumber >= pabloPath.Length)
                     {
                         break;
                     }
 
                     // Only can get hit by SlideObstacles (you jump over the Jump Obstacles)
-                    if (pabloPath[currentPabloIndex] == '*')
+                    if (pabloPath[currentPabloTileNumber] == '*')
                     {
                         shouldGiveStrike = true;
                         break;
@@ -122,13 +123,13 @@ public class BlankPlate : PlateBase {
                 }
 
                 // Exit of the path!
-                if (currentPabloIndex >= pabloPath.Length)
+                if (currentPabloTileNumber >= pabloPath.Length)
                 {
                     break;
                 }
 
                 // Then on the 4th, verify that it's a valid empty tile
-                if (pabloPath[currentPabloIndex] == '_')
+                if (pabloPath[currentPabloTileNumber] == '_')
                 {
                     MovePabloForwardWhileWatchingForVoid();
                     break;
@@ -143,12 +144,12 @@ public class BlankPlate : PlateBase {
                 for (int i = 0; i < 2; i++)
                 {
                     // Exit of the path!
-                    if (currentPabloIndex >= pabloPath.Length)
+                    if (currentPabloTileNumber >= pabloPath.Length)
                     {
                         break;
                     }
 
-                    if (pabloPath[currentPabloIndex] == 'x')
+                    if (pabloPath[currentPabloTileNumber] == 'x')
                     {
                         shouldGiveStrike = true;
                         break;
@@ -159,13 +160,13 @@ public class BlankPlate : PlateBase {
                 }
 
                 // Exit of the path!
-                if (currentPabloIndex >= pabloPath.Length)
+                if (currentPabloTileNumber >= pabloPath.Length)
                 {
                     break;
                 }
 
                 // Then on the 3rd, verify that it's a valid empty tile
-                if (pabloPath[currentPabloIndex] == '_')
+                if (pabloPath[currentPabloTileNumber] == '_')
                 {
                     MovePabloForwardWhileWatchingForVoid();
                     break;
@@ -184,14 +185,14 @@ public class BlankPlate : PlateBase {
         }
         else
         {
-            if (currentPabloIndex >= pabloPath.Length)
+            if (currentPabloTileNumber >= pabloPath.Length)
             {
                 summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo out of the Path. Well done!", pressedButtonType.ToString());
                 summoningModule.ReceiveSolve();
             }
             else
             {
-                summoningModule.ModuleLog(moduleId, "Pressing {0} safely moved Pablo onto tile number {1}.", pressedButtonType.ToString(), currentPabloIndex);
+                summoningModule.ModuleLog(moduleId, "Pressing {0} safely moved Pablo onto tile number {1}.", pressedButtonType.ToString(), currentPabloTileNumber);
             }
         }        
     }
@@ -210,7 +211,7 @@ public class BlankPlate : PlateBase {
 
             // If we moved forward until leaving the path
             // Well congrats you solved during a strike!
-            if (currentPabloIndex >= pabloPath.Length)
+            if (currentPabloTileNumber >= pabloPath.Length)
             {
                 summoningModule.ModuleLog(moduleId, "Would you look at that! Moving you to the next obstacle-less tile brought you directly to the end!! Module still solves; luck you!");
                 summoningModule.ReceiveSolve();
@@ -218,24 +219,24 @@ public class BlankPlate : PlateBase {
             }
 
             // Leave Pablo on the next Obstacle-less Void-less tile that was found
-            if (pabloPath[currentPabloIndex] == '_')
+            if (pabloPath[currentPabloTileNumber] == '_')
             {
                 foundCorrectTile = true;
             }
         }
 
-        summoningModule.ModuleLog(moduleId, "Moving you to the next obstacle-less tile; which is tile with index {0} (first one is 0)", currentPabloIndex);
+        summoningModule.ModuleLog(moduleId, "Moving you to the next obstacle-less tile; which is tile with index {0} (first one is 0)", currentPabloTileNumber);
     }
 
     // Can't just move Pablo Forward willy-nilly; we have to keep moving forward while ignoring Voided tiles of course!
     // Separate function since this can extend jump and slides and all that jazz
     void MovePabloForwardWhileWatchingForVoid()
     {
-        currentPabloIndex++;
+        currentPabloTileNumber++;
 
-        while (voidedCellsIndices.Contains(currentPabloIndex))
+        while (voidedCellsIndices.Contains(currentPabloTileNumber + 1))
         {
-            currentPabloIndex++;
+            currentPabloTileNumber++;
         }
     }
 
@@ -246,7 +247,7 @@ public class BlankPlate : PlateBase {
 
         if (summoningModule.isModuleSolved) { return; }
 
-        currentPabloIndex = 0;
+        currentPabloTileNumber = 0;
         summoningModule.ModuleLog(moduleId, "'BLANK' button pressed! Reset Pablo to its starting location!");
     }
 
@@ -569,7 +570,7 @@ public class BlankPlate : PlateBase {
 
 
         // Void? Just Skip to the next one without any modification
-        if (voidedCellsIndices.Contains(tileToLookAt))
+        if (voidedCellsIndices.Contains(tileToLookAt + 1))
         {
             // summoningModule.ModuleLog(moduleId, "Found void at {0}, keeping going", tileToLookAt);
             return GenerateNextMove(tileToLookAt + 1, movementType, movementDuration);
@@ -753,7 +754,7 @@ public class BlankPlate : PlateBase {
                     break;
 
                 default:
-                    yield return "sendtochaterror {0} Unknown character " + _movementSubmission + " received. Pablo currently is at tile index " + currentPabloIndex.ToString();
+                    yield return "sendtochaterror {0} Unknown character " + _movementSubmission + " received. Pablo currently is at tile index " + currentPabloTileNumber.ToString();
                     yield break;
             }
 

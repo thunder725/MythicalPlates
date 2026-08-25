@@ -300,10 +300,17 @@ public class FistPlate : PlateBase {
 
                 // Check if the Redirection Station should be ignored!
                 // (Redirect Direction aligns or is opposite with current Force direction)
-                if (_stationDirection == unstoppableForceDirection || GetOppositeMovementDirection(_stationDirection) == unstoppableForceDirection)
+                if (_stationDirection == unstoppableForceDirection)
                 {
                     // Ignore redirection station, do nothing
                     summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, but didn't get redirected as its direction is aligned with the Redirection Station!",
+                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
+                    continue;
+                }
+                else if (GetOppositeMovementDirection(_stationDirection) == unstoppableForceDirection)
+                {
+                    // Ignore redirection station, do nothing
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, but didn't get redirected as its direction is exactly opposite to the Redirection Station!",
                         unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
                     continue;
                 }
