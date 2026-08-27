@@ -759,6 +759,11 @@ public class BlankPlate : PlateBase {
             }
 
             yield return new WaitForSeconds(0.1f);
+
+
+            // If a command that is longer than the path is sent, then we don't want to keep pressing buttons
+            if (currentPabloTileNumber >= pabloPath.Length)
+            { yield break; }
         }
 
         yield return null;

@@ -93,6 +93,13 @@ public class AllmightySinnoh : SummoningModule {
     static int moduleIdCounter = 1;
     int allmightySinnohModuleId;
 
+
+    // Twitch Plays value
+    bool TwitchPlaysActive;
+    readonly int[] TwitchPlaysPointsPerPlate = new int[18]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+    readonly int AllmightySinnohTwitchPlaysSolveBonus = 25;
+
+
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Vanilla Unity Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -1061,6 +1068,11 @@ public class AllmightySinnoh : SummoningModule {
     }
 
 
+    int ComputeTotalTwitchPlaysPoints()
+    {
+        return AllmightySinnohTwitchPlaysSolveBonus + TwitchPlaysPointsPerPlate[finalTimeMark] + TwitchPlaysPointsPerPlate[finalSpaceMark] + TwitchPlaysPointsPerPlate[finalAntimaterMark];
+    }
+
 
 
     protected override IEnumerator ProcessTwitchCommand(string command)
@@ -1175,6 +1187,18 @@ public class AllmightySinnoh : SummoningModule {
                 // Then yield return what the TwitchCommand wants to do
                 yield return processedCommand.Current;
             }
+
+
+            Debug.Log("Number of solves: " + numberOfPlatesSolved);
+
+            // We arrive here after a Plate has finished executing its command
+            // Here, we can check if we have solved all of them
+            if (numberOfPlatesSolved == 3)
+            {
+                Debug.Log("Sending Points " + ComputeTotalTwitchPlaysPoints());
+                yield return "awardpoints " + ComputeTotalTwitchPlaysPoints();
+            }
+
 
             // return null to prevent TP from thinking the command was invalid since it returned nothing
             // This specifically is true when the last command that results in the solve of Allmighty Sinnoh is received.

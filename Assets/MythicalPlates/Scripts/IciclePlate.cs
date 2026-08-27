@@ -835,6 +835,9 @@ public class IciclePlate : PlateBase {
         }
 
         platePressableButtons[_submittedBoatStartingLocation - 1].OnInteract();
+
+        // Prevent twitch from thinking it's an incorrect command
+        yield return null;
         yield break;
     }
 

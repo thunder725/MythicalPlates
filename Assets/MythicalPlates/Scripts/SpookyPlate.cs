@@ -373,7 +373,7 @@ public class SpookyPlate : PlateBase {
         {
             summoningModule.PlaySound(newFloorSoundClip);
 
-            yield return new WaitForSeconds(newFloorSoundClip.length + 0.1f);
+            yield return new WaitForSeconds(1.5f);
         }
 
         yield return null;

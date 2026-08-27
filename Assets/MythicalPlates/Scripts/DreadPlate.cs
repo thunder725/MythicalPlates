@@ -538,6 +538,9 @@ public class DreadPlate : PlateBase {
                 break;
         }
 
+
+        yield return null;
+        yield break;
     }
 
 

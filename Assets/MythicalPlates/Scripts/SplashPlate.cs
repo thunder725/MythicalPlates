@@ -48,9 +48,9 @@ public class SplashPlate : PlateBase {
     /// <summary> Structure to represent a 2D segment between two points </summary>
     public struct Segment { public Vector2 p1; public Vector2 p2; };
 
-    /// <summary> Since submission is delayed by 2 seconds after the last press,
-    /// this boolean blocks commands from being received during that delay to avoid any submission issue. </summary>
-    bool TpExclusiveAllowCommands;
+
+    // Filled by TP to know if TP is active or not
+    bool verifyAnswerManually;
 
 
     // Universal Logging Data
@@ -76,10 +76,6 @@ public class SplashPlate : PlateBase {
         base.InitializeModuleStart();
 
         InitializePuzzle();
-
-
-        // After puzzle initialization, allow TP commands
-        TpExclusiveAllowCommands = true;
     }
 
 
@@ -102,6 +98,11 @@ public class SplashPlate : PlateBase {
 
         summoningModule.ModuleLog(moduleId, "Pressed the {0} button. Current answer is {1}",
             GetReadableButtonPosition(buttonIndex), currentPlayerAnswer);
+
+
+        // If the button has been pressed by TP, verify the value right now and don't do the coroutine stuff
+        if (verifyAnswerManually)
+        { return; }
 
 
         // If the player has pressed previously, cancel that submission timer
@@ -131,15 +132,11 @@ public class SplashPlate : PlateBase {
         if (summoningModule.isModuleSolved)
         { yield return false; }
 
-        // While the cooldown is on, prevent new TP commands from passing through
-        TpExclusiveAllowCommands = false;
-
         yield return new WaitForSeconds(2f);
 
         if (summoningModule.isModuleSolved)
         { yield return false; }
 
-        TpExclusiveAllowCommands = true;
 
         ComparePlayerAnswer();
     }
@@ -559,13 +556,6 @@ public class SplashPlate : PlateBase {
     public override IEnumerator ProcessTwitchCommand(string command)
     {
         if (summoningModule.isModuleSolved) { yield break; }
-        
-        // Prevent commands while the 2s cooldown is active, to avoid having sumbitted answers becoming wrong
-        if (TpExclusiveAllowCommands == false) 
-        {
-            yield return "sendtochat {0} Blocked command from passing through as the previous submission hasn't finished processing yet!";
-            yield break;
-        }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -603,7 +593,7 @@ public class SplashPlate : PlateBase {
         // Reset Player Answer before pressing buttons, just in case
         currentPlayerAnswer = "0000";
 
-
+        verifyAnswerManually = true;
 
         // Press buttons for the answer
         char _treatedCharacter;
@@ -618,11 +608,12 @@ public class SplashPlate : PlateBase {
             }
             else if (_treatedCharacter == '1')
             {
-                PressedBinaryButton(i);
+                platePressableButtons[i].OnInteract();
             }
             else
             {
                 yield return "sendtochaterror {0} Received unknown character: '" + _treatedCharacter + "'. The submission has been cancelled and player input has been reset.";
+                verifyAnswerManually = false;
                 StopAllCoroutines();
                 currentPlayerAnswer = "0000";
                 yield break;
@@ -631,17 +622,15 @@ public class SplashPlate : PlateBase {
             yield return new WaitForSeconds(0.1f);
         }
 
-        // Preemptively send a solve or strike since the answer is already known 
-        if (currentPlayerAnswer == requiredPlayerAnswer)
-        {
-            yield return "solve";
-        }
-        else
-        {
-            yield return "strike";
-        }
 
+        // Don't do the timing thing
+        Debug.Log("Pre Pressed");
+        ComparePlayerAnswer();
+        Debug.Log("Mid Pressed");
+        yield return null;
+        Debug.Log("Post Pressed");
         yield break;
+        Debug.Log("Post Post Pressed");
     }
 
 
@@ -650,15 +639,16 @@ public class SplashPlate : PlateBase {
         // Hard-resetting the player answer
         currentPlayerAnswer = "0000";
 
+        verifyAnswerManually = true;
+
         for (int i = 0; i < 4; i ++)
         {
             if (requiredPlayerAnswer[i] == '1') { PressedBinaryButton(i); }
             yield return new WaitForSeconds(0.2f);
         }
 
-        // Stop coroutines because I'm not sure how TP will like that
-        StopAllCoroutines();
-
+        // Fake the truth, it works well enough
+        // Everything in your life is a lie
         summoningModule.ReceiveSolve();
 
         yield break;

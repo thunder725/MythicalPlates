@@ -198,7 +198,6 @@ public class MeadowPlate : PlateBase {
         ManageRuleseed();
 
         FindFourCompatibleBerries();
-
     }
 
 
@@ -217,11 +216,10 @@ public class MeadowPlate : PlateBase {
     {
         // For the puzzle generation, get a "target" month, then get 4 berries that can be planted in that month for sure
 
-        targetBerryMonth = voidedMonth;
-
         // Generate so that it's NOT a voided month
-        while (targetBerryMonth == voidedMonth)
-        { targetBerryMonth = UnityEngine.Random.Range(1, 13); }
+        do { targetBerryMonth = UnityEngine.Random.Range(1, 13); }
+        while (targetBerryMonth == voidedMonth) ;
+
 
         summoningModule.ModuleLog(moduleId, "Will generate 4 berries that can be planted in {0}.", GetReadableMonthName(targetBerryMonth));
     }

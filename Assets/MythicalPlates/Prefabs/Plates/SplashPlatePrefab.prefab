@@ -359,7 +359,8 @@ MonoBehaviour:
   - {fileID: 114984770118301274}
   - {fileID: 114678206370953836}
   customTwitchHelpMessage: "Submit a four-digit binary number using \u201C!{0} submit
-    1011\u201D. Submitting 0000 or 1111 will submit number 0."
+    1011\u201D. Submitting 0000 or 1111 will submit number 0. There is no 2s timer
+    before verification on TP."
   fullPlateName: Splash Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -370,6 +371,7 @@ MonoBehaviour:
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}
   casingPressableButton: {fileID: 0}
+  ruleseedManager: {fileID: 0}
   moduleId: 0
   PermutationsOfEight: {fileID: 4900000, guid: cd1c69899da49be4a801c17360c89d22, type: 3}
   PlateTextMesh: {fileID: 102281995651975358}

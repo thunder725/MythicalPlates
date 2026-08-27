@@ -209,7 +209,7 @@ public class ZapPlate : PlateBase {
             yield break;
         }
 
-        if (!commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
+        if (!commandParts[0].Equals("press") && !commandParts[0].Equals("p") && !commandParts[0].Equals("submit") && !commandParts[0].Equals("s"))
         {
             yield return "sendtochaterror {0} you must format the submission with “!{1} Press 3”, starting with the word “Press”.";
             yield break;
