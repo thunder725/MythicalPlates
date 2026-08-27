@@ -1023,11 +1023,6 @@ public class MindPlate : PlateBase
                     break;
             }
         }
-
-
-
-
-        yield return null;
     }
 
     public override IEnumerator TwitchHandleForcedSolve()

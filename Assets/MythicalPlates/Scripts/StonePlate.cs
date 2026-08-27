@@ -360,22 +360,34 @@ public class StonePlate : PlateBase{
     {
         if (summoningModule.isModuleSolved) { yield break; }
 
-        // Credit to Royal_Flu$h for this line 
         summoningModule.ModuleLog(moduleId, "Received the Twitch Plays command “{0}”", command);
 
-        // Put to lowercase and remove spaces
-        command = command.ToLowerInvariant().Replace(" ", "").Replace(",", "");
+        // Credit to Royal_Flu$h for this line 
+        var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+        if (commandParts.Length == 0)
+        {
+            yield return "sendtochaterror {0} Received an empty command.";
+            yield break;
+        }
 
         // Pressing STONE text on the center of the plate
-        if (command == "s" || command == "stone")
+        if (commandParts[0] == "stone")
         {
             casingPressableButton.OnInteract();
             yield return "sendtochat {0} Successfully re-generated a puzzle.";
             yield break;
         }
 
+        // Failing a submit
+        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
+        {
+            yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
+            yield break;
+        }
 
-        foreach (char _individualCommand in command)
+
+        foreach (char _individualCommand in commandParts[1])
         {
             yield return new WaitForSeconds(0.1f);
 

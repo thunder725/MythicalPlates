@@ -62,8 +62,10 @@ MonoBehaviour:
     messing with \"What\" being voided\r\n- Added a more explicit Fist Plate logging
     for opposite Redirection direction\r\n- Fixed a potential issue with Digital Root
     algorithm\n\n=-= 1.0.5\n- Gave a unique sound to Spooky Plate instead of recycling
-    Pixie's.\n- Made Pixie Plate's sound louder.\n"
-  version: 1.0.0
+    Pixie's.\n- Made Pixie Plate's sound louder.\n- Made Allmighty Sinnoh award point
+    on TP depending on its Plates (all 0 for now, awaiting TP scores)\n- Made some
+    Plates accept more keywords for TP command submissions"
+  version: 1.0.5
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

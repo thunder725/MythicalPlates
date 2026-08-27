@@ -96,8 +96,8 @@ public class AllmightySinnoh : SummoningModule {
 
     // Twitch Plays value
     bool TwitchPlaysActive;
-    readonly int[] TwitchPlaysPointsPerPlate = new int[18]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
-    readonly int AllmightySinnohTwitchPlaysSolveBonus = 25;
+    readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    readonly int AllmightySinnohTwitchPlaysSolveBonus = 0;
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -213,7 +213,6 @@ public class AllmightySinnoh : SummoningModule {
             ReceiveStrike();
         }
     }
-
 
 
 
@@ -1100,9 +1099,7 @@ public class AllmightySinnoh : SummoningModule {
         {
             for (int i = 0; i < 18; i ++)
             {
-
                 ShowVisualPlateName(i);
-
                 yield return new WaitForSeconds(1f);
             }
 
@@ -1146,7 +1143,6 @@ public class AllmightySinnoh : SummoningModule {
 
             // Reset the bomb rotation though
             yield return _startingBombRotation;
-
             yield break;
         }
 
@@ -1189,13 +1185,10 @@ public class AllmightySinnoh : SummoningModule {
             }
 
 
-            Debug.Log("Number of solves: " + numberOfPlatesSolved);
-
             // We arrive here after a Plate has finished executing its command
             // Here, we can check if we have solved all of them
             if (numberOfPlatesSolved == 3)
             {
-                Debug.Log("Sending Points " + ComputeTotalTwitchPlaysPoints());
                 yield return "awardpoints " + ComputeTotalTwitchPlaysPoints();
             }
 

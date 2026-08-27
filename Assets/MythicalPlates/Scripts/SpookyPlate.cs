@@ -666,11 +666,6 @@ public class SpookyPlate : PlateBase {
                     break;
             }
         }
-
-
-
-
-        yield return null;
     }
 
     public override IEnumerator TwitchHandleForcedSolve()

@@ -810,7 +810,7 @@ public class DracoPlate : PlateBase
             yield break;
         }
 
-        if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s"))
+        if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s") && !commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
         {
             yield return "sendtochaterror {0} you must format the submission with “!{1} Submit wkkwkwwk”, starting with the word “Submit”.";
             yield break;

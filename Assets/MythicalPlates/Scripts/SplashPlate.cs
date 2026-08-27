@@ -572,7 +572,7 @@ public class SplashPlate : PlateBase {
             yield break;
         }
 
-        if (commandParts[0] != "submit" &&  commandParts[0] != "s")
+        if (commandParts[0] != "submit" &&  commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
             yield return "sendtochaterror {0} Please use keyword Submit or just s to submit an answer";
             yield break;
@@ -623,14 +623,8 @@ public class SplashPlate : PlateBase {
         }
 
 
-        // Don't do the timing thing
-        Debug.Log("Pre Pressed");
+        // Don't do the timing thing, verify manually
         ComparePlayerAnswer();
-        Debug.Log("Mid Pressed");
-        yield return null;
-        Debug.Log("Post Pressed");
-        yield break;
-        Debug.Log("Post Post Pressed");
     }
 
 

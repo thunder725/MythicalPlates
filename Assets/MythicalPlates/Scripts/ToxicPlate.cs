@@ -623,10 +623,6 @@ public class ToxicPlate : PlateBase {
                     break;
             }
         }
-
-
-
-        yield return null;
     }
 
     public override IEnumerator TwitchHandleForcedSolve()

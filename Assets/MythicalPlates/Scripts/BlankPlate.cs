@@ -492,8 +492,8 @@ public class BlankPlate : PlateBase {
         // Populate by picking 3 "random" indices
         while (voidedCellsIndices.Count < 3)
         {
-            // Do not take any of the last two of the path, nor the very first one, because they aren't really interesting to check
-            _singleTryoutVoidTile = UnityEngine.Random.Range(1, pabloPath.Length - 2);
+            // Do not take any of the last two of the path, nor the very first two, because they aren't really interesting to check
+            _singleTryoutVoidTile = UnityEngine.Random.Range(2, pabloPath.Length - 2);
 
             // Do not take the same one multiple times
             if (voidedCellsIndices.Contains(_singleTryoutVoidTile))
@@ -766,7 +766,6 @@ public class BlankPlate : PlateBase {
             { yield break; }
         }
 
-        yield return null;
     }
 
 
