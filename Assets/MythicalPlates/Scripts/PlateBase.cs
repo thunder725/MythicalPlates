@@ -116,10 +116,41 @@ public abstract class PlateBase : MonoBehaviour {
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    //    Global Table Methods
+    //    Interactions
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     /// <summary> Method so that individual plates can do something when the Casing Text Button gets pressed. Usually resetting submissions. </summary>
     protected abstract void CasingTextButtonGetsPressed();
+
+    /// <summary> Called when a Plate should give a Solve, if ever specific feedback is needed. </summary>
+    protected IEnumerator PlateShouldSolve()
+    {
+        // Important TP thinggy
+        // Thanks tandycake for the solution!!
+
+        // Allmighty Sinnoh needs dynamic TP scoring, which is only available through
+        // yield return "awardpoints 90";
+        // However, TP stops processing THE MOMENT a module gets solved, everything else afterwards gets discarded
+
+        // To award points, Allmighty Sinnoh need to detect before a Plate gets solved and then award the points
+        // For this, the solution is that the Plate itself delays solves by one frame, and send a message upwards to Allmighty Sinnoh
+        // Since we have a yield return here, the hope is that Allmighty Sinnoh will, during that frame, detect that the plate will solve
+        // and have the time to award the points to the user who solved the module
+
+        if (summoningModule.GetType() == typeof(AllmightySinnoh))
+        {
+            ((AllmightySinnoh)summoningModule).PlateWillSolveViaTwitchPlays = true;
+            yield return null;
+        }
+
+        summoningModule.ReceiveSolve();
+        yield break;
+    }
+
+    /// <summary> Returns true if the Plate was summoned by Allmighty Sinnoh, false if it is a solo Plate. </summary>
+    protected bool SummonedByAllmightySinnoh()
+    {
+        return summoningModule.GetType() == typeof(AllmightySinnoh);
+    }
 
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

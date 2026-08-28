@@ -64,8 +64,13 @@ MonoBehaviour:
     algorithm\n\n=-= 1.0.5\n- Gave a unique sound to Spooky Plate instead of recycling
     Pixie's.\n- Made Pixie Plate's sound louder.\n- Made Allmighty Sinnoh award point
     on TP depending on its Plates (all 0 for now, awaiting TP scores)\n- Made some
-    Plates accept more keywords for TP command submissions"
-  version: 1.0.5
+    Plates accept more keywords for TP command submissions\n\n=-= 1.0.6\n- Twitch
+    Plays is confusing (updated location of yield return nulls to prevent issues with
+    button presses).\n\n=-= 1.1.0\n- Allmighty Sinnoh should now have the possibility
+    to dynamically award points on Twitch Plays. For now it won't as the scores haven't
+    been decided, but the feature should be working fully. Thanks tandycake for the
+    solution, and everybody else who helped in the meantime!"
+  version: 1.1.0
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

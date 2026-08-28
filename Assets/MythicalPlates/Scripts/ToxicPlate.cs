@@ -335,7 +335,7 @@ public class ToxicPlate : PlateBase {
             if (currentCrystalsLocationIndices.Count == 0)
             {
                 summoningModule.ModuleLog(moduleId, "Collected the Toxic Crystal in room {0}. That was all of them!!", currentPlayerLocationIndex);
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
 
                 // Return because moving Void is useless
                 return;
@@ -575,8 +575,9 @@ public class ToxicPlate : PlateBase {
         // Either TOXIC
         if (commandParts[0] == "toxic")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed TOXIC and reset the module.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -600,6 +601,7 @@ public class ToxicPlate : PlateBase {
         }
 
 
+        yield return null;
         foreach (char _movementDirection in commandParts[1])
         {
             yield return new WaitForSeconds(0.15f);
@@ -629,7 +631,7 @@ public class ToxicPlate : PlateBase {
     {
         // An Auto-solver could be done, but it's a complex non-grid pathfinding
         // and I don't feel like spending days to find a solution, for now.
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

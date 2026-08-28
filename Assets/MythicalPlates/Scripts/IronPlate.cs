@@ -127,7 +127,7 @@ public class IronPlate : PlateBase {
         // Code arrives here only if all 4 were correct.
 
         summoningModule.ModuleLog(moduleId, "All four creatures arrived at their target locations!!");
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
     }
 
     IEnumerator TimeFlowing()
@@ -858,8 +858,9 @@ public class IronPlate : PlateBase {
             yield break;
         }
 
+        yield return null;
         // Make time Flow
-        PressedTimestopButton();
+        platePressableButtons[0].OnInteract();
 
         // Wait
         while (numberOfMovementsDone < _timeToKeepPressed)
@@ -868,13 +869,13 @@ public class IronPlate : PlateBase {
         }
 
         // Stop Time
-        PressedTimestopButton();
+        platePressableButtons[0].OnInteract();
     }
 
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

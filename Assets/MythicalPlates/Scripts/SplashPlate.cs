@@ -148,7 +148,7 @@ public class SplashPlate : PlateBase {
 
             summoningModule.ModuleLog(moduleId, "You correctly submitted the answer {0}", currentPlayerAnswer);
 
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -608,6 +608,7 @@ public class SplashPlate : PlateBase {
             }
             else if (_treatedCharacter == '1')
             {
+                yield return null;
                 platePressableButtons[i].OnInteract();
             }
             else
@@ -632,19 +633,18 @@ public class SplashPlate : PlateBase {
     {
         // Hard-resetting the player answer
         currentPlayerAnswer = "0000";
-
         verifyAnswerManually = true;
+
+        yield return null;
 
         for (int i = 0; i < 4; i ++)
         {
-            if (requiredPlayerAnswer[i] == '1') { PressedBinaryButton(i); }
+            if (requiredPlayerAnswer[i] == '1') { platePressableButtons[i].OnInteract(); }
             yield return new WaitForSeconds(0.2f);
         }
 
         // Fake the truth, it works well enough
         // Everything in your life is a lie
-        summoningModule.ReceiveSolve();
-
-        yield break;
+        StartCoroutine(PlateShouldSolve());
     }
 }

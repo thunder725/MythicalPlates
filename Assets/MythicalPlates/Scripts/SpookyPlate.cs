@@ -322,7 +322,7 @@ public class SpookyPlate : PlateBase {
                 summoningModule.ModuleLog(moduleId, "Movement {0} from {1} arrived at the end of the current floor, which was the last one. Module solved",
                     pressedDirection, GetCoordinateFromCellIndex(_preMovementLocation, GetCurrentFloorWidth()));
 
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
                 return;
             }
 
@@ -618,8 +618,9 @@ public class SpookyPlate : PlateBase {
         // Either SPOOKY
         if (commandParts[0] == "spooky")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed SPOOKY and reset you to the start of the current floor.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -642,6 +643,8 @@ public class SpookyPlate : PlateBase {
             yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account.";
         }
 
+
+        yield return null;
 
         foreach (char _movementDirection in commandParts[1])
         {
@@ -670,8 +673,7 @@ public class SpookyPlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        // 
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

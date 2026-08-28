@@ -66,7 +66,7 @@ public class FistPlate : PlateBase {
         if (isMesagozaSafe)
         {
             summoningModule.ModuleLog(moduleId, "Pressed the SAFE button, which is correct!");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -86,7 +86,7 @@ public class FistPlate : PlateBase {
         if (isMesagozaSafe == false)
         {
             summoningModule.ModuleLog(moduleId, "Pressed the EVACUATE button, which is correct!");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -263,7 +263,7 @@ public class FistPlate : PlateBase {
             if (_safetyCounter == 0)
             {
                 summoningModule.ModuleLogError(moduleId, "Something went TERRIBLY WRONG with the Unstoppable Force's movement and we reached the limit of 1000 movements. Please report this to the developper. Auto-solving to avoid unfair strikes or softlocks.");
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
                 return;
             }
 
@@ -381,32 +381,32 @@ public class FistPlate : PlateBase {
 
         if (commandParts[1] == "safe")
         {
-            PressedSafeButton();
+            yield return null;
+            platePressableButtons[00].OnInteract();
             yield break;
         }
         else if (commandParts[1] == "evacuate")
         {
-            PressedEvacuateButton();
+            yield return null;
+            platePressableButtons[01].OnInteract();
             yield break;
         }
 
         yield return "sendtochaterror {0} Received unknown button: " + commandParts[1] + ". Please use 'safe' or 'evacuate' for buttons.";
-        yield break;
 
     }
 
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        yield return null;
         if (isMesagozaSafe)
         {
-            PressedSafeButton();
+            platePressableButtons[00].OnInteract();
         }
         else
         {
-            PressedEvacuateButton();
+            platePressableButtons[01].OnInteract();
         }
-
-        yield break;
     }
 }

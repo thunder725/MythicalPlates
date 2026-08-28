@@ -188,7 +188,7 @@ public class BlankPlate : PlateBase {
             if (currentPabloTileNumber >= pabloPath.Length)
             {
                 summoningModule.ModuleLog(moduleId, "Pressing {0} moved Pablo out of the Path. Well done!", pressedButtonType.ToString());
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
             }
             else
             {
@@ -214,7 +214,7 @@ public class BlankPlate : PlateBase {
             if (currentPabloTileNumber >= pabloPath.Length)
             {
                 summoningModule.ModuleLog(moduleId, "Would you look at that! Moving you to the next obstacle-less tile brought you directly to the end!! Module still solves; luck you!");
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
                 return;
             }
 
@@ -720,8 +720,9 @@ public class BlankPlate : PlateBase {
 
         if (commandParts.Length == 1 && commandParts[0] == "blank")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed BLANK and reset the module.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -737,20 +738,22 @@ public class BlankPlate : PlateBase {
             yield break;
         }
 
+        yield return null;
+
         foreach (char _movementSubmission in commandParts[1])
         {
             switch (_movementSubmission)
             {
                 case 't': case 'u': case '^':
-                    OnPressedMovementButton(PabloMovementType.Jump);
+                    platePressableButtons[0].OnInteract();
                     break;
 
                 case 'b': case 'd': case 'v':
-                    OnPressedMovementButton(PabloMovementType.Slide);
+                    platePressableButtons[2].OnInteract();
                     break;
 
                 case 'c': case 'm': case '>':
-                    OnPressedMovementButton(PabloMovementType.Step);
+                    platePressableButtons[1].OnInteract();
                     break;
 
                 default:
@@ -775,6 +778,7 @@ public class BlankPlate : PlateBase {
         CasingTextButtonGetsPressed();
 
         yield return new WaitForSeconds(0.1f);
+        yield return null;
 
         // Press all buttons
         foreach (char _movementSubmission in correctMovementPattern)
@@ -782,15 +786,15 @@ public class BlankPlate : PlateBase {
             switch (_movementSubmission)
             {
                 case '^':
-                    OnPressedMovementButton(PabloMovementType.Jump);
+                    platePressableButtons[0].OnInteract();
                     break;
 
                 case 'v':
-                    OnPressedMovementButton(PabloMovementType.Slide);
+                    platePressableButtons[2].OnInteract();
                     break;
 
                 case '>':
-                    OnPressedMovementButton(PabloMovementType.Step);
+                    platePressableButtons[1].OnInteract();
                     break;
 
                 default:

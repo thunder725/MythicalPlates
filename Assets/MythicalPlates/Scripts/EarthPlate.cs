@@ -158,7 +158,7 @@ public class EarthPlate : PlateBase {
         if (currentTileIndex == targetTileIndex)
         {
             summoningModule.ModuleLog(moduleId, "Successfully moved to tile {0}; which is your Target Tile!!!", GetCoordinateFromCellIndex(currentTileIndex, 12));
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -346,8 +346,9 @@ public class EarthPlate : PlateBase {
 
         if (command == "earth")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed EARTH and reset you to your starting location.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -376,6 +377,7 @@ public class EarthPlate : PlateBase {
         }
 
         int _movementNumber;
+        yield return null;
 
         foreach (char _movement in commandParts[1])
         {
@@ -399,7 +401,7 @@ public class EarthPlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

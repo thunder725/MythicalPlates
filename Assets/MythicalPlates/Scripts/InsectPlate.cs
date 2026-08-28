@@ -175,7 +175,7 @@ public class InsectPlate : PlateBase {
         if (expectedButtonDirection == pressedButtonDirection)
         {
             summoningModule.ModuleLog(moduleId, "Expected to press button {0}; which is what you pressed!!", GetReadableButtonDirection(expectedButtonDirection));
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -534,7 +534,7 @@ public class InsectPlate : PlateBase {
                 break;
 
             case Question.SummonedByAllmightySinnoh: // Plate is summoned by Allmighty Sinnoh
-                validity = summoningModule.GetType() == typeof(AllmightySinnoh);
+                validity = SummonedByAllmightySinnoh();
                 break;
 
             case Question.OtherMythicalPlatePresent: // Another Plate is present, including another InsectPlate
@@ -672,24 +672,29 @@ public class InsectPlate : PlateBase {
 
         switch (commandParts[1])
         {
-            case "Up": case "U":
-                PlayerPressedButton(0);
+            case "up": case "u":
+                yield return null;
+                platePressableButtons[0].OnInteract();
                 yield break;
 
-            case "Down": case "D":
-                PlayerPressedButton(1);
+            case "down": case "d":
+                yield return null;
+                platePressableButtons[1].OnInteract();
                 yield break;
 
-            case "Left": case "L":
-                PlayerPressedButton(2);
+            case "left": case "l":
+                yield return null;
+                platePressableButtons[2].OnInteract();
                 yield break;
 
-            case "Right": case "R":
-                PlayerPressedButton(3);
+            case "right": case "r":
+                yield return null;
+                platePressableButtons[3].OnInteract();
                 yield break;
 
-            case "Center": case "C":
-                PlayerPressedButton(4);
+            case "center": case "c":
+                yield return null;
+                platePressableButtons[4].OnInteract();
                 yield break;
         }
 
@@ -699,7 +704,7 @@ public class InsectPlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

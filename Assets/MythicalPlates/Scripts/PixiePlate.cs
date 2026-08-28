@@ -1626,7 +1626,7 @@ public class PixiePlate : PlateBase {
         LogPlayfield();
 
         isSimulatingPlay = false;
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
     }
 
     void ModuleShouldStrike()
@@ -2137,10 +2137,14 @@ public class PixiePlate : PlateBase {
         // Pressing PIXIE on the center of the plate
         if (command == "p" || command == "pixie")
         {
+            yield return null;
             casingPressableButton.OnInteract();
             yield return "sendtochat {0} Successfully press PIXIE and reset the board. You are back in the top-left corner.";
             yield break;
         }
+
+
+        yield return null;
 
 
         foreach (char _individualCommand in command)
@@ -2186,8 +2190,6 @@ public class PixiePlate : PlateBase {
                     yield break;
             }
         }
-
-        yield break;
     }
         
 

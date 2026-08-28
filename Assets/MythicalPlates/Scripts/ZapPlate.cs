@@ -81,7 +81,7 @@ public class ZapPlate : PlateBase {
         if (CharToInt(_pressedSecond) == secondsToPressOn)
         {
             summoningModule.ModuleLog(moduleId, "Plate was pressed on a {0} second time, this is correct.", secondsToPressOn, _pressedSecond);
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -226,7 +226,6 @@ public class ZapPlate : PlateBase {
         // Without this yield return null, the yield return sendtochat exits the command instantly
         // since that sendtochat is the first yield return.
         yield return null;
-
         yield return "sendtochat {0} will press the Plate on " + _timeToPressAt + " seconds. The command is cancellable.";
 
         while ((int)bombInfo.GetTime() % 10 != secondsToPressOn)

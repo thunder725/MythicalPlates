@@ -95,7 +95,7 @@ public class FlamePlate : PlateBase {
 
             if (nextPasscodeDigitToSubmit == 8)
             {
-                summoningModule.ReceiveSolve();
+                StartCoroutine(PlateShouldSolve());
             }
         }
         else // Incorrect button pressed
@@ -351,8 +351,9 @@ public class FlamePlate : PlateBase {
 
         if (command == "flame" || command == "f")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed FLAME and reset the submission sequence.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -378,6 +379,8 @@ public class FlamePlate : PlateBase {
             commandParts[1] = submits;
         }
 
+        yield return null;
+
         // Press all values
         foreach (char _numberToPress in commandParts[1])
         {
@@ -399,6 +402,7 @@ public class FlamePlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        yield return null;
         foreach (char _numberToPress in finalPasscode)
         {
             // Wait a bit to avoid destroying the module visually
@@ -407,8 +411,6 @@ public class FlamePlate : PlateBase {
             // Press the plate
             platePressableButtons[CharToInt(_numberToPress) - 1].OnInteract();
         }
-
-        yield break;
     }
 
 }

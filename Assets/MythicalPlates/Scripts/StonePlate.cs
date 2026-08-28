@@ -233,7 +233,7 @@ public class StonePlate : PlateBase{
         if (remainingDrillableTreasureTiles.Count == 0)
         {
             summoningModule.ModuleLog(moduleId, "All tiles of the Treasure have been drilled out! Solving module!");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
     }
 
@@ -374,6 +374,7 @@ public class StonePlate : PlateBase{
         // Pressing STONE text on the center of the plate
         if (commandParts[0] == "stone")
         {
+            yield return null;
             casingPressableButton.OnInteract();
             yield return "sendtochat {0} Successfully re-generated a puzzle.";
             yield break;
@@ -386,6 +387,8 @@ public class StonePlate : PlateBase{
             yield break;
         }
 
+
+        yield return null;
 
         foreach (char _individualCommand in commandParts[1])
         {
@@ -427,8 +430,6 @@ public class StonePlate : PlateBase{
                     yield break;
             }
         }
-
-        yield break;
     }
 
 
@@ -438,7 +439,7 @@ public class StonePlate : PlateBase{
         // An Auto-solver could be done by forcing a puzzle generation,
         // moving around and drilling everything...
         // But with void, computing the path needed to go somewhere can be a nightmare
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

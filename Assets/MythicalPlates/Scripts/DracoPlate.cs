@@ -113,7 +113,7 @@ public class DracoPlate : PlateBase
         else if (lineToSubmit == submittedLine)
         {
             summoningModule.ModuleLog(moduleId, "You pressed {0}, which is correct.", buttonColor == "w" ? "White" : "Black");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         // Otherwise some characters still are missing
         else
@@ -799,8 +799,9 @@ public class DracoPlate : PlateBase
 
         if (command == "draco" || command == "d")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed DRACO and reset the submission sequence.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -817,6 +818,7 @@ public class DracoPlate : PlateBase
         }
 
         string _submittedSequence = commandParts[1];
+        yield return null;
 
         for (int i = 0; i < _submittedSequence.Length; i++)
         {
@@ -841,6 +843,7 @@ public class DracoPlate : PlateBase
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        yield return null;
         for (int i = 0; i < lineToSubmit.Length; i++)
         {
             yield return new WaitForSeconds(0.15f);

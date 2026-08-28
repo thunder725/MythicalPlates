@@ -95,8 +95,11 @@ public class AllmightySinnoh : SummoningModule {
 
 
     // Twitch Plays value
-    bool TwitchPlaysActive;
-    readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    /// <summary> Set to true by a Plate on the frame before it gets solved.
+    /// See TP implementation and PlateBase.PlateShouldSolve() for more info </summary>
+    public bool PlateWillSolveViaTwitchPlays;
+    readonly int[] TwitchPlaysPointsPerPlate = new int[18] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
+    // readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     readonly int AllmightySinnohTwitchPlaysSolveBonus = 0;
 
 
@@ -434,6 +437,9 @@ public class AllmightySinnoh : SummoningModule {
 
         // It generates its puzzle in Start
         currentSummonedPlateScript.InitializeModuleStart();
+
+        // Set the value to listen for the Solve because of TP (see TP implementation)
+        PlateWillSolveViaTwitchPlays = false;
 
         // Now wait for reception of the Solve!
 
@@ -1090,6 +1096,7 @@ public class AllmightySinnoh : SummoningModule {
         // Pressing the SINNOH text button
         if (commandParts.Length == 1 && commandParts[0] == "sinnoh")
         {
+            yield return null;
             casingPressableButton.OnInteract();
             yield break;
         }
@@ -1152,13 +1159,17 @@ public class AllmightySinnoh : SummoningModule {
         if (commandParts.Length == 1 && commandParts[0] == "read")
         {
             yield return "sendtochat {0}, the initial Plate Marked by Time is " + GetPlateNameFromIndex(initialTimeMark);
+            yield break;
         }
 
 
+        AllmightySinnohModuleLog(allmightySinnohModuleId, "MarkToPress is at {0}", markToPress);
 
         // Then apart from those send the command to the plate
         if (markToPress > 2)
         {
+            yield return null;
+
             // Incredibly obscure behaviour that River and Emik were able to inform me about (huge thanks to them!)
             // Link to the reference: https://github.com/Emik03/wawa/blob/main/wawa.TwitchPlays/Source/Twitch%7BTMod%7D.cs#L216-L221
             // You cannot just yield return the IEnumerator itself, you have to Move through it
@@ -1180,22 +1191,25 @@ public class AllmightySinnoh : SummoningModule {
             // MoveNext() returns true while there's valid code to be executed left
             while (processedCommand.MoveNext())
             {
+                // The Plates, in PlateBase.PlateShouldSolve(), delay their solves by one frame,
+                // while setting the boolean PlateWillSolveViaTwitchPlays on this module beforehand.
+                // The frame of delay allows the yield return just below to loop back to this if statement, which will catch the boolean being set
+                // During that time, we check if the incoming solve is going to be the one that solves Allmighty Sinnoh
+                // And then award points to the valorous user who defused the module!!
+                if (PlateWillSolveViaTwitchPlays)
+                {   
+                    if (numberOfPlatesSolved == 2)
+                    {
+                        // Plate will solve, and we have 2 solves right now, which will turn to 3.
+                        // So award the points!!
+                        Debug.LogFormat("<Allmighty Sinnoh #{0}> Awarding Points!!!", allmightySinnohModuleId);
+                        // yield return "awardpoints " + ComputeTotalTwitchPlaysPoints();
+                    }
+                }
+
                 // Then yield return what the TwitchCommand wants to do
                 yield return processedCommand.Current;
             }
-
-
-            // We arrive here after a Plate has finished executing its command
-            // Here, we can check if we have solved all of them
-            if (numberOfPlatesSolved == 3)
-            {
-                yield return "awardpoints " + ComputeTotalTwitchPlaysPoints();
-            }
-
-
-            // return null to prevent TP from thinking the command was invalid since it returned nothing
-            // This specifically is true when the last command that results in the solve of Allmighty Sinnoh is received.
-            yield return null;
             yield break;
         }
 
@@ -1256,6 +1270,7 @@ public class AllmightySinnoh : SummoningModule {
         if (isModuleSolved) { yield break; }
 
         ModuleLog(allmightySinnohModuleId, "Received instructions to Twitch Force Solve!");
+        yield return null;
 
         // Since we do not know which state we are in currently,
         // Check all possible situations and do everything accordingly

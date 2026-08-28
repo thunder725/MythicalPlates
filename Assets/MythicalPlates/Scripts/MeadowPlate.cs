@@ -177,7 +177,7 @@ public class MeadowPlate : PlateBase {
     void ValidMonthPressed()
     {
         summoningModule.ModuleLog(moduleId, "That month is correct!");
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
     }
 
 
@@ -413,40 +413,52 @@ public class MeadowPlate : PlateBase {
         switch (commandParts[1])
         {
             case "1": case "01": case "january": case "jan":
-                PressedMonthButton(01); break;
+                yield return null;
+                platePressableButtons[0].OnInteract(); break;
 
             case "2": case "02": case "february": case "feb":
-                PressedMonthButton(02); break;
+                yield return null;
+                platePressableButtons[1].OnInteract(); break;
 
             case "3": case "03": case "march": case "mar":
-                PressedMonthButton(03); break;
+                yield return null;
+                platePressableButtons[2].OnInteract(); break;
 
             case "4": case "04": case "april": case "apr":
-                PressedMonthButton(04); break;
+                yield return null;
+                platePressableButtons[3].OnInteract(); break;
 
             case "5": case "05": case "may":
-                PressedMonthButton(05); break;
+                yield return null;
+                platePressableButtons[4].OnInteract(); break;
 
             case "6": case "06": case "june": case "jun":
-                PressedMonthButton(06); break;
+                yield return null;
+                platePressableButtons[5].OnInteract(); break;
 
             case "7": case "07": case "july": case "jul":
-                PressedMonthButton(07); break;
+                yield return null;
+                platePressableButtons[6].OnInteract(); break;
 
             case "8": case "08": case "august": case "aug":
-                PressedMonthButton(08); break;
+                yield return null;
+                platePressableButtons[7].OnInteract(); break;
 
             case "9": case "09": case "september": case "sep":
-                PressedMonthButton(09); break;
+                yield return null;
+                platePressableButtons[8].OnInteract(); break;
 
             case "10": case "october": case "oct":
-                PressedMonthButton(10); break;
+                yield return null;
+                platePressableButtons[9].OnInteract(); break;
 
             case "11": case "november": case "nov":
-                PressedMonthButton(11); break;
+                yield return null;
+                platePressableButtons[10].OnInteract(); break;
 
             case "12": case "december": case "dec":
-                PressedMonthButton(12); break;
+                yield return null;
+                platePressableButtons[11].OnInteract(); break;
 
             default:
                 yield return "sendtochaterror {0} Received unknown month descriptor: " + commandParts[1] + ". Please use the month number (1-12), full name (september), or three-letter abbreviation (sep).";
@@ -457,7 +469,9 @@ public class MeadowPlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-        PressedMonthButton(targetBerryMonth);
+        yield return null;
+        platePressableButtons[targetBerryMonth - 1].OnInteract();
+
 
         yield break;
     }

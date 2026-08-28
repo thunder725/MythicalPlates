@@ -98,7 +98,7 @@ public class DreadPlate : PlateBase {
 
     void ModuleShouldSolve()
     {
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
     }
 
 
@@ -518,35 +518,36 @@ public class DreadPlate : PlateBase {
         switch (commandParts[1])
         {
             case "#":
+                yield return null;
                 platePressableButtons[0].OnInteract();
                 break;
 
             case "&":
+                yield return null;
                 platePressableButtons[1].OnInteract();
                 break;
 
             case "%":
+                yield return null;
                 platePressableButtons[2].OnInteract();
                 break;
 
             case "@":
+                yield return null;
                 platePressableButtons[3].OnInteract();
                 break;
 
             case "!":
+                yield return null;
                 platePressableButtons[4].OnInteract();
                 break;
         }
-
-
-        yield return null;
-        yield break;
     }
 
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
-
+        yield return null;
         switch (dreadSequence)
         {
             case "#":
@@ -569,8 +570,6 @@ public class DreadPlate : PlateBase {
                 platePressableButtons[4].OnInteract();
                 break;
         }
-
-        yield break;
     }
 
 }

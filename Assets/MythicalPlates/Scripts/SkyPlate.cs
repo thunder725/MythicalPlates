@@ -1003,7 +1003,7 @@ public class SkyPlate : PlateBase {
 
     void ModuleShouldSolve()
     {
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
     }
 
 
@@ -1020,8 +1020,9 @@ public class SkyPlate : PlateBase {
 
         if (command == "sky")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed SKY and reset you to your starting City and starting Timer.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -1037,16 +1038,19 @@ public class SkyPlate : PlateBase {
             yield break;
         }
 
+
+        yield return null;
+
         // Foreach Letter
-        foreach (var part in commandParts)
+        foreach (var _letter in commandParts)
         {
             // Ignore submit
-            if (part == "submit" || part == "s" || part == "press" || part == "p")
+            if (_letter == "s" || _letter == "p")
             { continue; }
 
 
             // Foreach morse part
-            foreach (var c in part)
+            foreach (var c in _letter)
             {
                 switch (c)
                 {
@@ -1070,6 +1074,8 @@ public class SkyPlate : PlateBase {
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        yield return null;
+
         // An Auto-solver would be easy enough to do by recording movements in reverse when generating puzzle...
         // But nahhh
         ModuleShouldSolve();

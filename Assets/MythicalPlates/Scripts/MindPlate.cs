@@ -229,7 +229,7 @@ public class MindPlate : PlateBase
         {
             summoningModule.ModuleLog(moduleId, "Successfully submitted Star found in {0}. All Stars have been submitted. Solving module",
                 GetAnistarCoordinateFormatting(currentPlayerLocationIndex));
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
         }
         else
         {
@@ -975,8 +975,9 @@ public class MindPlate : PlateBase
         // Either MIND
         if (commandParts[0] == "mind")
         {
+            yield return null;
             yield return "sendtochat {0} Successfully pressed MIND and reset the module.";
-            CasingTextButtonGetsPressed();
+            casingPressableButton.OnInteract();
             yield break;
         }
 
@@ -999,6 +1000,8 @@ public class MindPlate : PlateBase
             yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account.";
         }
 
+
+        yield return null;
 
         foreach (char _movementDirection in commandParts[1])
         {
@@ -1029,7 +1032,7 @@ public class MindPlate : PlateBase
     {
         // An Auto-solver could be done, but it's a complex 3D-grid voided pathfinding
         // and I don't feel like spending days to find a solution, for now.
-        summoningModule.ReceiveSolve();
+        StartCoroutine(PlateShouldSolve());
 
         yield break;
     }

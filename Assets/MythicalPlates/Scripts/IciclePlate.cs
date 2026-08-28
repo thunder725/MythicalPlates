@@ -157,7 +157,7 @@ public class IciclePlate : PlateBase {
         if (_movementData.ranIntoGridEdges)
         {
             summoningModule.ModuleLog(moduleId, "The boat moved Up and correctly escaped Crebase River! Solving module!!");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
             return;
         }
         else
@@ -381,7 +381,7 @@ public class IciclePlate : PlateBase {
         if (puzzleGenerationIteration > 10)
         {
             summoningModule.ModuleLogError(moduleId, "Something went VERY wrong with Icicle Plate: We got no valid paths no matter the Void Tiles pattern. Please report this to thunder725. Solving module to avoid issues.");
-            summoningModule.ReceiveSolve();
+            StartCoroutine(PlateShouldSolve());
             return;
         }
 
@@ -834,16 +834,14 @@ public class IciclePlate : PlateBase {
             yield break;
         }
 
-        platePressableButtons[_submittedBoatStartingLocation - 1].OnInteract();
-
-        // Prevent twitch from thinking it's an incorrect command
         yield return null;
-        yield break;
+        platePressableButtons[_submittedBoatStartingLocation - 1].OnInteract();
     }
 
 
     public override IEnumerator TwitchHandleForcedSolve()
     {
+        yield return null;
         platePressableButtons[intendedStartingLocationIndex].OnInteract();
 
         yield break;
