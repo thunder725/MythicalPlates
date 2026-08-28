@@ -790,7 +790,7 @@ public class SkyPlate : PlateBase {
     {
         // Default values are
         // CIRCLE  -00:35:20 per Battery
-        // SQUARE  -00:40:15 per (Port Plate and Indicator)
+        // SQUARE  -00:50:45 per (Port Plate and Indicator)
         // TRIANG  -01:15:30 per Port
         // STAR    -03:45:05
 
@@ -801,7 +801,7 @@ public class SkyPlate : PlateBase {
         // Square
         determinedRuleseedDurations[1] = new RuleseedFlightDuration()
             { numberOfEdgeworkDependencies = 2, firstEdgeworkType = FlightDurationEdgeworkElement.PortPlate, 
-            secondEdgeworkType = FlightDurationEdgeworkElement.Indicator, singularDuration = 2415 };
+            secondEdgeworkType = FlightDurationEdgeworkElement.Indicator, singularDuration = 3045 };
 
         // Triangle
         determinedRuleseedDurations[2] = new RuleseedFlightDuration()
