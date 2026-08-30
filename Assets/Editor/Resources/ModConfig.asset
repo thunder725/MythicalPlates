@@ -81,8 +81,10 @@ MonoBehaviour:
     rule not applying under some conditions. This has made a puzzle impossible (which
     has been removed for now)\n- Added more checks and logs for Allmighty Sinnoh in
     the hope of catching a rare error I can't reproduce\n- Fixed Stone Plate TP thinking
-    that \"press c\" contained more than two words"
-  version: 1.1.3
+    that \"press c\" contained more than two words\n\n=-= 1.1.4\n- Fixed Allmighty
+    Sinnoh causing an error if a wrong Plate was pressed during the Judgement phase
+    (how has this never been caught???)"
+  version: 1.1.4
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

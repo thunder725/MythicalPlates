@@ -212,7 +212,7 @@ public class AllmightySinnoh : SummoningModule {
         else
         // Incorrect Visual Plate => Strike!!
         {
-            AllmightySinnohModuleLog(allmightySinnohModuleId, "Pressed {0} Plate for Mark of {1} submission. That is invalid. Expected {3} Plate.",
+            AllmightySinnohModuleLog(allmightySinnohModuleId, "Pressed {0} Plate for Mark of {1} submission. That is invalid. Expected {2} Plate.",
                 GetPlateNameFromIndex(plateIndex), markToPress == 0 ? "Time" : markToPress == 1 ? "Space" : "Antimatter", GetPlateNameFromIndex(expectedPlate));
             ReceiveStrike();
         }
