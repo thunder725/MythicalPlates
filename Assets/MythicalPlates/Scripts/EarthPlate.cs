@@ -339,6 +339,7 @@ public class EarthPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Earth Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -354,30 +355,36 @@ public class EarthPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Earth Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} Received command formatted incorrectly!";
+            Debug.LogFormat("<Earth Plate #{0}> Received command formatted incorrectly! Please send all movements in one block like '1357682'.", moduleId);
+            yield return "sendtochaterror {0} Received command formatted incorrectly! Please send all movements in one block like '1357682'.";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Earth Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
 
         if (commandParts[1].Length == 0)
         {
+            Debug.LogFormat("<Earth Plate #{0}> Received unknown movement! Please send a string of movements like '1357682'.", moduleId);
             yield return "sendtochaterror {0} Received unknown movement! Please send a string of movements like '1357682'.";
             yield break;
         }
 
         int _movementNumber;
         yield return null;
+
+        Debug.LogFormat("<Earth Plate #{0}> Submitting {1}.", moduleId, commandParts[1]);
 
         foreach (char _movement in commandParts[1])
         {
@@ -389,6 +396,8 @@ public class EarthPlate : PlateBase {
             }
             else
             {
+                Debug.LogFormat("<Earth Plate #{0}> Received unknown movement number: '{1}'! Previous movements have been done, future movements have been aborted.",
+                    moduleId, _movement);
                 yield return "sendtochaterror {0} Received unknown movement number: '" + _movement + "'! Previous movements have been done, future movements have been aborted.";
                 yield break;
             }

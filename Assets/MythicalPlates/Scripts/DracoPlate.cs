@@ -792,6 +792,7 @@ public class DracoPlate : PlateBase
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Draco Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -807,17 +808,20 @@ public class DracoPlate : PlateBase
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit wkkwkwwk” with exactly 2 arguments.";
+            Debug.LogFormat("<Draco Plate #{0}> You must format the submission with “!# Submit wkkwkwwk” with exactly 2 arguments.", moduleId);
+            yield return "sendtochaterror {0} You must format the submission with “!{1} Submit wkkwkwwk” with exactly 2 arguments.";
             yield break;
         }
 
         if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s") && !commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit wkkwkwwk”, starting with the word “Submit”.";
+            Debug.LogFormat("<Draco Plate #{0}> You must format the submission with “!# Submit wkkwkwwk”, starting with the word “Submit” or “Press”.", moduleId);
+            yield return "sendtochaterror {0} You must format the submission with “!{1} Submit wkkwkwwk”, starting with the word “Submit” or “Press”.";
             yield break;
         }
 
         string _submittedSequence = commandParts[1];
+        Debug.LogFormat("<Draco Plate #{0}> Submitting {1}.", moduleId, _submittedSequence);
         yield return null;
 
         for (int i = 0; i < _submittedSequence.Length; i++)
@@ -835,6 +839,7 @@ public class DracoPlate : PlateBase
                     break;
 
                 default:
+                    Debug.LogFormat("<Draco Plate #{0}> Unknown character “{1}”. Stopping sequence input.", moduleId, _submittedSequence);
                     yield return "sendtochaterror {0} Unknown character “" + _submittedSequence[i] + "”. Stopping sequence input.";
                     yield break;
             }

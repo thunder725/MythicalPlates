@@ -706,6 +706,7 @@ public class BlankPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Blank Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -714,6 +715,7 @@ public class BlankPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Blank Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
@@ -728,17 +730,20 @@ public class BlankPlate : PlateBase {
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} Received command formatted incorrectly!";
+            Debug.LogFormat("<Blank Plate #{0}> Received command formatted incorrectly! Please concatenate your movements in one string like '>^^v' or 'muud'.", moduleId);
+            yield return "sendtochaterror {0} Received command formatted incorrectly! Please concatenate your movements in one string like '>^^v' or 'muud'.";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
-            yield return "sendtochaterror {0} Please use keyword Press or just p to submit an answer";
+            Debug.LogFormat("<Blank Plate #{0}> Please use keyword Press or Submit to submit an answer.", moduleId);
+            yield return "sendtochaterror {0} Please use keyword Press or Submit to submit an answer.";
             yield break;
         }
 
         yield return null;
+        Debug.LogFormat("<Blank Plate #{0}> Pressing {1}.", moduleId, commandParts[1]);
 
         foreach (char _movementSubmission in commandParts[1])
         {
@@ -757,7 +762,9 @@ public class BlankPlate : PlateBase {
                     break;
 
                 default:
-                    yield return "sendtochaterror {0} Unknown character " + _movementSubmission + " received. Pablo currently is at tile index " + currentPabloTileNumber.ToString();
+                    Debug.LogFormat("<Blank Plate #{0}> Unknown character '{1}' received. Pablo currently is at tile number {2}", moduleId,
+                        _movementSubmission, currentPabloTileNumber.ToString());
+                    yield return "sendtochaterror {0} Unknown character '" + _movementSubmission + "' received. Pablo currently is at tile number " + currentPabloTileNumber.ToString();
                     yield break;
             }
 

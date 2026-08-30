@@ -646,6 +646,7 @@ public class InsectPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Insect Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -654,18 +655,21 @@ public class InsectPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Insect Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
+            Debug.LogFormat("<Insect Plate #{0}> Received command formatted incorrectly!", moduleId);
             yield return "sendtochaterror {0} Received command formatted incorrectly!";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Insect Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
@@ -695,6 +699,11 @@ public class InsectPlate : PlateBase {
             case "center": case "c":
                 yield return null;
                 platePressableButtons[4].OnInteract();
+                yield break;
+
+            default:
+                Debug.LogFormat("<Insect Plate #{0}> Received unknown button {1}. Please use one of the five directions (up down left right center) or their initials.", moduleId, commandParts[1]);
+                yield return "sendtochaterror {0} Received unknown button " + commandParts[1] + ". Please use one of the five directions (up down left right center) or their initials.";
                 yield break;
         }
 

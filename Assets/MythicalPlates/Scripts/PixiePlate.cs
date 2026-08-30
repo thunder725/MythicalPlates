@@ -2121,18 +2121,18 @@ public class PixiePlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Pixie Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
-
-        summoningModule.ModuleLog(moduleId, "Received the Twitch Plays command “{0}”", command);
 
         if (command.Length == 0)
         {
+            Debug.LogFormat("<Pixie Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
-        // Put to lowercase and remove spaces
-        command = command.ToLowerInvariant().Replace(" ", "").Replace(",","");
+        // Credit to Royal_Flu$h for this line 
+        var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
         // Pressing PIXIE on the center of the plate
         if (command == "p" || command == "pixie")
@@ -2143,11 +2143,19 @@ public class PixiePlate : PlateBase {
             yield break;
         }
 
+        // Accept the words "submit", "move", "press", or their initials
+        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
+        {
+            Debug.LogFormat("<Pixie Plate #{0}> Unrecognized command. Please use 'pixie' to reset module, otherwise use 'submit' or 'press' to interact.", moduleId);
+            yield return "sendtochaterror {0} Unrecognized command. Please use 'pixie' to reset module, otherwise use 'submit' or 'press' to interact.";
+            yield break;
+        }
+
 
         yield return null;
+        Debug.LogFormat("<Pixie Plate #{0}> Sending Command ''{1}''", moduleId, commandParts[1]);
 
-
-        foreach (char _individualCommand in command)
+        foreach (char _individualCommand in commandParts[1])
         {
             yield return new WaitForSeconds(0.1f);
 
@@ -2175,15 +2183,13 @@ public class PixiePlate : PlateBase {
 
 
                 // Accept both "c" and "s" as Center and Submit
-                case 'c':
-                    platePressableButtons[4].OnInteract();
-                    break;
-
-                case 's':
+                case 'c':  case 's':
                     platePressableButtons[4].OnInteract();
                     break;
 
                 default:
+                    Debug.LogFormat("<Pixie Plate #{0}> Received unknown character: “{1}”. To reset send the command “pixie”. You currently are in {2} and have placed {3} Pixies.",
+                        moduleId, _individualCommand, ConvertGridIndexToPresetPuzzleLocation(currentPlayerPointerLocation), currentPixieIndexToPlace);
                     string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset send the command “pixie”. You currently are in {2} and have placed {3} Pixies.",
                         "{0}", _individualCommand, ConvertGridIndexToPresetPuzzleLocation(currentPlayerPointerLocation), currentPixieIndexToPlace);
                     yield return _stringToSend;

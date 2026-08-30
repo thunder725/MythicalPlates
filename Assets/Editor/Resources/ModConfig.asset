@@ -70,8 +70,13 @@ MonoBehaviour:
     to dynamically award points on Twitch Plays. For now it won't as the scores haven't
     been decided, but the feature should be working fully. Thanks tandycake for the
     solution, and everybody else who helped in the meantime!\n\n=-= 1.1.1\n- Fixed
-    mismatch in Sky Plate's Square rule between module and manual."
-  version: 1.1.1
+    mismatch in Sky Plate's Square rule between module and manual.\n\n=-= 1.1.2\n-
+    Added logs for each TP command answer as they aren't visible by default, and rephrased
+    many of them to be clearer.\n- Added more TP failsafes for Mind, Insect, Spooky
+    and Sky Plate.\n- Fixed Allmighty Sinnoh's Shownames command not being recognized.\n-
+    Fixed Allmighty Sinnoh's Wiggle command being very messed up.\n- Updated Pixie
+    Plate to ask for a submission keyword like other Plates."
+  version: 1.1.2
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

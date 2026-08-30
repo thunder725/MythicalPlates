@@ -797,9 +797,9 @@ MonoBehaviour:
   - {fileID: 114502820872906552}
   - {fileID: 114625123676530820}
   - {fileID: 114670923011992880}
-  customTwitchHelpMessage: "Move around with \u201C!{0} udlr\u201D and press the center
-    button with \u201Cc\u201D. \u201C!{0} drrcdlcururcc\u201D is a valid command.
-    Use \u201C!{0} pixie\u201D to press the PIXIE word on the casing."
+  customTwitchHelpMessage: "Move around with \u201C!{0} submit udlr\u201D and press
+    the center button with \u201Cc\u201D. \u201C!{0} submit drrcdlcururcc\u201D is
+    a valid command. Use \u201C!{0} pixie\u201D to press the PIXIE word on the casing."
   fullPlateName: Pixie Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -810,6 +810,7 @@ MonoBehaviour:
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}
   casingPressableButton: {fileID: 0}
+  ruleseedManager: {fileID: 0}
   moduleId: 0
   topPlateDemonInscription: {fileID: 102736441585823714}
   bottomPlatePixieInscription: {fileID: 102461734723501320}

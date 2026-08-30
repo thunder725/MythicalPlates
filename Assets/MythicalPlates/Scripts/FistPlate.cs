@@ -355,6 +355,7 @@ public class FistPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Fist Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -363,18 +364,21 @@ public class FistPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Fist Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
+            Debug.LogFormat("<Fist Plate #{0}> Received command formatted incorrectly!", moduleId);
             yield return "sendtochaterror {0} Received command formatted incorrectly!";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Fist Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
@@ -392,6 +396,7 @@ public class FistPlate : PlateBase {
             yield break;
         }
 
+        Debug.LogFormat("<Fist Plate #{0}> Received unknown button: '{1}'. Please use 'safe' or 'evacuate' for buttons.", moduleId, commandParts[1]);
         yield return "sendtochaterror {0} Received unknown button: " + commandParts[1] + ". Please use 'safe' or 'evacuate' for buttons.";
 
     }

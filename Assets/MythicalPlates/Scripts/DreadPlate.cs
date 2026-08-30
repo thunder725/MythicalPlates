@@ -492,6 +492,7 @@ public class DreadPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Dread Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -499,21 +500,25 @@ public class DreadPlate : PlateBase {
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit #”";
+            Debug.LogFormat("<Dread Plate #{0}> You must format the submission with “!# Submit %”", moduleId);
+            yield return "sendtochaterror {0} You must format the submission with “!{1} Submit %”";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
-            yield return "sendtochaterror {0} please make sure you Submit with either “Submit” or “s”.";
+            Debug.LogFormat("<Dread Plate #{0}> Please make sure you Submit with either “Submit” or “s”.”", moduleId);
+            yield return "sendtochaterror {0} Please make sure you Submit with either “Submit” or “s”.";
             yield break;
         }
 
         if (commandParts[1].Length != 1)
         {
-            yield return "sendtochaterror {0} please sumbit only one of the 5 allowed characters: # & % @ !";
+            Debug.LogFormat("<Dread Plate #{0}> Please sumbit only one of the 5 allowed characters: # & % @ !", moduleId);
+            yield return "sendtochaterror {0} Please sumbit only one of the 5 allowed characters: # & % @ !";
         }
 
+        Debug.LogFormat("<Dread Plate #{0}> Trying to press {1}", moduleId, commandParts[1]);
 
         switch (commandParts[1])
         {
@@ -540,6 +545,11 @@ public class DreadPlate : PlateBase {
             case "!":
                 yield return null;
                 platePressableButtons[4].OnInteract();
+                break;
+
+            default:
+                Debug.LogFormat("<Dread Plate #{0}> Received unknown character '{1}'. Please only use one of the 5 allowed characters: # & % @ !", moduleId, commandParts[1]);
+                yield return "sendtochaterror {0} Received unknown character '" + commandParts[1] + "'. Please only use one of the 5 allowed characters: # & % @ !";
                 break;
         }
     }

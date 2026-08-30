@@ -555,6 +555,7 @@ public class SplashPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Splash Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -562,30 +563,35 @@ public class SplashPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Splash Plate #{0}> Received empty command!", moduleId, command);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} Received command formatted incorrectly!";
+            Debug.LogFormat("<Splash Plate #{0}> Received command is too long! Please use “!# submit 0110”.", moduleId);
+            yield return "sendtochaterror {0} Received command is too long! Please use “!{1} submit 0110”.";
             yield break;
         }
 
         if (commandParts[0] != "submit" &&  commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
-            yield return "sendtochaterror {0} Please use keyword Submit or just s to submit an answer";
+            Debug.LogFormat("<Splash Plate #{0}> Please use keyword Submit or just s to submit an answer.", moduleId);
+            yield return "sendtochaterror {0} Please use keyword Submit or just s to submit an answer.";
             yield break;
         }
 
         if (commandParts[1].Length != 4)
         {
+            Debug.LogFormat("<Splash Plate #{0}> Please submit a four-digit binary number.", moduleId);
             yield return "sendtochaterror {0} Please submit a four-digit binary number";
             yield break;
         }
 
         if (commandParts[1].Any(x => x != '1' && x != '0'))
         {
+            Debug.LogFormat("<Splash Plate #{0}> Please submit a four-digit binary number, using only 0 and 1.", moduleId);
             yield return "sendtochaterror {0} Please submit a four-digit binary number, using only 0 and 1";
             yield break;
         }
@@ -597,6 +603,7 @@ public class SplashPlate : PlateBase {
 
         // Press buttons for the answer
         char _treatedCharacter;
+        Debug.LogFormat("<Splash Plate #{0}> Submitting {1}.", moduleId, commandParts[1]);
 
         for (int i = 0; i < 4; i ++)
         {
@@ -613,6 +620,7 @@ public class SplashPlate : PlateBase {
             }
             else
             {
+                Debug.LogFormat("<Splash Plate #{0}> Received unknown character '{1}'. The submission has been cancelled and player input has been reset", moduleId, _treatedCharacter);
                 yield return "sendtochaterror {0} Received unknown character: '" + _treatedCharacter + "'. The submission has been cancelled and player input has been reset.";
                 verifyAnswerManually = false;
                 StopAllCoroutines();

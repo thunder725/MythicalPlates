@@ -212,7 +212,8 @@ public class AllmightySinnoh : SummoningModule {
         else
         // Incorrect Visual Plate => Strike!!
         {
-            AllmightySinnohModuleLog(allmightySinnohModuleId, "That is invalid. Expected {0} Plate.", GetPlateNameFromIndex(expectedPlate));
+            AllmightySinnohModuleLog(allmightySinnohModuleId, "Pressed {0} Plate for Mark of {1} submission. That is invalid. Expected {3} Plate.",
+                GetPlateNameFromIndex(plateIndex), markToPress == 0 ? "Time" : markToPress == 1 ? "Space" : "Antimatter", GetPlateNameFromIndex(expectedPlate));
             ReceiveStrike();
         }
     }
@@ -1063,7 +1064,7 @@ public class AllmightySinnoh : SummoningModule {
     /// but Allmighty Sinnoh has its own beforehand! </summary>
     void InitializeAllmightySinnohTwitchHelpMessage()
     {
-        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} shownames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”; and if that's not enough, use “!{0} read” to get the information. Press the SINNOH casing button using “!{0} sinnoh”.");
+        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} platenames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”; and if that's not enough, use “!{0} read” to get the information. Press the SINNOH casing button using “!{0} sinnoh”.");
     }
 
     /// <summary> Called by Plates when they are summoned to set their custom Twitch Help Message </summary>
@@ -1082,6 +1083,7 @@ public class AllmightySinnoh : SummoningModule {
 
     protected override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Allmighty Sinnoh #{0}> Receiving Command ''{1}''", allmightySinnohModuleId, command);
         if (isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -1089,6 +1091,7 @@ public class AllmightySinnoh : SummoningModule {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Received empty command!", allmightySinnohModuleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
@@ -1102,8 +1105,9 @@ public class AllmightySinnoh : SummoningModule {
         }
 
         // Showing all 18 names in order
-        if (commandParts.Length == 1 && commandParts[0] == "shownames")
+        if (commandParts.Length == 1 && commandParts[0] == "platenames")
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Showing the Plate's names!", allmightySinnohModuleId);
             for (int i = 0; i < 18; i ++)
             {
                 ShowVisualPlateName(i);
@@ -1117,11 +1121,9 @@ public class AllmightySinnoh : SummoningModule {
         // Wiggling the bomb to check which Plate is Marked by Time
         if (commandParts.Length == 1 && commandParts[0] == "wiggle")
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Wiggling the bomb!", allmightySinnohModuleId);
             // Wait 1s to make sure the bomb is settled on a fixed rotation
-            yield return new WaitForSeconds(1);
-
-            // Save the current BombRotation
-            Quaternion _startingBombRotation = bombReference.transform.rotation;
+            yield return new WaitForSeconds(1.5f);
 
             // Prepare variables
             float timer = 0;
@@ -1143,13 +1145,15 @@ public class AllmightySinnoh : SummoningModule {
                 rotationZ = Mathf.Cos(timer * rotationFrequency) * rotationAmplitude;
 
                 // Return that to rotate the bomb
-                yield return _startingBombRotation * Quaternion.Euler(rotationX, 0, rotationZ);
+                // The expected rotation is RELATIVE to the rotation of the bomb at the START of the command.
+                // So just give it the Offset from "looking at the module straight-on".
+                yield return Quaternion.Euler(rotationX, 0, rotationZ);
 
                 yield return new WaitForEndOfFrame();
             }
 
-            // Reset the bomb rotation though
-            yield return _startingBombRotation;
+            // It automatically resets to the bomb's rotation at the start of the command,
+            // so no need to do it manually
             yield break;
         }
 
@@ -1158,16 +1162,16 @@ public class AllmightySinnoh : SummoningModule {
         // command "read" will give the initial Mark of Time
         if (commandParts.Length == 1 && commandParts[0] == "read")
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Giving away the Mark of Time Read: {1}", allmightySinnohModuleId, GetPlateNameFromIndex(initialTimeMark));
             yield return "sendtochat {0}, the initial Plate Marked by Time is " + GetPlateNameFromIndex(initialTimeMark);
             yield break;
         }
 
 
-        AllmightySinnohModuleLog(allmightySinnohModuleId, "MarkToPress is at {0}", markToPress);
-
         // Then apart from those send the command to the plate
         if (markToPress > 2)
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Sending to the Plate the command ''{1}''", allmightySinnohModuleId, command);
             yield return null;
 
             // Incredibly obscure behaviour that River and Emik were able to inform me about (huge thanks to them!)
@@ -1216,7 +1220,8 @@ public class AllmightySinnoh : SummoningModule {
         // Otherwise that's meant to press the Marked Plates
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
-            yield return "sendtochaterror {0} Please use keyword Press or just p to submit an answer";
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Please use the keyword Press or just p to submit Plates to press.", allmightySinnohModuleId);
+            yield return "sendtochaterror {0} Please use keyword Press or just p to submit Plates to press.";
             yield break;
         }
 
@@ -1224,6 +1229,7 @@ public class AllmightySinnoh : SummoningModule {
         // We need at least one Plate to be pressed
         if (commandParts.Length < 2)
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Please send at least one valid Plate.", allmightySinnohModuleId);
             yield return "sendtochaterror {0} Please send at least one valid Plate.";
             yield break;
         }
@@ -1231,6 +1237,7 @@ public class AllmightySinnoh : SummoningModule {
         // Pressing more than 3 Plates is useless!
         if (commandParts.Length > 4)
         {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> You cannot press more than 3 Plates!", allmightySinnohModuleId);
             yield return "sendtochaterror {0} You cannot press more than 3 Plates!";
             yield break;
         }
@@ -1251,6 +1258,7 @@ public class AllmightySinnoh : SummoningModule {
             // Verify that this Plate exists
             if (plateNames.Contains(commandParts[i]) == false)
             {
+                Debug.LogFormat("<Allmighty Sinnoh #{0}> Plate name {1} is nto recognized! Stopping submission.", allmightySinnohModuleId, commandParts[i]);
                 yield return "sendtochaterror {0} Plate name " + commandParts[i] + " is not recognized! Stopping submission";
                 yield break;
             }

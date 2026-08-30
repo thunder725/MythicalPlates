@@ -799,6 +799,7 @@ public class IronPlate : PlateBase {
         if (loggingData.Count%5 != 0)
         {
             summoningModule.ModuleLogError(moduleId, "Logging Data List is not a multiple of 5. That is very wrong! Please contact thunder725");
+            summoningModule.ModuleLog(moduleId, "Logging Data List: {0}", loggingData.Join(" // "));
             return;
         }
 
@@ -820,6 +821,7 @@ public class IronPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Iron Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -828,18 +830,21 @@ public class IronPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Iron Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
+            Debug.LogFormat("<Iron Plate #{0}> Received command formatted incorrectly!", moduleId);
             yield return "sendtochaterror {0} Received command formatted incorrectly!";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Iron Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
@@ -848,13 +853,15 @@ public class IronPlate : PlateBase {
 
         if (_timeToKeepPressed < 1)
         {
-            yield return "sendtochaterror {0} Trying to keep time flowing for less than 1 timer tick!";
+            Debug.LogFormat("<Iron Plate #{0}> You can't keep time flowing for less than 1 timer tick!", moduleId);
+            yield return "sendtochaterror {0} You can't keep time flowing for less than 1 timer tick!";
             yield break;
         }
 
         if (_timeToKeepPressed > 17)
         {
-            yield return "sendtochaterror {0} Trying to keep time flowing for less more than 17 timer tick! While this can be valid, there is a shorter solution. Let's avoid clogging Twitch Plays!";
+            Debug.LogFormat("<Iron Plate #{0}> Trying to keep time flowing for less more than 17 timer tick! While this can be valid, there is a shorter solution. Let's avoid stalling in Twitch Plays!!", moduleId);
+            yield return "sendtochaterror {0} Trying to keep time flowing for less more than 17 timer tick! While this can be valid, there is a shorter solution. Let's avoid stalling in Twitch Plays!";
             yield break;
         }
 

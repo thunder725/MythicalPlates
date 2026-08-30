@@ -358,6 +358,7 @@ public class StonePlate : PlateBase{
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Stone Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         summoningModule.ModuleLog(moduleId, "Received the Twitch Plays command “{0}”", command);
@@ -367,6 +368,7 @@ public class StonePlate : PlateBase{
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Stone Plate #{0}> Received empty command.", moduleId);
             yield return "sendtochaterror {0} Received an empty command.";
             yield break;
         }
@@ -383,12 +385,19 @@ public class StonePlate : PlateBase{
         // Failing a submit
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Stone Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
 
+        if (command.Length > 2)
+        {
+            Debug.LogFormat("<Stone Plate #{0}> More than one movement payload was found. Only '{1}' will be taken into account.", moduleId, commandParts[1]);
+            yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account.";
+        }
 
         yield return null;
+        Debug.LogFormat("<Stone Plate #{0}> Submitting {1}", moduleId, commandParts[1]);
 
         foreach (char _individualCommand in commandParts[1])
         {
@@ -424,6 +433,8 @@ public class StonePlate : PlateBase{
                     break;
 
                 default:
+                    Debug.LogFormat("<Stone Plate #{0}> Received unknown character: “{1}”. To reset use command “stone”. You currently are in {2}.",
+                        moduleId, _individualCommand, GetCoordinateFromCellIndex(currentCoordinate, 8));
                     string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset use command “stone”. You currently are in {2}.",
                         "{0}", _individualCommand, GetCoordinateFromCellIndex(currentCoordinate, 8));
                     yield return _stringToSend;

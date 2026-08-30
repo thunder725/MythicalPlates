@@ -386,6 +386,7 @@ public class MeadowPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Meadow Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -394,18 +395,21 @@ public class MeadowPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Meadow Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} Received command formatted incorrectly!";
+            Debug.LogFormat("<Meadow Plate #{0}> Received command isn't formatted correctly, just use 'submit january' or 'press january' with two words!", moduleId);
+            yield return "sendtochaterror {0} Received command isn't formatted correctly, just use 'submit january' or 'press january' with two words!";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Meadow Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
@@ -461,7 +465,8 @@ public class MeadowPlate : PlateBase {
                 platePressableButtons[11].OnInteract(); break;
 
             default:
-                yield return "sendtochaterror {0} Received unknown month descriptor: " + commandParts[1] + ". Please use the month number (1-12), full name (september), or three-letter abbreviation (sep).";
+                Debug.LogFormat("<Meadow Plate #{0}> Received unknown month descriptor: '{1}'. Please use the month number (1-12), full name (september), or three-letter abbreviation (sep).", moduleId, commandParts[1]);
+                yield return "sendtochaterror {0} Received unknown month descriptor: '" + commandParts[1] + "'. Please use the month number (1-12), full name (september), or three-letter abbreviation (sep).";
                 break;
         }
     }

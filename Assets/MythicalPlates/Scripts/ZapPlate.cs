@@ -196,6 +196,7 @@ public class ZapPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Zap Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         
@@ -205,20 +206,23 @@ public class ZapPlate : PlateBase {
 
         if (commandParts.Length != 2)
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Press 3” with exactly 2 arguments.";
+            Debug.LogFormat("<Zap Plate #{0}> Please format the submission with “!# Press 3” with exactly 2 arguments.", moduleId);
+            yield return "sendtochaterror {0} Please format the submission with “!{1} Press 3” with exactly 2 arguments.";
             yield break;
         }
 
         if (!commandParts[0].Equals("press") && !commandParts[0].Equals("p") && !commandParts[0].Equals("submit") && !commandParts[0].Equals("s"))
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Press 3”, starting with the word “Press”.";
+            Debug.LogFormat("<Zap Plate #{0}> Please format the submission with “!# Press 3”, starting with the word “Press” or “Submit”.", moduleId);
+            yield return "sendtochaterror {0} Please format the submission with “!{1} Press 3”, starting with the word “Press” or “Submit”.";
             yield break;
         }
 
         int _timeToPressAt = int.Parse(commandParts[1]);
         if (_timeToPressAt < 0 || _timeToPressAt > 9)
         {
-            yield return "sendtochaterror {0} you must ask for submission time that is within 0 and 9 only.";
+            Debug.LogFormat("<Zap Plate #{0}> Please ask for submission time that is within 0 and 9 only.", moduleId);
+            yield return "sendtochaterror {0} Please ask for submission time that is within 0 and 9 only.";
             yield break;
         }
 
@@ -226,11 +230,13 @@ public class ZapPlate : PlateBase {
         // Without this yield return null, the yield return sendtochat exits the command instantly
         // since that sendtochat is the first yield return.
         yield return null;
+        Debug.LogFormat("<Zap Plate #{0}> Will press the Plate on {0} seconds.", moduleId, _timeToPressAt);
         yield return "sendtochat {0} will press the Plate on " + _timeToPressAt + " seconds. The command is cancellable.";
 
         while ((int)bombInfo.GetTime() % 10 != secondsToPressOn)
         {
             // Allow chat to cancel the command.
+            Debug.LogFormat("<Zap Plate #{0}> Command was cancelled before the Plate was pressed.", moduleId);
             yield return "trycancel Command was cancelled before the Plate was pressed.";
 
             yield return new WaitForSeconds(0.2f);

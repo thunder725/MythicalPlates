@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class IciclePlate : PlateBase {
@@ -796,6 +797,7 @@ public class IciclePlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Icicle Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -804,24 +806,28 @@ public class IciclePlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Icicle Plate #{0}> Received empty command!", moduleId);
             yield return "sendtochaterror {0} Received empty command!";
             yield break;
         }
 
         if (commandParts.Length != 2)
         {
+            Debug.LogFormat("<Icicle Plate #{0}> Received command formatted incorrectly!", moduleId);
             yield return "sendtochaterror {0} Received command formatted incorrectly!";
             yield break;
         }
 
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Icicle Plate #{0}> Received unknown command! Please use 'submit' or 'press' to submit an answer.", moduleId);
             yield return "sendtochaterror {0} Received unknown command! Please use 'submit' or 'press' to submit an answer.";
             yield break;
         }
 
         if (commandParts[1].Length != 1)
         {
+            Debug.LogFormat("<Icicle Plate #{0}> Received unknown boat location. Please send a single digit within 1 and 6.", moduleId);
             yield return "sendtochaterror {0} Received unknown boat location. Please send a single digit within 1 and 6.";
             yield break;
         }
@@ -830,7 +836,8 @@ public class IciclePlate : PlateBase {
 
         if (_submittedBoatStartingLocation < 1 || _submittedBoatStartingLocation > 6)
         {
-            yield return "sendtochaterror {0} Received unknown boat location. Please send a single digit within 1 and 6.";
+            Debug.LogFormat("<Icicle Plate #{0}> Received unknown boat location '{1}'. Please send a single digit within 1 and 6.", moduleId, _submittedBoatStartingLocation);
+            yield return "sendtochaterror {0} Received unknown boat location '" + _submittedBoatStartingLocation + "'. Please send a single digit within 1 and 6.";
             yield break;
         }
 

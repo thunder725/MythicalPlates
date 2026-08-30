@@ -1013,6 +1013,7 @@ public class SkyPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Sky Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -1028,13 +1029,15 @@ public class SkyPlate : PlateBase {
 
         if (commandParts.Length <= 1)
         {
-            yield return "sendtochaterror {0} you must format the submission with “!{1} Submit .-. -.-- -.. ...- -.-.”";
+            Debug.LogFormat("<Sky Plate #{0}> You must format the submission with “!{1} Submit .-. -.-- -.. ...- -.-.”", moduleId);
+            yield return "sendtochaterror {0} You must format the submission with “!{1} Submit .-. -.-- -.. ...- -.-.”";
             yield break;
         }
 
-        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p")
+        if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "press" && commandParts[0] != "p" && commandParts[0] != "send")
         {
-            yield return "sendtochaterror {0} please make sure you Submit with either “Submit” or “s”.";
+            Debug.LogFormat("<Sky Plate #{0}> Please make sure you Submit with either “Submit” or “Press”.", moduleId);
+            yield return "sendtochaterror {0} Please make sure you Submit with either “Submit” or “Press”.";
             yield break;
         }
 
@@ -1042,17 +1045,19 @@ public class SkyPlate : PlateBase {
         yield return null;
 
         // Foreach Letter
-        foreach (var _letter in commandParts)
+        
+        foreach (string _word in commandParts)
         {
             // Ignore submit
-            if (_letter == "s" || _letter == "p")
+            if (_word == "s" || _word == "p" || _word == "submit" || _word == "press" || _word == "send")
             { continue; }
 
+            Debug.LogFormat("<Sky Plate #{0}> Submitting the morse word {1}.", moduleId, _word);
 
             // Foreach morse part
-            foreach (var c in _letter)
+            foreach (char _char in _word)
             {
-                switch (c)
+                switch (_char)
                 {
                     case '.':
                         platePressableButtons[0].OnInteract();
@@ -1061,6 +1066,12 @@ public class SkyPlate : PlateBase {
                     case '-':
                         platePressableButtons[1].OnInteract();
                         break;
+
+                    default:
+                        Debug.LogFormat("<Sky Plate #{0}> Received unexpected character '{1}'. Submission aborted and player input cleared.", moduleId, _char);
+                        yield return "sendtochaterror {0} received unexpected character '" + _char + "'. The submission has been aborted and your current input has been cleared.";
+                        currentPlayerInput = string.Empty;
+                        yield break;
                 }
 
                 yield return new WaitForSeconds(0.1f);

@@ -561,6 +561,7 @@ public class ToxicPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        Debug.LogFormat("<Toxic Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -568,6 +569,7 @@ public class ToxicPlate : PlateBase {
 
         if (commandParts.Length == 0)
         {
+            Debug.LogFormat("<Toxic Plate #{0}> Received empty command.", moduleId);
             yield return "sendtochaterror {0} Received an empty command.";
             yield break;
         }
@@ -584,6 +586,7 @@ public class ToxicPlate : PlateBase {
         // Accept the words "submit", "move", "press", or their initials
         if (commandParts[0] != "submit" && commandParts[0] != "s" && commandParts[0] != "move" && commandParts[0] != "m" && commandParts[0] != "press" && commandParts[0] != "p")
         {
+            Debug.LogFormat("<Toxic Plate #{0}> Unrecognized command. Please use 'toxic' to reset module, or 'move', 'submit' or 'press' to move around.", moduleId);
             yield return "sendtochaterror {0} Unrecognized command. Please use 'toxic' to reset module, or 'move', 'submit' or 'press' to move around.";
             yield break;
         }
@@ -592,16 +595,19 @@ public class ToxicPlate : PlateBase {
         // or Submit / Move + directions
         if (commandParts.Length == 1)
         {
+            Debug.LogFormat("<Toxic Plate #{0}> Please send a movement when submitting", moduleId);
             yield return "sendtochaterror {0} Please send a movement when submitting.";
             yield break;
         }
         else if (commandParts.Length > 2)
         {
+            Debug.LogFormat("<Toxic Plate #{0}> More than one movement payload was found. Only '{1}' will be taken into account.", moduleId, commandParts[1]);
             yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account." ;
         }
 
 
         yield return null;
+        Debug.LogFormat("<Toxic Plate #{0}> Submitting {1}.", moduleId, commandParts[1]);
         foreach (char _movementDirection in commandParts[1])
         {
             yield return new WaitForSeconds(0.15f);
