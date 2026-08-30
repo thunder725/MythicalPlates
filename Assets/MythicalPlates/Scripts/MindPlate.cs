@@ -1001,11 +1001,13 @@ public class MindPlate : PlateBase
         }
         else if (commandParts.Length > 2)
         {
+            yield return null;
             Debug.LogFormat("<Mind Plate #{0}> More than one movement payload was found. Only '{1}' will be taken into account.", moduleId, commandParts[1]);
             yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account.";
         }
 
 
+        Debug.LogFormat("<Mind Plate #{0}> Submitting sequence {1}.", commandParts[1]);
         yield return null;
 
         foreach (char _movementDirection in commandParts[1])
@@ -1030,10 +1032,14 @@ public class MindPlate : PlateBase
                     platePressableButtons[2].OnInteract();
                     break;
 
+                case 'c': case 's':
+                    platePressableButtons[4].OnInteract();
+                    break;
+
                 default:
-                    Debug.LogFormat("<Mind Plate #{0}> Received unknown character: “{1}”. To reset send the command “mind”. You currently are in {2}.",
+                    Debug.LogFormat("<Mind Plate #{0}> Received unknown character: “{1}”. To reset you can send the command “mind”. You currently are in {2}.",
                         moduleId, _movementDirection, GetAnistarCoordinateFormatting(currentPlayerLocationIndex));
-                    string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset send the command “mind”. You currently are in {2}.",
+                    string _stringToSend = string.Format("sendtochaterror {0} Received unknown character: “{1}”. To reset you can send the command “mind”. You currently are in {2}.",
                         "{0}", _movementDirection, GetAnistarCoordinateFormatting(currentPlayerLocationIndex));
                     yield return _stringToSend;
                     yield break;

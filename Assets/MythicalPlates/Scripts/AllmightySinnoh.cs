@@ -1107,6 +1107,7 @@ public class AllmightySinnoh : SummoningModule {
         // Showing all 18 names in order
         if (commandParts.Length == 1 && commandParts[0] == "platenames")
         {
+            yield return null;
             Debug.LogFormat("<Allmighty Sinnoh #{0}> Showing the Plate's names!", allmightySinnohModuleId);
             for (int i = 0; i < 18; i ++)
             {
@@ -1245,7 +1246,7 @@ public class AllmightySinnoh : SummoningModule {
 
         // Safety yield return null to prevent being locked out of the method
         yield return null;
-
+        Debug.LogFormat("<Allmighty Sinnoh #{0}> Submitting the plates {1}.", allmightySinnohModuleId, commandParts.TakeLast(commandParts.Length - 1).Join(", "));
 
         for (int i = 1; i < commandParts.Length; i ++)
         {
@@ -1258,13 +1259,25 @@ public class AllmightySinnoh : SummoningModule {
             // Verify that this Plate exists
             if (plateNames.Contains(commandParts[i]) == false)
             {
-                Debug.LogFormat("<Allmighty Sinnoh #{0}> Plate name {1} is nto recognized! Stopping submission.", allmightySinnohModuleId, commandParts[i]);
+                Debug.LogFormat("<Allmighty Sinnoh #{0}> Plate name {1} is not recognized! Stopping submission.", allmightySinnohModuleId, commandParts[i]);
                 yield return "sendtochaterror {0} Plate name " + commandParts[i] + " is not recognized! Stopping submission";
                 yield break;
             }
 
+            int _indexOfPlate = Array.IndexOf(plateNames, commandParts[i]);
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Pressing Plate {1} which is in Index {2}.", allmightySinnohModuleId, commandParts[i], _indexOfPlate);
+
+            if (eighteenVisualPlateSelectables.Length != 18)
+            {
+                Debug.LogFormat("<Allmighty Sinnoh #{0}> Visual Plate Selectables array isn't exactly 18, it is {1}. Please report this to thunder725.",
+                    allmightySinnohModuleId, eighteenVisualPlateSelectables.Length);
+                yield return "sendtochaterror {0} Visual Plate Selectables array isn't exactly 18, it is " + eighteenVisualPlateSelectables.Length + ". Please report this to thunder725.";
+                SolveAllmightySinnoh();
+                yield break;
+            }
+
             // Press the Plate
-            eighteenVisualPlateSelectables[Array.IndexOf(plateNames, commandParts[i])].OnInteract();
+            eighteenVisualPlateSelectables[_indexOfPlate].OnInteract();
 
             // Wait before pressing the next one
             yield return new WaitForSeconds(0.3f);

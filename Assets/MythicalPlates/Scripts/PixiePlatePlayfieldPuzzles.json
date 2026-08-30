@@ -63,14 +63,14 @@
     "voidCellLocations": [ "30", "41", "33" ],
     "intendedPixiePlacementSolution": [ "73", "12", "11", "00", "13" ]
   },
-  {
-    "puzzleID": 8, // Many Fléau and Dashaz!!
-    "demonIDs": [ 5, 2, 4, 3, 4, 2 ],
-    "demonLocations": [ "43", "41", "73", "32", "61", "50" ],
-    "pixieIDs": [ 9, 3, 3, 0 ],
-    "voidCellLocations": [ "03", "23", "51" ],
-    "intendedPixiePlacementSolution": [ "71", "31", "22", "13" ]
-  },
+  // {        // The solution is now impossible due to Zagan the Trickster Bugfix (its ability didn't work previously)
+  //   "puzzleID": 8, // Many Fléau and Dashaz!!
+  //   "demonIDs": [ 5, 2, 4, 3, 4, 2 ],
+  //   "demonLocations": [ "43", "41", "73", "32", "61", "50" ],
+  //   "pixieIDs": [ 9, 3, 3, 0 ],
+  //   "voidCellLocations": [ "03", "23", "51" ],
+  //   "intendedPixiePlacementSolution": [ "71", "31", "22", "13" ]
+  // },
   {
     "puzzleID": 9, // Area of Denial
     "demonIDs": [ 8, 7, 0, 1 ],

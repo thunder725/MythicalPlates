@@ -344,7 +344,7 @@ public class FlamePlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
-        Debug.LogFormat("<Flam Plate #{0}> Received Command ''{1}''", moduleId, command);
+        Debug.LogFormat("<Flame Plate #{0}> Received Command ''{1}''", moduleId, command);
         if (summoningModule.isModuleSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
@@ -361,7 +361,7 @@ public class FlamePlate : PlateBase {
 
         if (!commandParts[0].Equals("submit") && !commandParts[0].Equals("s") && !commandParts[0].Equals("press") && !commandParts[0].Equals("p"))
         {
-            Debug.LogFormat("<Flam Plate #{0}> you must format the submission with “!{1} Submit 13848426”, starting with the word “Submit” or “Press”.", moduleId);
+            Debug.LogFormat("<Flame Plate #{0}> you must format the submission with “!{1} Submit 13848426”, starting with the word “Submit” or “Press”.", moduleId);
             yield return "sendtochaterror {0} you must format the submission with “!{1} Submit 13848426”, starting with the word “Submit” or “Press”.";
             yield break;
         }
@@ -382,7 +382,7 @@ public class FlamePlate : PlateBase {
         }
 
         yield return null;
-        Debug.LogFormat("<Flam Plate #{0}> Submitting {1}", moduleId, commandParts[1]);
+        Debug.LogFormat("<Flame Plate #{0}> Submitting {1}", moduleId, commandParts[1]);
 
 
         // Press all values
@@ -391,7 +391,7 @@ public class FlamePlate : PlateBase {
             // Is any of the buttons incorrect?
             if (CharToInt(_numberToPress) < 1 || CharToInt(_numberToPress) > 9)
             {
-                Debug.LogFormat("<Flam Plate #{0}> One of the submitted characters '{1}' wasn't between 1 and 9 inclusive! Stopping there.", moduleId, _numberToPress);
+                Debug.LogFormat("<Flame Plate #{0}> One of the submitted characters '{1}' wasn't between 1 and 9 inclusive! Stopping there.", moduleId, _numberToPress);
                 yield return "sendtochaterror {0} One of the submitted characters '" + _numberToPress + "' wasn't between 1 and 9 inclusive! Stopping there.";
                 yield break;
             }

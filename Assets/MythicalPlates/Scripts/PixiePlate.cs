@@ -166,6 +166,8 @@ public class PixiePlate : PlateBase {
         // VerifyPresetPlayfieldPuzzleIntegrity(); return;
 
         SelectPresetPlayfieldPuzzle();
+        // Way to select a custom puzzle always
+        // selectedPresetPuzzle = presetPuzzleLists[4];
         InitializePlayfieldFromPresetPuzzle(false, selectedPresetPuzzle);
 
 
@@ -1330,6 +1332,9 @@ public class PixiePlate : PlateBase {
 
     bool IsPixieBlockedFromAttacking(Pixie pixie)
     {
+        summoningModule.ModuleLog(moduleId, "Pixie with number {0} with location {1} is checking.", pixie.pixiePlayfieldNumber, GetCoordinateFromCellIndex(pixie.gridLocationIndex, 8));
+
+
         // Check if Pixie has been frozen by Bifrovst
         // Since we handle attacks in reverse Playfield order, the Bifrovst attacks before the Pixie
         if (pixie.hasBeenFrozenByBifrovst)
@@ -1349,38 +1354,53 @@ public class PixiePlate : PlateBase {
 
         // No Zagan? Nothing can block it anymore
         if (currentPlayfield.rowsWithZaganTheTricksterPresent.Count == 0)
-        { return false; }
+        { summoningModule.ModuleLog(moduleId, "No Zagan exists!"); return false; }
 
         // If there is a Zagan but it's on another row, don't bother checking anything
         if (currentPlayfield.rowsWithZaganTheTricksterPresent.Contains(GetRowFromCellIndex(pixie.gridLocationIndex, 8)) == false)
-        { return false; }
+        { summoningModule.ModuleLog(moduleId, "No Zagan on its row!"); return false; }
 
 
         // If Zagan is (OR WAS!!) on this row, check it
         // We still end up checking rows where there WAS a Zagan The Trickster, even if there isn't anymore;
         // But in the majority of cases this will already prevent checking rows 3/4th of the time
-        int _leftmostIndex = Mathf.FloorToInt(pixie.gridLocationIndex / 8);
-        bool _foundZagan = false;
 
+        // leftmost Index is 0, 8, 16 or 24
+        int _leftmostIndex = Mathf.FloorToInt(pixie.gridLocationIndex / 8) * 8;
+        bool _foundZagan = false;
+        summoningModule.ModuleLog(moduleId, "Zagan on its row, but checking to be sure.");
         // Start at the rightmost column, going left
         for (int _cellToCheckForZagan = _leftmostIndex + 7; _cellToCheckForZagan >= _leftmostIndex ; _cellToCheckForZagan--)
         {
             // If we encounter any OTHER Pixie, we're safe from Zagan
             if (DoesPlayfieldCellContainPixie(_cellToCheckForZagan))
             {
+                summoningModule.ModuleLog(moduleId, "Found a pixie in cell {0}", GetCoordinateFromCellIndex(_cellToCheckForZagan, 8));
                 // Make sure the Pixie isn't us
                 if (_cellToCheckForZagan != pixie.gridLocationIndex)
                 {
+                    summoningModule.ModuleLog(moduleId, "But it's another Pixie, so I'm not blocked!!");
                     return false;
+                }
+
+                // If we've found a Zagan and we found ourselves first, then we know we're blocked
+                if (_foundZagan)
+                {
+                    // Log
+                    summoningModule.ModuleLog(moduleId, "Pixie with Creature Number {0} is blocked from attacking because of a Zagan The Trickster",
+                        pixie.pixiePlayfieldNumber);
+                    return true;
                 }
             }
 
             // Else, if we find a Demon
             if (DoesPlayfieldCellContainDemon(_cellToCheckForZagan))
             {
+                summoningModule.ModuleLog(moduleId, "Found a demon in cell {0}", GetCoordinateFromCellIndex(_cellToCheckForZagan, 8));
                 // Is this a Zagan?
                 if (GetDemonFromPlayfieldCellIndex(_cellToCheckForZagan).demonArchetypeId == 3)
                 {
+                    summoningModule.ModuleLog(moduleId, "IT'S A ZAGAN!");
                     _foundZagan = true;
                     
                     // Don't return, as we might find a Zagan early but still find a Pixie to block its curse, so we need to find something
@@ -1389,6 +1409,7 @@ public class PixiePlate : PlateBase {
 
 
             // Have we gone past the current Pixie (without seeing another one) and found a Zagan? We know this Pixie is blocked!
+            // This is because Zagan blocks the entire row, even if it's to the left of the Pixie!
             if (_foundZagan && _cellToCheckForZagan < pixie.gridLocationIndex)
             {
                 // Log
@@ -1399,6 +1420,7 @@ public class PixiePlate : PlateBase {
         }
 
         // At the very end, if code execution arrives here, we just return whether we found a Zagan or Not
+        // Unsure if the code can arrive here by itself, but just in case I'll keep it
 
         if (_foundZagan)
         {

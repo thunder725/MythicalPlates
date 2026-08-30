@@ -601,6 +601,7 @@ public class ToxicPlate : PlateBase {
         }
         else if (commandParts.Length > 2)
         {
+            yield return null;
             Debug.LogFormat("<Toxic Plate #{0}> More than one movement payload was found. Only '{1}' will be taken into account.", moduleId, commandParts[1]);
             yield return "sendtochat {0} More than one movement payload was found. Only '" + commandParts[1] + "' will be taken into account." ;
         }

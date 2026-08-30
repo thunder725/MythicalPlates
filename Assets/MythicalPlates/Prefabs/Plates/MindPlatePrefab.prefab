@@ -514,8 +514,9 @@ MonoBehaviour:
   - {fileID: 114029927560163386}
   - {fileID: 114838110285204022}
   - {fileID: 114626547929555310}
-  customTwitchHelpMessage: "\u201C!{0} move udlr\u201D to move Up Down Left Right.
-    You can chain movements. Use \u201C!{0} mind\u201D to press the MIND casing text."
+  customTwitchHelpMessage: "\u201C!{0} move udlrc\u201D to move Up Down Left Right
+    then submit the current position. You can chain movements. Use \u201C!{0} mind\u201D
+    to press the MIND casing text."
   fullPlateName: Mind Plate
   platePressedSounds:
   - {fileID: 8300000, guid: 87206e47864df144aa08887fd6fff16d, type: 3}
@@ -526,6 +527,7 @@ MonoBehaviour:
   bombInfo: {fileID: 0}
   summoningModule: {fileID: 0}
   casingPressableButton: {fileID: 0}
+  ruleseedManager: {fileID: 0}
   moduleId: 0
   constellationTextures:
   - {fileID: 2800000, guid: 7cb2cbd9587c9e34191b9f6dacd74c10, type: 3}
