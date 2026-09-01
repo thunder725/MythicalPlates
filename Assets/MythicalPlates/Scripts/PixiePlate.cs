@@ -192,10 +192,13 @@ public class PixiePlate : PlateBase {
 
     void PlateButtonsGetsPressed(int buttonTypeIndicator)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         // Button Type Indicator:
         // 0123 is Up Down Left Right Movement to coincide with MovementDirection enum
@@ -214,9 +217,12 @@ public class PixiePlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "Resetting the Grid due to PIXIE Button pressed.");
         ResetGridAndPlayerInputs();
@@ -276,10 +282,13 @@ public class PixiePlate : PlateBase {
 
     void PressedMovementButton(MovementDirection movementDirection)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch(0.5f);
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
         // Save previous location
@@ -2143,8 +2152,11 @@ public class PixiePlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Pixie Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         if (command.Length == 0)
         {

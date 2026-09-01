@@ -76,10 +76,13 @@ public class IronPlate : PlateBase {
 
     void PressedTimestopButton()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
         // Flip the boolean!
@@ -821,8 +824,11 @@ public class IronPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Iron Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

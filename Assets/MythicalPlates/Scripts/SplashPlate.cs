@@ -85,11 +85,14 @@ public class SplashPlate : PlateBase {
 
     void PressedBinaryButton(int buttonIndex)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         // Feedback
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
 
@@ -129,12 +132,15 @@ public class SplashPlate : PlateBase {
 
     IEnumerator PlayerAnswerSubmissionCountdown()
     {
-        if (summoningModule.isModuleSolved)
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
+        if (hasPlateSolved)
         { yield return false; }
 
         yield return new WaitForSeconds(2f);
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { yield return false; }
 
 
@@ -555,8 +561,11 @@ public class SplashPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Splash Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -648,11 +657,16 @@ public class SplashPlate : PlateBase {
         for (int i = 0; i < 4; i ++)
         {
             if (requiredPlayerAnswer[i] == '1') { platePressableButtons[i].OnInteract(); }
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.1f);
         }
 
-        // Fake the truth, it works well enough
-        // Everything in your life is a lie
-        StartCoroutine(PlateShouldSolve());
+        // Due to TP Autosolving mixing with Allmighty Sinnoh, this Plate can be destroyed and try to start a Coroutine
+        // Avoid that
+        if (this != null)
+        {
+            // Fake the truth, it works well enough
+            // Everything in your life is a lie
+            StartCoroutine(PlateShouldSolve());
+        }
     }
 }

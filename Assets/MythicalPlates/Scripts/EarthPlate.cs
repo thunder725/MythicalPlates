@@ -79,11 +79,14 @@ public class EarthPlate : PlateBase {
 
     void PressedMovementButton(int LShapeMovementIndex)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         // Feedback
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "Pressed movement button {0}.", LShapeMovementIndex);
         MoveInLShape(LShapeMovementIndex);
@@ -91,9 +94,12 @@ public class EarthPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }        
+        if (hasPlateSolved) { return; }        
 
 
         summoningModule.ModuleLog(moduleId, "EARTH casing button got pressed! Resetting to the starting position.");
@@ -339,8 +345,11 @@ public class EarthPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Earth Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

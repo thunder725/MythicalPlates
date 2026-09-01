@@ -225,6 +225,10 @@ public class AllmightySinnoh : SummoningModule {
         // This doesn't outright solve Allmighty Sinnoh since it does need to solve the 3 Solvable Plates in a row.
         numberOfPlatesSolved++;
 
+        // Tell the Plate it has solved itself
+        if (currentSummonedPlateScript != null)
+        { currentSummonedPlateScript.hasPlateSolved = true; }
+
         PlaySound(SolvablePlateSolvedSound);
 
         // Different text for each "Stage"
@@ -1328,7 +1332,7 @@ public class AllmightySinnoh : SummoningModule {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Auto-Solving next Plate");
 
             // Allow the plate to still visually start appearing
-            yield return new WaitForSeconds(0.8f);
+            yield return new WaitForSeconds(1f);
 
             // Ask the Plate to forcesolve itself using the same concept as 
             // the ReceiveTwitchCommand above.

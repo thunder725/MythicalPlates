@@ -142,10 +142,13 @@ public class InsectPlate : PlateBase {
     /// <summary> 0 for Up, 1 for Down, 2 for Left, 3 for Right, 4 for Center </summary>
     void PlayerPressedButton(int buttonIndex)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
 
@@ -646,8 +649,11 @@ public class InsectPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Insect Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

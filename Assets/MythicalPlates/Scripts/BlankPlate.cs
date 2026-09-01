@@ -76,13 +76,16 @@ public class BlankPlate : PlateBase {
 
     void OnPressedMovementButton(PabloMovementType pressedButtonType)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         bool shouldGiveStrike = false;
 
         // Feedbacks
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.5f);
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         // Since we store the Tile Number (Path starts at 1) but the Path in the array starts with 0,
         // it means using the current Pablo Tile Number as an index gives the obstacle in front of us.
@@ -243,9 +246,12 @@ public class BlankPlate : PlateBase {
     // Reset button
     protected override void CasingTextButtonGetsPressed()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         currentPabloTileNumber = 0;
         summoningModule.ModuleLog(moduleId, "'BLANK' button pressed! Reset Pablo to its starting location!");
@@ -706,8 +712,11 @@ public class BlankPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Blank Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

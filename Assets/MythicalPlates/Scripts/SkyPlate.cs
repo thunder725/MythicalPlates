@@ -248,10 +248,13 @@ public class SkyPlate : PlateBase {
 
     void PressingPlateButton(string buttonType)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch( buttonType == "submit" ? 1f : 0.7f);
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         switch (buttonType)
         {
@@ -332,9 +335,12 @@ public class SkyPlate : PlateBase {
 
     protected override void CasingTextButtonGetsPressed() 
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         currentCity = GetCityFromName(startingCityName);
         currentTimer = finalTimerToSolve;
@@ -1003,7 +1009,10 @@ public class SkyPlate : PlateBase {
 
     void ModuleShouldSolve()
     {
-        StartCoroutine(PlateShouldSolve());
+        // Due to TP Autosolving mixing with Allmighty Sinnoh, this Plate can be destroyed and try to start a Coroutine
+        // Avoid that
+        if (this != null)
+        { StartCoroutine(PlateShouldSolve()); }
     }
 
 
@@ -1013,8 +1022,11 @@ public class SkyPlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Sky Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

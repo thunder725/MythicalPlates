@@ -88,6 +88,7 @@ public class IndividualPlateModule : SummoningModule {
     {
         ModuleLog(currentSummonedPlateScript.moduleId, "Module Solved");
         PlaySound(SolveClip);
+        currentSummonedPlateScript.hasPlateSolved = true;
         isModuleSolved = true;
         thisModule.HandlePass();
     }

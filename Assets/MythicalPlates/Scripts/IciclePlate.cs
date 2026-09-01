@@ -115,10 +115,13 @@ public class IciclePlate : PlateBase {
 
     void PressedAnswerButton(int shipStartingPositionIndex)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         // Set the boat at its starting location
         currentBoatLocationIndex = startingLocations[shipStartingPositionIndex];
@@ -530,6 +533,10 @@ public class IciclePlate : PlateBase {
         }
 
         // All the data has been extracted!
+        Debug.LogFormat("<Icicle Plate #{0}> All Tiles on the path: {1}", moduleId, tilesInExpectedMovementPath.Select(x => GetCoordinateFromCellIndex(x, 13)).Join(", "));
+        Debug.LogFormat("<Icicle Plate #{0}> All Tiles containing Currents that are on the path:", moduleId);
+        Debug.LogFormat("<Icicle Plate #{0}> Rightwards Currents: {1}", moduleId, rightCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join(", "));
+        Debug.LogFormat("<Icicle Plate #{0}> Leftwards Currents: {1}", moduleId, leftCurrents.Select(x => GetCoordinateFromCellIndex(x, 13)).Join(", "));
     }
 
     void AddFakeCurrents()
@@ -568,14 +575,14 @@ public class IciclePlate : PlateBase {
         int _maximumUpwardsCurrentLength;
         int _currentCurrentLength;
 
-        // Boolean used to determine if we've added the first "decoy" that is on the path
-        // If true, add currents outside of the path
-        // If false, add ONCE a current on the path, of length explicitely lower than current resistance
-        bool addedPathFakeout = false;
+        // Boolean used to determine if we're allowed to add one Decoy on the path
+        // If false, add currents outside of the path only
+        // If true, add ONCE a current on the path, of length explicitely lower than current resistance
+        bool _canAddDecoyOnPath = true;
 
         // Cannot add decoy if the Current Resistance is 1
         if (selectedBoat.currentResistance == 1)
-        { addedPathFakeout = true; }
+        { _canAddDecoyOnPath = false; }
 
 
         int testlimit = 100;
@@ -595,28 +602,65 @@ public class IciclePlate : PlateBase {
             // nor in the void
             if (voidedCellsIndices.Contains(_startingCurrentCoordinate)) { continue; }
 
+
             // nor in the path
-            // but only if we've already added a Path Fakeout!
-            if (addedPathFakeout && tilesInExpectedMovementPath.Contains(_startingCurrentCoordinate)) { continue; }
+            if (tilesInExpectedMovementPath.Contains(_startingCurrentCoordinate))
+            {
+                // Can't be on the path if that's forbidden
+                if (_canAddDecoyOnPath == false)
+                {
+                    continue;
+                }
+                else
+                {
+                    bool _currentIsValid = true;
+                    // We can be on the path and do one small Decoy per direction
+                    // IF and only IF it doesn't merge with an already-existing current and bring us into some Ice
+                    // Check upwards for up until the max amount
+                    for (int i = 0; i < selectedBoat.currentResistance; i ++)
+                    {
+                        // If we see something of the direction we're adding
+                        if (directionCoordinates.Contains(_startingCurrentCoordinate - 13*i))
+                        {
+                            Debug.LogFormat("<Icicle Plate #{0}> Attempted to add a Decoy on the path starting at {1} but it would have merged with one above.",
+                                moduleId, GetCoordinateFromCellIndex(_startingCurrentCoordinate, 13));
+                            // Then that's not good
+                            // Use this bool because "continue" breaks out of *this* for loop, not the outer one
+                            _currentIsValid = false;
+                            continue;
+                        }
+                    }
+
+                    if (_currentIsValid == false) { continue; }
+                }                
+            }
             
 
             // nor in any of the already-existing currents
             if (leftCurrents.Contains(_startingCurrentCoordinate)) { continue; }
             if (rightCurrents.Contains(_startingCurrentCoordinate)) { continue; }
 
+            bool _spawningOnThePath = false;
 
-            // If we arrive here, we have a valid point that is just water, outside of the path!
+            // If we arrive here, we have a valid point that is just water
             // How long should it last maximum? 
-            if (addedPathFakeout)
+            if (tilesInExpectedMovementPath.Contains(_startingCurrentCoordinate) == false)
             {
-                // within currentResistance and 5 tiles for regular decoy currents
+                // Adding a regular decoy
+
+                // Within currentResistance and 5 tiles for regular decoy currents
                 // If they are smaller they never can impact anything so you can ignore them
                 _maximumUpwardsCurrentLength = UnityEngine.Random.Range(selectedBoat.currentResistance, 5);
             }
             else 
             {
-                // within 1 and currentResistance-1 for path decoy
-                _maximumUpwardsCurrentLength = UnityEngine.Random.Range(0, selectedBoat.currentResistance);
+                // Adding a decoy on the path
+                // Within 0 and currentResistance-1 for path decoy
+                _maximumUpwardsCurrentLength = UnityEngine.Random.Range(1, selectedBoat.currentResistance);
+                Debug.LogFormat("<Icicle Plate #{0}> Will add Decoy Current on the path: Starts at tile {1} and can cover {2} vertical tiles.",
+                    moduleId, GetCoordinateFromCellIndex(_startingCurrentCoordinate, 13), _maximumUpwardsCurrentLength);
+
+                _spawningOnThePath = true;
             }
             
 
@@ -626,12 +670,12 @@ public class IciclePlate : PlateBase {
 
 
             // And move up while recording
-            while (_currentCurrentLength <= _maximumUpwardsCurrentLength)
+            while (_currentCurrentLength < _maximumUpwardsCurrentLength)
             {
                 // Do the checks that stop the current
                 if (_currentCurrentCoordinate < 0) { break; }
                 if (isTileIce(_currentCurrentCoordinate)) { break; }
-                if (addedPathFakeout && tilesInExpectedMovementPath.Contains(_currentCurrentCoordinate)) { break; }
+                if (_spawningOnThePath == false && tilesInExpectedMovementPath.Contains(_currentCurrentCoordinate)) { break; }
                 if (leftCurrents.Contains(_currentCurrentCoordinate)) { break; }
                 if (rightCurrents.Contains(_currentCurrentCoordinate)) { break; }
 
@@ -651,7 +695,7 @@ public class IciclePlate : PlateBase {
             directionTextForm.Add(string.Format("{0}-{1}", GetCoordinateFromCellIndex(_startingCurrentCoordinate, 13), _currentCurrentLength));
 
             // Make sure we do not add fake currents on the path anymore
-            addedPathFakeout = true;
+            _canAddDecoyOnPath = false;
         }
     }
 
@@ -796,8 +840,11 @@ public class IciclePlate : PlateBase {
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Icicle Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

@@ -179,10 +179,13 @@ public class MindPlate : PlateBase
 
     void PressedMovementInput(MovementDirection pressedDirection)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.3f);
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         MoveOnRubiksCubeInDirection(pressedDirection);
     }
@@ -190,10 +193,13 @@ public class MindPlate : PlateBase
     /// <summary> The "Submit" button. </summary>
     void PressedCentralButton()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         PlayPlatePressSound();
         platePressableButtons[0].AddInteractionPunch(.7f);
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         // Is there no Star?
         // Vibration but no strike
@@ -240,9 +246,12 @@ public class MindPlate : PlateBase
 
     protected override void CasingTextButtonGetsPressed()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved) { return; }
+        if (hasPlateSolved) { return; }
 
         summoningModule.ModuleLog(moduleId, "MIND text button pressed. Resetting the module to its initial state.");
         ResetValuesToStart();
@@ -961,8 +970,11 @@ public class MindPlate : PlateBase
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Mind Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         // Credit to Royal_Flu$h for this line 
         var commandParts = command.ToLowerInvariant().Split(new[] { ' ', ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

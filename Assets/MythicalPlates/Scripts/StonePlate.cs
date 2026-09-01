@@ -152,9 +152,12 @@ public class StonePlate : PlateBase{
 
     protected override void CasingTextButtonGetsPressed() 
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
         summoningModule.ModuleLog(moduleId, "STONE word pressed, re-generating a new puzzle.");
@@ -165,10 +168,13 @@ public class StonePlate : PlateBase{
 
     void PressedMovementInput(MovementDirection direction)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch(0.3f);
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
+        if (hasPlateSolved)
         { return; }
 
         VoidMovementData _data = MoveAroundGridWithVoid(direction, 64, ref currentCoordinate, 8, false);
@@ -187,11 +193,13 @@ public class StonePlate : PlateBase{
 
     void PressedDrillInput()
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { return; }
+
         platePressableButtons[0].AddInteractionPunch(0.5f);
         PlayPlatePressSound();
 
-        if (summoningModule.isModuleSolved)
-        { return; }
+        if (hasPlateSolved) { return; }
 
         currentNumberOfDrillsDone++;
 
@@ -358,8 +366,11 @@ public class StonePlate : PlateBase{
 
     public override IEnumerator ProcessTwitchCommand(string command)
     {
+        // Due to Allmighty Sinnoh TP Autosolve, we're never safe from Plates being destroyed but still calling code
+        if (this == null) { yield break; }
+
         Debug.LogFormat("<Stone Plate #{0}> Received Command ''{1}''", moduleId, command);
-        if (summoningModule.isModuleSolved) { yield break; }
+        if (hasPlateSolved) { yield break; }
 
         summoningModule.ModuleLog(moduleId, "Received the Twitch Plays command “{0}”", command);
 
