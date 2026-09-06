@@ -1064,7 +1064,10 @@ public class SkyPlate : PlateBase {
             if (_word == "s" || _word == "p" || _word == "submit" || _word == "press" || _word == "send")
             { continue; }
 
-            Debug.LogFormat("<Sky Plate #{0}> Submitting the morse word {1}.", moduleId, _word);
+            Debug.LogFormat("<Sky Plate #{0}> Submitting the morse word '{1}'", moduleId, _word);
+
+            // Due to possible errors, clear the submission before every new travel to avoid discontinuities ^^
+            currentPlayerInput = string.Empty;
 
             // Foreach morse part
             foreach (char _char in _word)

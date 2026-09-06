@@ -80,10 +80,11 @@ public class ZapPlate : PlateBase {
 
         if (hasPlateSolved) { return; }
 
-        char _pressedSecond = bombInfo.GetFormattedTime().Last();
-        if (CharToInt(_pressedSecond) == secondsToPressOn)
+        int _pressedSecond = Mathf.FloorToInt(bombInfo.GetTime()) % 10;
+
+        if (_pressedSecond == secondsToPressOn)
         {
-            summoningModule.ModuleLog(moduleId, "Plate was pressed on a {0} second time, this is correct.", secondsToPressOn, _pressedSecond);
+            summoningModule.ModuleLog(moduleId, "Plate was pressed on a {0} ({1}) second time, this is correct.", secondsToPressOn, _pressedSecond);
             StartCoroutine(PlateShouldSolve());
         }
         else
@@ -236,13 +237,12 @@ public class ZapPlate : PlateBase {
         // Without this yield return null, the yield return sendtochat exits the command instantly
         // since that sendtochat is the first yield return.
         yield return null;
-        Debug.LogFormat("<Zap Plate #{0}> Will press the Plate on {0} seconds.", moduleId, _timeToPressAt);
+        Debug.LogFormat("<Zap Plate #{0}> Will press the Plate on {1} seconds.", moduleId, _timeToPressAt);
         yield return "sendtochat {0} will press the Plate on " + _timeToPressAt + " seconds. The command is cancellable.";
 
         while ((int)bombInfo.GetTime() % 10 != secondsToPressOn)
         {
             // Allow chat to cancel the command.
-            Debug.LogFormat("<Zap Plate #{0}> Command was cancelled before the Plate was pressed.", moduleId);
             yield return "trycancel Command was cancelled before the Plate was pressed.";
 
             yield return new WaitForSeconds(0.2f);

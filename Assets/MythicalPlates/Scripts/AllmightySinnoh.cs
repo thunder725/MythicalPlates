@@ -102,6 +102,8 @@ public class AllmightySinnoh : SummoningModule {
     // readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     readonly int AllmightySinnohTwitchPlaysSolveBonus = 0;
 
+    bool tpTimerIsAligned;
+
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Vanilla Unity Methods
@@ -912,12 +914,16 @@ public class AllmightySinnoh : SummoningModule {
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is horizontally aligned with the timer.");
                 MoveAllMarks(15, 2, 5);
+                tpTimerIsAligned = true;
             }
             else if (dot == 1)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is vertically aligned with the timer.");
                 MoveAllMarks(15, 2, 5);
+
+                tpTimerIsAligned = true;
             }
+            else { tpTimerIsAligned = false; }
         }
         else
         {
@@ -1068,7 +1074,7 @@ public class AllmightySinnoh : SummoningModule {
     /// but Allmighty Sinnoh has its own beforehand! </summary>
     void InitializeAllmightySinnohTwitchHelpMessage()
     {
-        ReceiveTwitchHelpMessage("Press the three Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} platenames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”; and if that's not enough, use “!{0} read” to get the information. Press the SINNOH casing button using “!{0} sinnoh”.");
+        ReceiveTwitchHelpMessage("Press the Marked Plates using “!{0} Submit Meadow Iron Pixie”. Show the 18 names for 1 second each using “!{0} platenames”. Wiggle the bomb to check for Marked by Time using “!{0} wiggle”; and if that's NOT enough, use “!{0} read” to get the information. If the timer is obscured due to camwalls, use “!{0} timeralignment” to get the read. Press the SINNOH casing button using “!{0} sinnoh”.");
     }
 
     /// <summary> Called by Plates when they are summoned to set their custom Twitch Help Message </summary>
@@ -1167,8 +1173,18 @@ public class AllmightySinnoh : SummoningModule {
         // command "read" will give the initial Mark of Time
         if (commandParts.Length == 1 && commandParts[0] == "read")
         {
-            Debug.LogFormat("<Allmighty Sinnoh #{0}> Giving away the Mark of Time Read: {1}", allmightySinnohModuleId, GetPlateNameFromIndex(initialTimeMark));
-            yield return "sendtochat {0}, the initial Plate Marked by Time is " + GetPlateNameFromIndex(initialTimeMark);
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Giving away the Mark of Time Read to TP: {1}", allmightySinnohModuleId, GetPlateNameFromIndex(initialTimeMark));
+            yield return "sendtochat {0}, Answering thy prayer, Allmighty Sinnoh indicates the Initial Mark of Time to be upon " + GetPlateNameFromIndex(initialTimeMark);
+            yield break;
+        }
+
+
+        // In case there is a Camera Wall obscuring the entire bomb, 
+        // command "timeralignment" gives whether the module is aligned or not
+        if (commandParts.Length == 1 && commandParts[0] == "timeralignment")
+        {
+            Debug.LogFormat("<Allmighty Sinnoh #{0}> Giving away the Timer Alignment Read: Timer is {1}aligned.", allmightySinnohModuleId, tpTimerIsAligned ? "" : "NOT ");
+            yield return "sendtochat {0}, Answering thy prayer, Allmighty Sinnoh tells you the timer is " + (tpTimerIsAligned ? "" : "NOT ") + "aligned.";
             yield break;
         }
 
