@@ -470,7 +470,6 @@ public class AllmightySinnoh : SummoningModule {
         Destroy(_plateScript);
         Destroy(_plateObject);
 
-
         // Clean Selectables ONLY if this was the last plate
         // Otherwise, we might clean the selectables of the current plate!!
         if (numberOfPlatesSolved == 3)
@@ -1109,6 +1108,12 @@ public class AllmightySinnoh : SummoningModule {
         // Pressing the SINNOH text button
         if (commandParts.Length == 1 && commandParts[0] == "sinnoh")
         {
+            // Trying to press a button delegate which is not assigned to any method
+            // will return a NullReferenceException, but only if done through TP, not by clicking
+            // This should prevent this situation
+            if (casingPressableButton.OnInteract == null)
+            { yield break; }
+
             yield return null;
             casingPressableButton.OnInteract();
             yield break;

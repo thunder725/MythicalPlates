@@ -91,10 +91,11 @@ MonoBehaviour:
     it any TP command\n- Maybe hopefully fixed a NullReferenceException I couldn't
     reproduce on AllmightySinnoh-summoned StonePlates being ForceSolved\n\n=-= 1.1.8\n-
     Added command to get the Timer Alignment of Allmighty Sinnoh in TP, in the case
-    of a camwall.\n- Hey, what if logs of the Morse-based module didn't end their
-    sentences with a period? So that M doesn't transform into G when you read it?
-    That'd be nice, huh?\n- Fixed mis-logging hidden in Zap Plate"
-  version: 1.1.8
+    of a camwall.\n- Made it so Sky Plate logs don't end with a period to prevent
+    mis-reading them\n- Fixed mis-logging hidden in Zap Plate\n\n=-= 1.1.9\n- Added
+    safety check before pressing the SINNOH button as it caused an error if pressed
+    through TP if no Plate had been summoned yet"
+  version: 1.1.9
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}
