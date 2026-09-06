@@ -1019,7 +1019,7 @@ public class MindPlate : PlateBase
         }
 
 
-        Debug.LogFormat("<Mind Plate #{0}> Submitting sequence {1}.", commandParts[1]);
+        Debug.LogFormat("<Mind Plate #{0}> Submitting sequence {1}.", moduleId, commandParts[1]);
         yield return null;
 
         foreach (char _movementDirection in commandParts[1])

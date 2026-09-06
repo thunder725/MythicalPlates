@@ -139,6 +139,12 @@ public abstract class PlateBase : MonoBehaviour {
         // Since we have a yield return here, the hope is that Allmighty Sinnoh will, during that frame, detect that the plate will solve
         // and have the time to award the points to the user who solved the module
 
+        if (this == null) { yield break; }
+        if (summoningModule == null) {
+            Debug.LogFormat("<{0} #{1}> During Solve Coroutine, the SummoningModule returned null for some reason. Solve can't be called.", fullPlateName, moduleId);
+            yield break; 
+        }
+
         if (summoningModule.GetType() == typeof(AllmightySinnoh))
         {
             ((AllmightySinnoh)summoningModule).PlateWillSolveViaTwitchPlays = true;
