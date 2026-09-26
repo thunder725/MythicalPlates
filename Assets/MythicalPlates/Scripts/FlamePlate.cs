@@ -26,6 +26,8 @@ public class FlamePlate : PlateBase {
     int xMovement, yMovement;
     int numberOfVoidLinesPassed;
 
+    int[] orderOfMovements;
+
     // Universal Logging Data
     static int moduleIdCounter = 1;
 
@@ -62,8 +64,6 @@ public class FlamePlate : PlateBase {
         // No need to log, this is done in the summoningModule
         base.InitializeModuleStart();
 
-        // Starting cell is 23, or D3
-        currentLocation = 23;
         finalPasscode = string.Empty;
         voidedLines = new List<int>();
         nextPasscodeDigitToSubmit = 0;
@@ -146,6 +146,11 @@ public class FlamePlate : PlateBase {
             magmaTable[97] = 4;
             magmaTable[98] = 8;
             magmaTable[99] = 5;
+
+            orderOfMovements = new int[4] { 0, 1, 2, 3 };
+
+            // Starting cell is 23, or D3
+            currentLocation = 23;
             return;
         }
 
@@ -158,7 +163,35 @@ public class FlamePlate : PlateBase {
         magmaTable[98] = 8;
         magmaTable[99] = 5;
 
-        Debug.LogFormat("<Flame Plate #{0}> For debug purposes, the shuffled Table MAGMA looks like {1}.", moduleId, magmaTable.Join(""));
+        Debug.LogFormat("<Flame Plate #{0}> Shuffled Table MAGMA looks like {1}.", moduleId, magmaTable.Join(""));
+
+
+        // Determine the order of movements (right down left up)
+        orderOfMovements = new int[4];
+        int _order = Rng.Next(0, 4);
+        bool _goDown = Rng.Next(0, 2) == 0;
+
+        orderOfMovements[0] = _order;
+        for (int i = 1; i < 4; i++)
+        {
+            _order = (_order + (_goDown ? 1 : 3)) % 4;
+            orderOfMovements[i] = _order;
+        }
+
+        string[] _orderMovementsStrings = new string[4] { 
+            "x right and y down",
+            "y right and x down",
+            "x left and y up",
+            "y left and x up"
+        };
+        Debug.LogFormat("<Flame Plate #{0}> Order of movements is {1}.", moduleId, orderOfMovements.Select(x => _orderMovementsStrings[x]).Join(", then "));
+
+
+        // Start in the middle 8x8 Square
+        int[] _possibleStartingLocations = new int[64] { 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 38, 41, 42, 43, 44, 45, 46, 47, 48, 51, 52, 53, 54, 55, 56, 57, 58, 61, 62, 63, 64, 65, 66, 67, 68, 71, 72, 73, 74, 75, 76, 77, 78, 81, 82, 83, 84, 85, 86, 87, 88 };
+        currentLocation = _possibleStartingLocations[Rng.Next(0, 64)];
+
+        Debug.LogFormat("<Flame Plate #{0}> Starting Location is {1}.", moduleId, GetCoordinateFromCellIndex(currentLocation, 10));
     }
 
     void DetermineXAndY()
@@ -179,21 +212,21 @@ public class FlamePlate : PlateBase {
         // Heatran's Pokédex number is 485, which is why it's in the topleft and bottomright of the table!!
 
         // Yes it's not pretty, idc :D
-        SingleMove(1);
+        SingleMove(orderOfMovements[0]);
         VoidNextLine();
-        SingleMove(2);
+        SingleMove(orderOfMovements[1]);
         VoidNextLine();
-        SingleMove(3);
+        SingleMove(orderOfMovements[2]);
         VoidNextLine();
-        SingleMove(4);
+        SingleMove(orderOfMovements[3]);
         VoidNextLine();
-        SingleMove(1);
+        SingleMove(orderOfMovements[0]);
         VoidNextLine();
-        SingleMove(2);
+        SingleMove(orderOfMovements[1]);
         VoidNextLine();
-        SingleMove(3);
+        SingleMove(orderOfMovements[2]);
         VoidNextLine();
-        SingleMove(4);
+        SingleMove(orderOfMovements[3]);
 
         summoningModule.ModuleLog(moduleId, "Submit passcode {0} to solve the module.", finalPasscode);
     }
@@ -208,22 +241,22 @@ public class FlamePlate : PlateBase {
         //
         switch (ruleNumber)
         {
-            case 1:
+            case 0:
                 directionForX = MovementDirection.Right;
                 directionForY = MovementDirection.Down;
                 break;
 
-            case 2:
+            case 1:
                 directionForX = MovementDirection.Down;
                 directionForY = MovementDirection.Right;
                 break;
 
-            case 3:
+            case 2:
                 directionForX = MovementDirection.Left;
                 directionForY = MovementDirection.Up;
                 break;
 
-            case 4:
+            case 3:
                 directionForX = MovementDirection.Up;
                 directionForY = MovementDirection.Left;
                 break;

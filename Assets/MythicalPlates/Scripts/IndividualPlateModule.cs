@@ -12,6 +12,10 @@ public class IndividualPlateModule : SummoningModule {
     readonly Vector3 plateSpawnLocalPosition = new Vector3 (0, 0.04f, 0.008f);
 
 
+    // Fix by julie for Tweaks not being able to correctly parse the logging ID since it is stored on the Plate
+    private int moduleId => currentSummonedPlateScript ? currentSummonedPlateScript.moduleId : 0;
+
+
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     //    Vanilla Unity Methods
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

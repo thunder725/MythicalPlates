@@ -94,8 +94,14 @@ MonoBehaviour:
     of a camwall.\n- Made it so Sky Plate logs don't end with a period to prevent
     mis-reading them\n- Fixed mis-logging hidden in Zap Plate\n\n=-= 1.1.9\n- Added
     safety check before pressing the SINNOH button as it caused an error if pressed
-    through TP if no Plate had been summoned yet"
-  version: 1.1.9
+    through TP if no Plate had been summoned yet\n\n=-= 1.2.0 (Manual Reprint Required)\n-
+    Updated Ruleseed to add many more effects on Allmighty Sinnoh, Draco Plate, Dread
+    Plate, Flame Plate, Zap Plate.\n- Reduced amount of movements done in Mind Plate\n-
+    Reworked Dread Plate to remove rule 6 and accept multi-character inputs\n- Increased
+    Flame Plate's repo difficulty to Medium for Expert\n- Fixed Allmighty Sinnoh's
+    Mark of Time being invisible with high FPS\n- Fixed Plates' logging being unparsable
+    by LFA on multiple bombs"
+  version: 1.2.0
   outputFolder: build
   debugBuild: 0
   previewImage: {fileID: 2800000, guid: 3435afec60dddb141ad5f45675da578c, type: 3}

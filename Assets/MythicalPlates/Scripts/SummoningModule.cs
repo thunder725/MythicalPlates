@@ -28,6 +28,7 @@ public abstract class SummoningModule : MonoBehaviour {
     public string displayModuleName;
 
 
+
     [HideInInspector] protected bool isModuleSolved;
 
 

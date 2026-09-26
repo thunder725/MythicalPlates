@@ -529,7 +529,6 @@ MonoBehaviour:
   summonedPlateParentTransform: {fileID: 4894259547386102}
   casingPressableButton: {fileID: 114611761857937948}
   displayModuleName: Allmighty Sinnoh
-  isModuleSolved: 0
   allPlatesPrefabs:
   - {fileID: 1115473799074938, guid: 1657caf6c595c60499cefc99fbb1eb10, type: 2}
   - {fileID: 1115473799074938, guid: b9f5fb9e72955524c8c5845ceb46afe2, type: 2}
@@ -554,7 +553,7 @@ MonoBehaviour:
   visualPlatesScaleFactor: 0.23
   platesWaveSpeed: 0.15
   RotationCenter: {fileID: 4831544731590382}
-  timeMarkedPlateLagSpeed: 0.35
+  timeMarkedPlateLagSpeed: 20
   SolvablePlateSpawnPoint: {fileID: 4296127056590486}
   individualPlateNameText: {fileID: 102033760961614694}
   platePressedSounds:
@@ -566,6 +565,7 @@ MonoBehaviour:
     type: 3}
   AllmightySinnohSolveSound: {fileID: 8300000, guid: 62516f99acf95c540a8f2d8d4a4418d8,
     type: 3}
+  PlateWillSolveViaTwitchPlays: 0
 --- !u!114 &114119860562176088
 MonoBehaviour:
   m_ObjectHideFlags: 1

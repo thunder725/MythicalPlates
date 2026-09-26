@@ -28,6 +28,10 @@ public class DreadPlate : PlateBase {
     string keywordFromStart;
     string keywordFromEnd;
     string dreadSequence;
+    string submittedPlayerSequence;
+
+    int[] selectedRules;
+    char[] selectedRulesSymbols;
 
     // Universal Logging Data
     static int moduleIdCounter = 1;
@@ -56,6 +60,7 @@ public class DreadPlate : PlateBase {
         base.InitializeModuleStart();
 
         InitializePuzzle();
+        submittedPlayerSequence = "";
 
     }
 
@@ -79,17 +84,26 @@ public class DreadPlate : PlateBase {
         if (hasPlateSolved)
         { return; }
 
-        if (buttonPressed == dreadSequence)
+        // Correct button pressed?
+        if (dreadSequence[submittedPlayerSequence.Length] == buttonPressed[0])
         {
-            summoningModule.ModuleLog(moduleId, "Pressed {0}, which is correct. Good job! Module defused!", buttonPressed);
-            ModuleShouldSolve();
+            submittedPlayerSequence += buttonPressed;
+
+            if (submittedPlayerSequence == dreadSequence)
+            {
+                summoningModule.ModuleLog(moduleId, "Pressed {0}, which is correct. Full sequence submitted! Module defused!", buttonPressed);
+                ModuleShouldSolve();
+            }
+            else
+            {
+                summoningModule.ModuleLog(moduleId, "Pressed {0}, which is correct. Currently submitted sequence is {1}", buttonPressed, submittedPlayerSequence);
+            }
         }
         else
         {
-            summoningModule.ModuleLog(moduleId, "Pressed {0}, which is incorrect. Expected {1}", buttonPressed, dreadSequence);
+            summoningModule.ModuleLog(moduleId, "Pressed {0}, which is incorrect. Expected {1}", buttonPressed, dreadSequence[submittedPlayerSequence.Length]);
             ModuleShouldStrike();
         }
-
     }
 
     protected override void CasingTextButtonGetsPressed() { }
@@ -127,7 +141,12 @@ public class DreadPlate : PlateBase {
 
         summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
-        if (Rng.Seed == 1) { return; }
+        if (Rng.Seed == 1)
+        {
+            selectedRules = new int[5] { 0, 1, 2, 3, 4 };
+            selectedRulesSymbols = new char[15] { '!', '&', '%', '&', '@', '%', '!', '#', '@', '@', '!', '%', '#', '!', '%' };
+            return;
+        }
 
         string[] splitAlphabet = new string[26];
         Array.Copy(alphabet, splitAlphabet, 26);
@@ -156,6 +175,51 @@ public class DreadPlate : PlateBase {
             _joinedLetters.Substring(14, 5).OrderBy(x => x).Join(""),
             _joinedLetters.Substring(19, 4).OrderBy(x => x).Join(""),
             _joinedLetters.Substring(23, 3).OrderBy(x => x).Join(""));
+
+
+        // rules 
+        int[] _possibleRules = new int[10] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        Rng.ShuffleFisherYates(_possibleRules);
+        selectedRules = _possibleRules.Take(5).ToArray();
+
+
+        // characters
+        // The most important rule is for the symbols to not repeat in the same rule
+        // It'd be better if the symbols could also have an even distribution (All appear in position 1/2/3 only once)
+        // but that's a double-exclusivity shuffle that I don't know how to do
+        selectedRulesSymbols = new char[15];
+        char[] possibleSymbols = new char[5] { '#', '&', '%', '@', '!' };
+        for (int i = 0; i < 5; i++)
+        {
+            int[] selection = Rng.ShuffleFisherYates(new int[5] { 0, 1, 2, 3, 4 });
+            selectedRulesSymbols[3 * i + 0] = possibleSymbols[selection[0]];
+            selectedRulesSymbols[3 * i + 1] = possibleSymbols[selection[1]];
+            selectedRulesSymbols[3 * i + 2] = possibleSymbols[selection[2]];
+        }
+
+
+
+
+        string[] rulesStrings = new string[10]
+        {
+            "If two of the same symbol are next to each other, remove one of them.",
+            "If a {0} is next to a {1}, replace both with a single {2}.",
+            "If a {0} is next to a {1}, remove the {0}.",
+            "If a {0} is at the beginning or end of the Character Sequence, remove it.",
+            "If there is a {0}, remove its leftmost occurence.",
+            "If a {0} is NOT next to a {1} or {2}, remove it.",
+            "If all Characters are unique, remove the last one.",
+            "If a {0} is NOT at the beggining or end of the Character Sequence, remove it.",
+            "If a {0} is next to a {1} and they have a neighbor, remove the character to their left, or right if there are none.",
+            "If there is a {0}, replace its leftmost occurence by a {1}."
+        };
+
+        Debug.LogFormat("<Dread Plate #{0}> Selected Rules in order are:", moduleId);
+        for (int i = 0; i < 5 ; i++)
+        {
+            Debug.LogFormat("<Dread Plate #{0}> {1}", moduleId, string.Format(rulesStrings[selectedRules[i]],
+                selectedRulesSymbols[3 * i], selectedRulesSymbols[3 * i + 1], selectedRulesSymbols[3 * i + 2]));
+        }
     }
 
     void GenerateVoidedWords()
@@ -256,159 +320,299 @@ public class DreadPlate : PlateBase {
 
             // Apply rules, starting back from rule 1 after every change
 
-            if (TryApplyRule1())
+            if (TryApplyDreadCipherRule(0))
+            {
+               continue;
+            }
+
+            if (TryApplyDreadCipherRule(1))
             {
                 continue;
             }
 
-            if (TryApplyRule2())
+            if (TryApplyDreadCipherRule(2))
             {
                 continue;
             }
 
-            if (TryApplyRule3())
+            if (TryApplyDreadCipherRule(3))
+            {
+                continue;
+            }
+            
+            if (TryApplyDreadCipherRule(4))
             {
                 continue;
             }
 
-            if (TryApplyRule4())
-            {
-                continue;
-            }
-
-            if (TryApplyRule5())
-            {
-                continue;
-            }
-
-            if (TryApplyRule6())
-            {
-                continue;
-            }
+            break;
         }
 
-        summoningModule.ModuleLog(moduleId, "Final character to submit is {0}", dreadSequence);
+        summoningModule.ModuleLog(moduleId, "Final character sequence to submit is {0}", dreadSequence);
     }
 
-    bool TryApplyRule1()
+    bool TryApplyDreadCipherRule(int ruleKeyIndex)
     {
-        // =-= Rule 1 =-=
-        // If two of the same symbols are next to ech other, remove one of them
+        int ruleIndex = selectedRules[ruleKeyIndex];
+        char characterOne = selectedRulesSymbols[3 * ruleKeyIndex];
+        char characterTwo = selectedRulesSymbols[3 * ruleKeyIndex + 1];
+        char characterThree = selectedRulesSymbols[3 * ruleKeyIndex + 2];
 
-        // No need to check the last character
-        for (int i = 0; i < dreadSequence.Length - 1; i ++)
+        switch (ruleIndex)
         {
-            if (dreadSequence[i] == dreadSequence[i+1])
-            {
-                dreadSequence = dreadSequence.Remove(i, 1);
+            default: return false;
 
-                summoningModule.ModuleLog(moduleId, "Rule 1: Removed duplicate {0} at index {1}. New sequence is {2}",
-                    dreadSequence[i], i, dreadSequence);
+            case 0:
+                {
+                    // If two of the same symbols are next to ech other, remove one of them
 
-                return true;
-            }
+                    // No need to check the last character
+                    for (int i = 0; i < dreadSequence.Length - 1; i++)
+                    {
+                        if (dreadSequence[i] == dreadSequence[i + 1])
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 1);
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed duplicate {1} at index {2}. New sequence is {3}",
+                                ruleKeyIndex + 1, dreadSequence[i], i, dreadSequence);
+
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+
+            case 1:
+                {
+                    // If a A is next to an B, replace both with a single C
+
+                    // No need to check the last character
+                    // Check for both & and @ at each step, so we don't need to check backwards
+                    for (int i = 0; i < dreadSequence.Length - 1; i++)
+                    {
+                        if ((dreadSequence[i] == characterOne && dreadSequence[i + 1] == characterTwo) || (dreadSequence[i] == characterTwo && dreadSequence[i + 1] == characterOne))
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 2).Insert(i, characterThree.ToString());
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Replaced adjacent {1}{2} found at index {3} by a {4}. New sequence is {5}",
+                                ruleKeyIndex + 1, characterOne, characterTwo, i, characterThree, dreadSequence);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+            case 2: 
+                {
+                    // If a A is next to a B, remove the A
+
+                    // No need to check the last character
+                    // Check for both A and B at each step, so we don't need to check backwards
+                    for (int i = 0; i < dreadSequence.Length - 1; i++)
+                    {
+                        if ((dreadSequence[i] == characterOne && dreadSequence[i + 1] == characterTwo))
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 1);
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} at index {2} found adjacent to a {3}. New sequence is {4}",
+                                ruleKeyIndex + 1, characterOne, i, characterTwo, dreadSequence);
+                            return true;
+                        }
+                        else if ((dreadSequence[i + 1] == characterOne && dreadSequence[i] == characterTwo))
+                        {
+                            dreadSequence = dreadSequence.Remove(i + 1, 1);
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} at index {2} found adjacent to a {3}. New sequence is {4}",
+                                 ruleKeyIndex + 1, characterOne, i+1, characterTwo, dreadSequence);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+            case 3:
+                {
+                    // If a A is at the start or end of the Sequence, remove it
+
+                    if (dreadSequence[0] == characterOne)
+                    {
+                        dreadSequence = dreadSequence.Remove(0, 1);
+
+                        summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} at the start of the Sequence. New sequence is {2}",
+                            ruleKeyIndex + 1, characterOne, dreadSequence);
+                        return true;
+                    }
+                    else if (dreadSequence[dreadSequence.Length - 1] == characterOne)
+                    {
+                        dreadSequence = dreadSequence.Remove(dreadSequence.Length - 1, 1);
+
+                        summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} at the end of the Sequence. New sequence is {2}",
+                            ruleKeyIndex + 1, characterOne, dreadSequence);
+                        return true;
+                    }
+
+                    return false;
+                }
+
+            case 4:
+                {
+                    // If there is a A, remove the leftmost A
+
+                    if (dreadSequence.Contains(characterOne) == false)
+                    { return false; }
+
+                    for (int i = 0; i < dreadSequence.Length; i++)
+                    {
+                        if (dreadSequence[i] == characterOne)
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 1);
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed leftmost {1} at index {2}. New sequence is {3}",
+                                ruleKeyIndex + 1, characterOne, i, dreadSequence);
+                            return true;
+                        }
+                    }
+
+
+                    return false;
+                }
+
+            case 5:
+                {
+                    // If a A is NOT close to a B nor a C, remove the A
+
+                    // No need to check the last character
+                    // Check for both & and @ at each step, so we don't need to check backwards
+                    for (int i = 0; i < dreadSequence.Length - 1; i++)
+                    {
+                        // i = A && (i+1 == B NOR i+1 == C)
+                        if (dreadSequence[i] == characterOne)
+                        {
+                            if ((dreadSequence[i+1] == characterTwo || dreadSequence[i+1] == characterThree) == false)
+                            {
+                                dreadSequence = dreadSequence.Remove(i, 1);
+
+                                summoningModule.ModuleLog(moduleId, "Rule {0}: removed {1} found at index {2} since not next to {3} nor {4}. New sequence is {5}",
+                                    ruleKeyIndex + 1, characterOne, i, characterTwo, characterThree, dreadSequence);
+
+                                return true;
+                            }
+                        }
+                        // (i == B NOR i == C) && i+1 = A
+                        else if ((dreadSequence[i] == characterTwo || dreadSequence[i] == characterThree) == false)
+                        {
+                            if (dreadSequence[i+1] == characterOne)
+                            {
+                                dreadSequence = dreadSequence.Remove(i + 1, 1);
+
+                                summoningModule.ModuleLog(moduleId, "Rule {0}: removed {1} found at index {2} since not next to {3} nor {4}. New sequence is {5}",
+                                    ruleKeyIndex + 1, characterOne, i+1, characterTwo, characterThree, dreadSequence);
+
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+
+                }
+
+            case 6:
+                {
+                    // If all characters are unique, remove the last one
+                    if (dreadSequence.Distinct().Count() == dreadSequence.Length)
+                    {
+                        dreadSequence = dreadSequence.Remove(dreadSequence.Length - 1);
+
+                        summoningModule.ModuleLog(moduleId, "Rule {0}: All characters are unique, removing last one. New sequence is {1}",
+                                    ruleKeyIndex + 1, dreadSequence);
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+
+            case 7:
+                {
+                    // If a A is NOT at the start or end, remove it
+
+                    for (int i = 1; i < dreadSequence.Length - 1; i++)
+                    {
+                        if (dreadSequence[i] == characterOne)
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 1);
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} in index {2} NOT at the beginning or end of sequence. New sequence is {3}",
+                                ruleKeyIndex + 1, characterOne, i, dreadSequence);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+            case 8:
+                {
+                    // If a A is next to a B and they have a neighbor, remove the character to their left, else right
+                    if (dreadSequence.Length < 3) { return false; }
+
+                    // No need to check the last character
+                    // Check for both A and B at each step, so we don't need to check backwards
+                    for (int i = 0; i < dreadSequence.Length - 1; i++)
+                    {
+                        if ((dreadSequence[i] == characterOne && dreadSequence[i + 1] == characterTwo) || (dreadSequence[i + 1] == characterOne && dreadSequence[i] == characterTwo))
+                        {
+                            if (i == 0)
+                            {
+                                // Remove one on the right!
+                                dreadSequence = dreadSequence.Remove(i + 2, 1);
+
+                                summoningModule.ModuleLog(moduleId, "Rule {0}: Removed character at index {1}, on the right of the adjacent {2}{3}. New sequence is {4}",
+                                ruleKeyIndex + 1, i + 2, characterOne, characterTwo, dreadSequence);
+                                return true;
+                            }
+                            else
+                            {
+                                // Remove one on the left!
+                                dreadSequence = dreadSequence.Remove(i - 1, 1);
+
+                                summoningModule.ModuleLog(moduleId, "Rule {0}: Removed character at index {1}, on the left of the adjacent {2}{3}. New sequence is {4}",
+                                ruleKeyIndex + 1, i - 1, characterOne, characterTwo, dreadSequence);
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+            case 9:
+                {
+                    // If there is a A, replace its leftmost occurence by a B
+                    for (int i = 0; i < dreadSequence.Length; i++)
+                    {
+                        if (dreadSequence[i] == characterOne)
+                        {
+                            dreadSequence = dreadSequence.Remove(i, 1).Insert(i, characterTwo.ToString());
+
+                            summoningModule.ModuleLog(moduleId, "Rule {0}: Removed {1} at index {2} and replaced it with a {3}. New sequence is {4}",
+                                ruleKeyIndex + 1, characterOne, i, characterTwo, dreadSequence);
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
         }
-
-        return false;
     }
 
-    bool TryApplyRule2()
-    {
-        // =-= Rule 2 =-=
-        // If an & is next to an @, replace both with a single %
 
-        // No need to check the last character
-        // Check for both & and @ at each step, so we don't need to check backwards
-        for (int i = 0; i < dreadSequence.Length - 1; i++)
-        {
-            if ((dreadSequence[i] == '&' && dreadSequence[i + 1] == '@') || (dreadSequence[i] == '@' && dreadSequence[i + 1] == '&'))
-            {
-                dreadSequence = dreadSequence.Remove(i, 2).Insert(i, "%");
-
-                summoningModule.ModuleLog(moduleId, "Rule 2: Replaced adjacent @& found at index {0} by a %. New sequence is {1}", i, dreadSequence);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool TryApplyRule3()
-    {
-        // =-= Rule 3 =-=
-        // If a ! is next to a #, remove the !
-
-        // No need to check the last character
-        // Check for both & and @ at each step, so we don't need to check backwards
-        for (int i = 0; i < dreadSequence.Length - 1; i++)
-        {
-            if ((dreadSequence[i] == '!' && dreadSequence[i + 1] == '#'))
-            {
-                dreadSequence = dreadSequence.Remove(i, 1);
-
-                summoningModule.ModuleLog(moduleId, "Rule 3: Removed ! at index {0} found adjacent to a #. New sequence is {1}", i, dreadSequence);
-                return true;
-            }
-            else if ((dreadSequence[i + 1] == '!' && dreadSequence[i] == '#'))
-            {
-                dreadSequence = dreadSequence.Remove(i + 1, 1);
-
-                summoningModule.ModuleLog(moduleId, "Rule 3: Removed ! at index {0} found adjacent to a #. New sequence is {1}", i + 1, dreadSequence);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    bool TryApplyRule4()
-    {
-        // =-= Rule 4 =-=
-        // If a @ is at the start or end of the Sequence, remove it
-
-        if (dreadSequence[0] == '@')
-        {
-            dreadSequence = dreadSequence.Remove(0, 1);
-
-            summoningModule.ModuleLog(moduleId, "FRule 4: Removed @ at the start of the Sequence. New sequence is {0}", dreadSequence);
-            return true;
-        }
-        else if (dreadSequence[dreadSequence.Length - 1] == '@')
-        {
-            dreadSequence = dreadSequence.Remove(dreadSequence.Length - 1, 1);
-
-            summoningModule.ModuleLog(moduleId, "Rule 4: Removed @ at the end of the Sequence. New sequence is {0}", dreadSequence);
-            return true;
-        }
-
-        return false;
-    }
-
-    bool TryApplyRule5()
-    {
-        // =-= Rule 5 =-=
-        // If there are more than 2 characters left, remove the leftmost #
-
-        if (dreadSequence.Length <= 2)
-        { return false; }
-
-        if (dreadSequence.Contains('#') == false)
-        { return false; }
-
-        for (int i = 0; i < dreadSequence.Length; i++)
-        {
-            if (dreadSequence[i] == '#')
-            {
-                dreadSequence = dreadSequence.Remove(i, 1);
-
-                summoningModule.ModuleLog(moduleId, "Rule 5: Removed leftmost # at index {0}. New sequence is {1}", i, dreadSequence);
-                return true;
-            }
-        }
-        
-
-        return false;
-    }
 
     bool TryApplyRule6()
     {

@@ -25,6 +25,33 @@ public class ZapPlate : PlateBase {
         0, 7, 5, 4, 8, 2, 9, 6, 3, 1,
         7, 2, 3, 5, 0, 9, 4, 8, 1, 6 };
 
+    int ruleseedColumnConditionIndex;
+    int ruleseedRowConditionIndex;
+    int ruleseedLoopBehaviour;
+
+    string[] coordinateConditionsStrings = new string[8]
+    {
+        "its third character",
+        "its sixth character",
+        "its first digit",
+        "its last digit",
+        "the last digit of the sum of its digits",
+        "the digital root of the sum of its digits",
+        "the last digit of its first letter's position (A1-Z26)",
+        "the last digit of its last letter's position (A1-Z26)"
+    };
+
+    string[] loopBehaviourStrings = new string[7]
+    {
+        "moving one column to the right",
+        "moving one column to the left",
+        "not changing columns",
+        "moving two columns to the right",
+        "moving two columns to the left",
+        "moving three columns to the right",
+        "moving three columns to the left"
+    };
+
     int currentLocation;
     string[] sixDigitStageValues;
     int currentStage;
@@ -55,8 +82,8 @@ public class ZapPlate : PlateBase {
 
         sixDigitStageValues = new string[5] { "", "", "", "", "" };
 
-        CalculateStartingCoordinate();
-        ConstructTableFromRuleseed();
+        ManageRuleseed();
+        CalculateStartingCoordinates();
         FindAllSixDigitNumbers();
         FindSubmissionTimerNumber();
     }
@@ -104,38 +131,64 @@ public class ZapPlate : PlateBase {
 
 
     /// <summary> Get starting coordinate from SN character 3 and 6 </summary>
-    void CalculateStartingCoordinate()
+    void CalculateStartingCoordinates()
     {
         string _serialNumber = bombInfo.GetSerialNumber();
-        currentLocation = CharToInt(_serialNumber[2]) + (CharToInt(_serialNumber[5]) * 10);
+        int columnIndex = GetCoordinate(ruleseedColumnConditionIndex);
+        int rowIndex = GetCoordinate(ruleseedRowConditionIndex);
+
+        currentLocation = columnIndex + (rowIndex * 10);
 
         // Log
         summoningModule.ModuleLog(moduleId, "Starting Coordinate in the table is column {0}, row {1}, also known as {2}",
-            GetColumnFromCellIndex(currentLocation, 10), GetRowFromCellIndex(currentLocation, 10), GetCoordinateFromCellIndex(currentLocation, 10));
+            columnIndex, rowIndex, GetCoordinateFromCellIndex(currentLocation, 10));
     }
 
-    void ConstructTableFromRuleseed()
+    int GetCoordinate(int coordinateRuleIndex)
+    {
+        switch (coordinateRuleIndex)
+        {
+            default: return 0;
+            case 0: return CharToInt(bombInfo.GetSerialNumber()[2]);
+            case 1: return CharToInt(bombInfo.GetSerialNumber()[5]);
+            case 2: return bombInfo.GetSerialNumberNumbers().First();
+            case 3: return bombInfo.GetSerialNumberNumbers().Last();
+            case 4: return (bombInfo.GetSerialNumberNumbers().Sum()) % 10;
+            case 5: return DigitalRoot(bombInfo.GetSerialNumberNumbers().Sum());
+            case 6: return (Array.IndexOf(alphabet, bombInfo.GetSerialNumberLetters().First().ToString()) + 1) % 10;
+            case 7: return (Array.IndexOf(alphabet, bombInfo.GetSerialNumberLetters().Last().ToString()) + 1) % 10;
+        }
+    }
+
+    void ManageRuleseed()
     {
         MonoRandom Rng = ruleseedManager.GetRNG();
 
         summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
         if (Rng.Seed == 1)
-        { return; }
-
-        FisherYatesShuffle(ref tableDynamo, Rng);
-
-        string _log = string.Empty;
-        for (int i = 0; i < 15; i ++)
         {
-            for (int j = 0; j < 10; j ++)
-            {
-                _log += tableDynamo[10 * i + j];
-            }
-            _log += " ";
+            ruleseedColumnConditionIndex = 0;
+            ruleseedRowConditionIndex = 1;
+            ruleseedLoopBehaviour = 0;
+            return;
         }
 
-        Debug.LogFormat("<Zap Plate #{0}> For verification purposes, the whole grid is {1}.", moduleId, _log);
+        Rng.ShuffleFisherYates(tableDynamo);
+        Debug.LogFormat("<Zap Plate #{0}> For verification purposes, the whole grid is {1}.", moduleId, tableDynamo.Join(""));
+
+
+        int[] possibleStartingConditions = new int[8] { 0, 1, 2, 3, 4, 5, 6, 7 };
+        Rng.ShuffleFisherYates(possibleStartingConditions);
+        ruleseedColumnConditionIndex = possibleStartingConditions[0];
+        ruleseedRowConditionIndex = possibleStartingConditions[1];
+        Debug.LogFormat("<Zap Plate #{0}> Column condition is {1} and Row condition is {2}.",
+            moduleId, coordinateConditionsStrings[ruleseedColumnConditionIndex], coordinateConditionsStrings[ruleseedRowConditionIndex]);
+
+
+        ruleseedLoopBehaviour = Rng.Next(0, 7);
+        Debug.LogFormat("<Zap Plate #{0}> Looping behaviour is {1}.",
+            moduleId, loopBehaviourStrings[ruleseedLoopBehaviour]);
     }
 
 
@@ -153,14 +206,47 @@ public class ZapPlate : PlateBase {
                 // If we move back up the grid
                 if (MoveAroundGridWithVoid(MovementDirection.Down, 150, ref currentLocation, 10, true).ranIntoGridEdges)
                 {
-                    // Move one column right
-                    if (MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true).ranIntoGridEdges)
+                    switch(ruleseedLoopBehaviour)
                     {
-                        summoningModule.ModuleLog(moduleId, "Moved back up the grid. Changing column to the leftmost one (it is looping).");
-                    }
-                    else
-                    {
-                        summoningModule.ModuleLog(moduleId, "Moved back up the grid. Moving column to the right.");
+                        case 0: // Move one right
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing one column to the right.");
+                            break;
+
+                        case 1: // Move one left
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing one column to the left.");
+                            break;
+
+                        case 2: // Stay in the column
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Not changing column.");
+                            break;
+
+                        case 3: // Move two right
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing two columns to the right.");
+                            break;
+
+                        case 4: // Move two left
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing two columns to the left.");
+                            break;
+
+                        case 5: // Move three right
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Right, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing three columns to the right.");
+                            break;
+
+                        case 6: // Move three left
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            MoveAroundGridWithVoid(MovementDirection.Left, 150, ref currentLocation, 10, true);
+                            summoningModule.ModuleLog(moduleId, "Moving back up the grid. Changing three columns to the left.");
+                            break;
                     }
                 }
 

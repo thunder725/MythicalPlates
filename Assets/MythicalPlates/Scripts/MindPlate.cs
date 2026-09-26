@@ -516,11 +516,14 @@ public class MindPlate : PlateBase
         int _numberOfBatteries = bombInfo.GetBatteryCount() % 10;
         int _numberOfIndicators = bombInfo.GetIndicators().Count() % 10;
         int _numberOfPorts = bombInfo.GetPortCount() % 10;
-        int[] _serialNumberDigits = bombInfo.GetSerialNumberNumbers().ToArray();
+        var _serialNumberDigits = bombInfo.GetSerialNumberNumbers();
+        int _firstSnDigit = _serialNumberDigits.First();
+        int _lastSnDigit = _serialNumberDigits.Last();
+        
 
         // Log Edgework
-        summoningModule.ModuleLog(moduleId, "Found {0} Batteries, {1} Indicators and {2} Ports (only keeping least significant digit). Serial Number Digits are {3}.",
-            _numberOfBatteries, _numberOfIndicators, _numberOfPorts, _serialNumberDigits.Join());
+        summoningModule.ModuleLog(moduleId, "Found {0} Batteries, {1} Indicators and {2} Ports (only keeping least significant digit). First Serial Number Digit is {3} and last is {4}.",
+            _numberOfBatteries, _numberOfIndicators, _numberOfPorts, _firstSnDigit, _lastSnDigit);
 
         // Create and populate list of Scrambling Moves
         List<ScramblingMove> _movesToPerform = new List<ScramblingMove>();
@@ -528,10 +531,8 @@ public class MindPlate : PlateBase
         _movesToPerform.AddRange(ScramblingMovesPerDigit[_numberOfBatteries]);
         _movesToPerform.AddRange(ScramblingMovesPerDigit[_numberOfIndicators]);
         _movesToPerform.AddRange(ScramblingMovesPerDigit[_numberOfPorts]);
-        for (int i = 0; i < _serialNumberDigits.Length; i ++)
-        {
-            _movesToPerform.AddRange(ScramblingMovesPerDigit[_serialNumberDigits[i]]);
-        }
+        _movesToPerform.AddRange(ScramblingMovesPerDigit[_firstSnDigit]);
+        _movesToPerform.AddRange(ScramblingMovesPerDigit[_lastSnDigit]);
 
         summoningModule.ModuleLog(moduleId, "Scrambling Moves, in order, will be {0}", _movesToPerform.Join());
 

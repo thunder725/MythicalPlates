@@ -56,7 +56,7 @@ public class AllmightySinnoh : SummoningModule {
 
     // Mark of Time lag
     /// <summary> How fast the Plate Marked by Time should follow its "wanted" position </summary>
-    [SerializeField][Range(0, 1)] float timeMarkedPlateLagSpeed;
+    [SerializeField] float timeMarkedPlateLagSpeed;
     Vector3 previousFrameTimePlateLocation;
 
     // Solvable Plate
@@ -87,6 +87,7 @@ public class AllmightySinnoh : SummoningModule {
     /// <summary> Index determining which Mark is expected to be pressed by the defuser.
     /// 0 means Mark of Time, 1 is Space and 2 is Antimatter. </summary>
     int markToPress;
+    List<int> MarkMovementValues;
 
 
     // Universal Logging Data
@@ -99,7 +100,7 @@ public class AllmightySinnoh : SummoningModule {
     /// See TP implementation and PlateBase.PlateShouldSolve() for more info </summary>
     public bool PlateWillSolveViaTwitchPlays;
     readonly int[] TwitchPlaysPointsPerPlate = new int[18] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-    // readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    // readonly int[] TwitchPlaysPointsPerPlate = new int[18]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // All 0s for quick testing
     readonly int AllmightySinnohTwitchPlaysSolveBonus = 0;
 
     bool tpTimerIsAligned;
@@ -647,7 +648,7 @@ public class AllmightySinnoh : SummoningModule {
     void LagTimePlateBehind()
     {
         // Interp towards the goal of the "currentLocation"
-        visualPlatesParents[initialTimeMark].transform.position = Vector3.Lerp(previousFrameTimePlateLocation, visualPlatesParents[initialTimeMark].transform.position, timeMarkedPlateLagSpeed);
+        visualPlatesParents[initialTimeMark].transform.position = Vector3.Lerp(previousFrameTimePlateLocation, visualPlatesParents[initialTimeMark].transform.position, timeMarkedPlateLagSpeed * Time.deltaTime);
 
         // Save to know a "Previous Frame"
         previousFrameTimePlateLocation = visualPlatesParents[initialTimeMark].transform.position;
@@ -761,8 +762,81 @@ public class AllmightySinnoh : SummoningModule {
 
     void InitializePuzzle()
     {
+        ManageRuleseed();
         DetermineInitialMarks();
         ApplyMarkSteps();
+    }
+
+    void ManageRuleseed()
+    {
+        MonoRandom Rng = ruleSeed.GetRNG();
+
+        AllmightySinnohModuleLog(allmightySinnohModuleId, "Using Ruleseed {0}:", Rng.Seed);
+
+        if (Rng.Seed == 1)
+        {
+            MarkMovementValues = new List<int>() { 3, 12, 5, 8, 8, 7, 3, 10, 2, 3, 1, 6, 5, 5, 5, 15, 2, 5, 5, 4, 3, 2, 6, 0, 3, 4, 5, 4, 9, 3 };
+            return;
+        }
+
+        // We want the movement values for each Mark to have meaning, they are special.
+        // So they all aren't a random number from 0 to 14.
+        MarkMovementValues = new List<int>();
+
+        // rule 1 - Gravity - Mark of Space must be above the other two
+        MarkMovementValues.Add(Rng.Next(0, 6));
+        MarkMovementValues.Add(Rng.Next(9, 15));
+        MarkMovementValues.Add(Rng.Next(0, 6));
+
+
+        // rule 2 - Earth Power
+        // rule 3 - Hyper Voice
+        // rule 4 - Extreme Speed
+        // no need for specifics
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+
+        // rule 5 - Refresh - same non-zero value thrice
+        var value = Rng.Next(1, 10);
+        MarkMovementValues.Add(value);
+        MarkMovementValues.Add(value);
+        MarkMovementValues.Add(value);
+
+        // rule 6 - Future Sight - Time-based so Mark of Time must be above the other two
+        MarkMovementValues.Add(Rng.Next(9, 15));
+        MarkMovementValues.Add(Rng.Next(0, 6));
+        MarkMovementValues.Add(Rng.Next(0, 6));
+
+        // rule 7 - Recover - Must be inverse of Perish Song
+        int[] recover = new int[3] { Rng.Next(1, 11), Rng.Next(1, 11), Rng.Next(1, 11) };
+        MarkMovementValues.Add(recover[0]);
+        MarkMovementValues.Add(recover[1]);
+        MarkMovementValues.Add(recover[2]);
+
+        // rule 8 - Hyper Beam - no need for specifics
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+        MarkMovementValues.Add(Rng.Next(0, 11));
+
+        // rule 9 - Perish Song - Must be inverse of Recover
+        MarkMovementValues.Add(recover[2]);
+        MarkMovementValues.Add(recover[1]);
+        MarkMovementValues.Add(recover[0]);
+
+        // rule 10 - Judgement - Always 4 9 3 since that's Arceus' Pokédex Number (and signature move)
+        MarkMovementValues.Add(4);
+        MarkMovementValues.Add(9);
+        MarkMovementValues.Add(3);
+
+
+        Debug.LogFormat("<Allmighty Sinnoh #{0}> Mark Movements in order are {1}", allmightySinnohModuleId, MarkMovementValues.Join());
     }
 
     /// <summary> Randomly select the 3 Plates that will get Marked </summary>
@@ -812,7 +886,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_foundPrime && _foundNonPrime)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step One should be applied.");
-            MoveAllMarks(3, 12, 5);
+            MoveAllMarks(0);
         }
 
 
@@ -827,7 +901,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_ironSplashOrSpookyIndices.Intersect(_initialMarks).Count() > 0)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Two should be applied.");
-            MoveAllMarks(8, 8, 7);
+            MoveAllMarks(1);
         }
 
 
@@ -837,7 +911,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombPorts.Contains("StereoRCA"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Three should be applied.");
-            MoveAllMarks(3, 10, 2);
+            MoveAllMarks(2);
         }
 
 
@@ -847,7 +921,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombPorts.Contains("RJ45"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Four should be applied.");
-            MoveAllMarks(3, 1, 6);
+            MoveAllMarks(3);
         }
 
 
@@ -857,7 +931,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombIndicators.Contains("CLR"))
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Five should be applied.");
-            MoveAllMarks(5, 5, 5);
+            MoveAllMarks(4);
         }
 
 
@@ -912,13 +986,13 @@ public class AllmightySinnoh : SummoningModule {
             if (dot == 0)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is horizontally aligned with the timer.");
-                MoveAllMarks(15, 2, 5);
+                MoveAllMarks(5);
                 tpTimerIsAligned = true;
             }
             else if (dot == 1)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Six should be applied. This module is vertically aligned with the timer.");
-                MoveAllMarks(15, 2, 5);
+                MoveAllMarks(5);
 
                 tpTimerIsAligned = true;
             }
@@ -936,7 +1010,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombNumberOfLits > _bombNumberOfUnlits)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Seven should be applied.");
-            MoveAllMarks(5, 4, 3);
+            MoveAllMarks(6);
         }
 
 
@@ -946,7 +1020,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombHasAaBatteries && _bombHasDBatteries)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Eight should be applied.");
-            MoveAllMarks(2, 6, 0);
+            MoveAllMarks(7);
         }
 
 
@@ -956,7 +1030,7 @@ public class AllmightySinnoh : SummoningModule {
         if (_bombNumberOfLits < _bombNumberOfUnlits)
         {
             AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Nine should be applied.");
-            MoveAllMarks(3, 4, 5);
+            MoveAllMarks(8);
         }
 
 
@@ -968,7 +1042,7 @@ public class AllmightySinnoh : SummoningModule {
             if (bombReference.GetComponentInChildren<IndividualPlateModule>() != null)
             {
                 AllmightySinnohModuleLog(allmightySinnohModuleId, "Step Ten should be applied.");
-                MoveAllMarks(4, 9, 3);
+                MoveAllMarks(9);
             }
         }
         else
@@ -984,9 +1058,14 @@ public class AllmightySinnoh : SummoningModule {
 
 
     /// <summary> Method for moving the Marks around a specific amount </summary>
-    void MoveAllMarks(int TimeMovement, int SpaceMovement, int AntimatterMovement)
+    void MoveAllMarks(int MarkIndex)
     {
         bool _uniqueOffsetNeeded = false;
+
+        // Use the correct movement values, they might be ruleseeded
+        int TimeMovement = MarkMovementValues[3 * MarkIndex];
+        int SpaceMovement = MarkMovementValues[3 * MarkIndex + 1];
+        int AntimatterMovement = MarkMovementValues[3 * MarkIndex + 2];
 
         // Move the mark by the correct amount
         // With % 18 because it loops around

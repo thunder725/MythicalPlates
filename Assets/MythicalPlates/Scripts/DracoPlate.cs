@@ -22,7 +22,7 @@ public class DracoPlate : PlateBase
 
     // And can randomize the target for the Manhattan Distances
     int[] manhattanTargets = new int[3] { 2, 4, 8};
-
+    int magentaRotation;
 
     /// <summary> Representation of the Distance Field used by the Yellow Cell rule </summary>
     string yellowDistanceField;
@@ -151,7 +151,10 @@ public class DracoPlate : PlateBase
 
         summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
-        if (Rng.Seed == 1) { return; }
+        if (Rng.Seed == 1) {
+            magentaRotation = 180;
+            return;
+        }
 
         manhattanTargets = new int[9] { 2, 4, 8, 1, 3, 5, 6, 7, 9 };
 
@@ -160,7 +163,10 @@ public class DracoPlate : PlateBase
 
         Array.Resize(ref manhattanTargets, 3);
 
-        summoningModule.ModuleLog(moduleId, "Rules in order will be {0}. The Manhattan Distance Targets are {1}", rulesToDo.Join(", then "), manhattanTargets.Join());
+        magentaRotation = Rng.Next(1, 4) * 90;
+
+        summoningModule.ModuleLog(moduleId, "Rules in order will be {0}. The Manhattan Distance Targets are {1}. Magenta Rotation is {2}",
+            rulesToDo.Join(", then "), manhattanTargets.Join(), magentaRotation);
     }
 
     void GenerateVoidCellsFromBombData()
@@ -379,10 +385,47 @@ public class DracoPlate : PlateBase
         cellsMarkedForToggle.AddRange(GetNeighborCells(magentaCellIndex, 4));
         cellsMarkedForToggle.AddRange(GetNeighborCells(yellowCellIndex, 4));
 
-        // Add for toggle the reverse of those cells
-        cellsMarkedForToggle.Add(63 - cyanCellIndex);
-        cellsMarkedForToggle.Add(63 - magentaCellIndex);
-        cellsMarkedForToggle.Add(63 - yellowCellIndex);
+
+        // Add for toggle those cells...
+        // If the whole grid was rotated 90/180/270° clockwise
+
+        switch(magentaRotation)
+        {
+            case 90:
+                // 90° rotation: X becomes Y, Y becomes 7-X
+                // B5 (1, 4) becomes D2 (3 (7-4), 1)
+                // F2 (5, 1) becomes G6 (6, 5)
+                // Column is the starting X   //  Row is the starting Y
+                cellsMarkedForToggle.Add((8 * GetColumnFromCellIndex(cyanCellIndex, 8)) + 7 - GetRowFromCellIndex(cyanCellIndex, 8));
+                cellsMarkedForToggle.Add((8 * GetColumnFromCellIndex(magentaCellIndex, 8)) + 7 - GetRowFromCellIndex(magentaCellIndex, 8));
+                cellsMarkedForToggle.Add((8 * GetColumnFromCellIndex(yellowCellIndex, 8)) + 7 - GetRowFromCellIndex(yellowCellIndex, 8));
+
+                break;
+
+            case 180:
+                // Add for toggle the reverse of those cells
+                cellsMarkedForToggle.Add(63 - cyanCellIndex);
+                cellsMarkedForToggle.Add(63 - magentaCellIndex);
+                cellsMarkedForToggle.Add(63 - yellowCellIndex);
+                break;
+
+            case 270:
+                // 270° rotation: X becomes 7-Y, Y becomes X
+                // B5 (1, 4) becomes E7 (4, 6)
+                // F2 (5, 1) becomes B3 (1, 2)
+                // E6 (4, 5) becomes F4 (5, 3)
+                // Column is the starting X   //  Row is the starting Y
+                cellsMarkedForToggle.Add(8 * (7 - GetColumnFromCellIndex(cyanCellIndex, 8)) + GetRowFromCellIndex(cyanCellIndex, 8));
+                cellsMarkedForToggle.Add(8 * (7 - GetColumnFromCellIndex(magentaCellIndex, 8)) + GetRowFromCellIndex(magentaCellIndex, 8));
+                cellsMarkedForToggle.Add(8 * (7 - GetColumnFromCellIndex(yellowCellIndex, 8)) + GetRowFromCellIndex(yellowCellIndex, 8));
+                break;
+
+            default:
+                summoningModule.ModuleLog(moduleId, "Received unknown Magenta Rotation value: {0}. Please report this to thunder725. Autosolving Plate...", magentaRotation);
+                StartCoroutine(PlateShouldSolve());
+                break;
+        }
+        
 
 
         // THIS HAS BEEN REMOVED
