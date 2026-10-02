@@ -63,14 +63,14 @@
     "voidCellLocations": [ "30", "41", "33" ],
     "intendedPixiePlacementSolution": [ "73", "12", "11", "00", "13" ]
   },
-  // {        // The solution is now impossible due to Zagan the Trickster Bugfix (its ability didn't work previously)
-  //   "puzzleID": 8, // Many Fléau and Dashaz!!
-  //   "demonIDs": [ 5, 2, 4, 3, 4, 2 ],
-  //   "demonLocations": [ "43", "41", "73", "32", "61", "50" ],
-  //   "pixieIDs": [ 9, 3, 3, 0 ],
-  //   "voidCellLocations": [ "03", "23", "51" ],
-  //   "intendedPixiePlacementSolution": [ "71", "31", "22", "13" ]
-  // },
+  {
+    "puzzleID": 8, // Many Fléau and Dashaz!!
+    "demonIDs": [ 5, 2, 4, 3, 4, 2 ],
+    "demonLocations": [ "43", "41", "73", "32", "61", "50" ],
+    "pixieIDs": [ 9, 3, 3, 0 ],
+    "voidCellLocations": [ "03", "23", "51" ],
+    "intendedPixiePlacementSolution": [ "42", "31", "22", "13" ]
+  },
   {
     "puzzleID": 9, // Area of Denial
     "demonIDs": [ 8, 7, 0, 1 ],
@@ -86,5 +86,37 @@
     "pixieIDs": [ 1, 8, 6, 2, 3 ],
     "voidCellLocations": [ "32", "20", "41" ],
     "intendedPixiePlacementSolution": [ "03", "43", "50", "12", "22" ]
+  },
+  {
+    "puzzleID": 11, // Back-facing Trickshot
+    "demonIDs": [ 2, 7, 0, 2 ],
+    "demonLocations": [ "52", "41", "71", "53" ],
+    "pixieIDs": [ 4, 3 ],
+    "voidCellLocations": [ "12", "31", "61" ],
+    "intendedPixiePlacementSolution": [ "01", "23" ]
+  },
+  {
+    "puzzleID": 12, // Glomies aren't the only VIPs
+    "demonIDs": [ 2, 3, 2, 8 ],
+    "demonLocations": [ "51", "71", "63", "50" ],
+    "pixieIDs": [ 1, 0, 5 ],
+    "voidCellLocations": [ "22", "43", "61" ],
+    "intendedPixiePlacementSolution": [ "10", "00", "02" ]
+  },
+  {
+    "puzzleID": 13, // Tempus Fugit
+    "demonIDs": [ 0, 4, 8, 4, 0, 8, 4 ],
+    "demonLocations": [ "52", "30", "71", "50", "73", "43", "32" ],
+    "pixieIDs": [ 8, 2, 8, 2 ],
+    "voidCellLocations": [ "03", "31", "53" ],
+    "intendedPixiePlacementSolution": [ "00", "01", "02", "13" ]
+  },
+  {
+    "puzzleID": 14, // Close Call!
+    "demonIDs": [ 1, 2, 3, 1, 2],
+    "demonLocations": [ "22", "40", "31", "33", "61" ],
+    "pixieIDs": [ 3, 3, 0, 8 ],
+    "voidCellLocations": [ "63", "51" ],
+    "intendedPixiePlacementSolution": [ "03", "32", "00", "01" ]
   }
 ]

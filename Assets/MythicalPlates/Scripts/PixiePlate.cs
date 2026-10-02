@@ -160,6 +160,7 @@ public class PixiePlate : PlateBase {
         base.InitializeModuleStart();
 
         // Way to generate multiple puzzles so I can verify them manually
+        // The valid puzzles will be logged as Warnings, so filter to only show those!
         // StartCoroutine(StartGeneratingPuzzles()); return;
 
         // Debug Method to verify Preset Playfield Puzzles Integrity, and make sure all of them are in a valid state;
@@ -1363,11 +1364,17 @@ public class PixiePlate : PlateBase {
 
         // No Zagan? Nothing can block it anymore
         if (currentPlayfield.rowsWithZaganTheTricksterPresent.Count == 0)
-        { summoningModule.ModuleLog(moduleId, "No Zagan exists!"); return false; }
+        { 
+            // summoningModule.ModuleLog(moduleId, "No Zagan exists!"); 
+            return false;
+        }
 
         // If there is a Zagan but it's on another row, don't bother checking anything
         if (currentPlayfield.rowsWithZaganTheTricksterPresent.Contains(GetRowFromCellIndex(pixie.gridLocationIndex, 8)) == false)
-        { summoningModule.ModuleLog(moduleId, "No Zagan on its row!"); return false; }
+        { 
+            // summoningModule.ModuleLog(moduleId, "No Zagan on its row!");
+            return false; 
+        }
 
 
         // If Zagan is (OR WAS!!) on this row, check it
