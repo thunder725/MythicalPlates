@@ -302,70 +302,72 @@ public class BlankPlate : PlateBase {
 
         string _charactersForPathCreation = "";
 
-        // Take all Indicators, sum the First Letters together, then the Second Letters together, then the Third
-        string[] _allIndicators = bombInfo.GetIndicators().ToArray();
-        if (_allIndicators.Length == 0 )
-        {
-            summoningModule.ModuleLog(moduleId, "Found no indicators.");
-        }
-        // Only found 1 indicator
-        else if (_allIndicators.Length == 1)
-        {
-            _charactersForPathCreation += _allIndicators[0];
 
-            summoningModule.ModuleLog(moduleId, "Found singular indicator {0}. Adding it to the Character chain as-is. Character chain now is {1}", _allIndicators[0], _charactersForPathCreation);
-        }
-        // Found more than 1 indicator
-        else
-        {
-            summoningModule.ModuleLog(moduleId, "Found indicators {0}.", _allIndicators.Join(", "));
-
-            int _sumOfCharacters;
-
-            int _characterValue;
-            for (int i = 0; i < 3; i ++)
-            {
-                _sumOfCharacters = 0;
-
-                string _lettersFromIndicators = "Characters " + (i+1) + ": ";
-
-                foreach (string _indicator in _allIndicators)
-                {
-                    _characterValue = Array.IndexOf(alphabet, _indicator[i].ToString()) + 1;
-
-                    // +1 is there because A is index 0; when its alphabetical position is 1
-                    _sumOfCharacters += _characterValue;
-
-                    // Log 
-                    _lettersFromIndicators += String.Format("letter {0} from {1} has value {2}; ", _indicator[i].ToString(), _indicator, _characterValue);
-                }
-
-                // remove the final "; "
-                _lettersFromIndicators = _lettersFromIndicators.Remove(_lettersFromIndicators.Length - 2);
-
-                // Log the letters from those indicators.
-                summoningModule.ModuleLog(moduleId, _lettersFromIndicators);
-
-
-                // Mod26 to be sure, but keep 26...
-                // So it's a "%26 but == 0 => 26"
-                // So just subtract 26 if above 26
-                while (_sumOfCharacters > 26)
-                {
-                    _sumOfCharacters -= 26;
-                }
-
-                // ...Since we explicitely want a -1 at this step
-                // That is because a single A will be interpreted as 1, which then should become index 0
-                // A single Z would be 26, which should stay 26 to become 25
-                // So then sums should now work correctly
-                _charactersForPathCreation += alphabet[_sumOfCharacters - 1];
-
-                // Log, taking care of the +1 -1 shuffle
-                summoningModule.ModuleLog(moduleId, "Sum of alphabetical position of charcters {0} (post 26 subtraction) is {1}. Converted back to a letter it becomes {2}. Character chain now is {3}",
-                    i + 1, _sumOfCharacters, alphabet[_sumOfCharacters - 1], _charactersForPathCreation);
-            }
-        }
+        // DEPRECATED!!
+        // // Take all Indicators, sum the First Letters together, then the Second Letters together, then the Third
+        // string[] _allIndicators = bombInfo.GetIndicators().ToArray();
+        // if (_allIndicators.Length == 0 )
+        // {
+        //     summoningModule.ModuleLog(moduleId, "Found no indicators.");
+        // }
+        // // Only found 1 indicator
+        // else if (_allIndicators.Length == 1)
+        // {
+        //     _charactersForPathCreation += _allIndicators[0];
+        // 
+        //     summoningModule.ModuleLog(moduleId, "Found singular indicator {0}. Adding it to the Character chain as-is. Character chain now is {1}", _allIndicators[0], _charactersForPathCreation);
+        // }
+        // // Found more than 1 indicator
+        // else
+        // {
+        //     summoningModule.ModuleLog(moduleId, "Found indicators {0}.", _allIndicators.Join(", "));
+        // 
+        //     int _sumOfCharacters;
+        // 
+        //     int _characterValue;
+        //     for (int i = 0; i < 3; i ++)
+        //     {
+        //         _sumOfCharacters = 0;
+        // 
+        //         string _lettersFromIndicators = "Characters " + (i+1) + ": ";
+        // 
+        //         foreach (string _indicator in _allIndicators)
+        //         {
+        //             _characterValue = Array.IndexOf(alphabet, _indicator[i].ToString()) + 1;
+        // 
+        //             // +1 is there because A is index 0; when its alphabetical position is 1
+        //             _sumOfCharacters += _characterValue;
+        // 
+        //             // Log 
+        //             _lettersFromIndicators += String.Format("letter {0} from {1} has value {2}; ", _indicator[i].ToString(), _indicator, _characterValue);
+        //         }
+        // 
+        //         // remove the final "; "
+        //         _lettersFromIndicators = _lettersFromIndicators.Remove(_lettersFromIndicators.Length - 2);
+        // 
+        //         // Log the letters from those indicators.
+        //         summoningModule.ModuleLog(moduleId, _lettersFromIndicators);
+        // 
+        // 
+        //         // Mod26 to be sure, but keep 26...
+        //         // So it's a "%26 but == 0 => 26"
+        //         // So just subtract 26 if above 26
+        //         while (_sumOfCharacters > 26)
+        //         {
+        //             _sumOfCharacters -= 26;
+        //         }
+        // 
+        //         // ...Since we explicitely want a -1 at this step
+        //         // That is because a single A will be interpreted as 1, which then should become index 0
+        //         // A single Z would be 26, which should stay 26 to become 25
+        //         // So then sums should now work correctly
+        //         _charactersForPathCreation += alphabet[_sumOfCharacters - 1];
+        // 
+        //         // Log, taking care of the +1 -1 shuffle
+        //         summoningModule.ModuleLog(moduleId, "Sum of alphabetical position of charcters {0} (post 26 subtraction) is {1}. Converted back to a letter it becomes {2}. Character chain now is {3}",
+        //             i + 1, _sumOfCharacters, alphabet[_sumOfCharacters - 1], _charactersForPathCreation);
+        //     }
+        // }
 
 
         // // Number of batteries
