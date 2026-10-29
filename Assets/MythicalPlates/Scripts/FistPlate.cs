@@ -4,12 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static Sony.NP.Matching;
 
 public class FistPlate : PlateBase {
 
     [SerializeField] TextMesh voidedCoordinatesText;
     /// <summary> Location of all possible Redirection Station </summary>
-    readonly int[] redirectionStationIndices = new int[29] { 0, 3, 5, 7, 9, 11, 14, 16, 19, 21, 23, 25, 28, 30, 32, 33, 35, 37, 39, 42, 44, 49, 51, 54, 56, 57, 60, 61, 62};
+    List<int> redirectionStationIndices;
 
     int[] ruleseedRedirectionModifier = new int[4];
 
@@ -22,6 +23,9 @@ public class FistPlate : PlateBase {
     // Data about the Unstoppable Force
     int unstoppableForceIndex;
     MovementDirection unstoppableForceDirection;
+
+    // Data about the Immovable Object
+    int immovableObjectPosition;
 
     // Final result!
     bool isMesagozaSafe;
@@ -112,6 +116,8 @@ public class FistPlate : PlateBase {
     {
         InitializeRuleseed();
 
+        summoningModule.ModuleLog(moduleId, "Starting Coordinate of the Unstoppable Force is {0}, going {1}. Coordinate of the Immovable Object is {2}",
+            GetCoordinateFromCellIndex(unstoppableForceIndex, 8), unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(immovableObjectPosition, 8));
         summoningModule.ModuleLog(moduleId, "0 is associated to {0}, 1 to {1}, 2 to {2} and 3 to {3}", (MovementDirection)ruleseedRedirectionModifier[0],
             (MovementDirection)ruleseedRedirectionModifier[1], (MovementDirection)ruleseedRedirectionModifier[2], (MovementDirection)ruleseedRedirectionModifier[3]);
 
@@ -130,9 +136,81 @@ public class FistPlate : PlateBase {
         summoningModule.ModuleLog(moduleId, "Using Ruleseed {0}:", Rng.Seed);
 
         if (Rng.Seed == 1)
-        { return; }
+        {
+            // Starting location & direction of the Unstoppable Force
+            unstoppableForceIndex = 59;
+            unstoppableForceDirection = MovementDirection.Up;
+
+            // Starting location of the immovable object
+            immovableObjectPosition = 26;
+
+            // Redirect Station 
+            redirectionStationIndices = new List<int>() { 0, 3, 5, 7, 9, 11, 14, 16, 19, 21, 23, 25, 28, 30, 32, 33, 35, 37, 39, 42, 44, 49, 51, 54, 56, 57, 60, 62, 63 };
+            return;
+        }
 
         FisherYatesShuffle(ref ruleseedRedirectionModifier, Rng);
+
+
+
+        // Redirect Station Locations
+        redirectionStationIndices = new List<int>();
+        List<int> redirectStationSpaces = new List<int>(){ 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3 };
+        Rng.ShuffleFisherYates(redirectStationSpaces);
+        redirectStationSpaces.Insert(0, Rng.Next(0, 3));
+
+        int current = 0;
+        foreach (int space in redirectStationSpaces)
+        {
+            current += space;
+            if (current >= 64) { break; }
+            redirectionStationIndices.Add(current);
+        }
+
+        Debug.LogFormat("<Fist Plate #{0}> All Redirect Stations are placed in {1}", moduleId, redirectionStationIndices.Select(x => GetCoordinateFromCellIndex(x, 8)).Join());
+
+
+        // Object Location -> In the center 4x4 square only, and not with a station
+        int[] allowedObjectSpaces = new int[] { 18, 19, 20, 21, 26, 27, 28, 29, 34, 35, 36, 37, 42, 43, 44, 45 }
+            .Where(x => redirectionStationIndices.Contains(x) == false).ToArray();
+
+        immovableObjectPosition = allowedObjectSpaces[Rng.Next(0, allowedObjectSpaces.Length)];
+
+        // Force Location -> In the edges (non-corner), and not within a station again
+        int[] allowedForceSpaces = new int[] { 1, 2, 3, 4, 5, 6, 8, 16, 24, 32, 40, 48, 15, 23, 31, 39, 47, 55, 57, 58, 59, 60, 61, 62 }
+            .Where(x => redirectionStationIndices.Contains(x) == false).ToArray();
+
+        unstoppableForceIndex = allowedForceSpaces[Rng.Next(0, allowedForceSpaces.Length)];
+
+        Dictionary<int, MovementDirection> forceSpawnDirection = new Dictionary<int, MovementDirection>()
+        {
+            { 1, MovementDirection.Down },
+            { 2, MovementDirection.Down },
+            { 3, MovementDirection.Down },
+            { 4, MovementDirection.Down },
+            { 5, MovementDirection.Down },
+            { 6, MovementDirection.Down },
+            { 8, MovementDirection.Right },
+            { 16, MovementDirection.Right },
+            { 24, MovementDirection.Right },
+            { 32, MovementDirection.Right },
+            { 40, MovementDirection.Right },
+            { 48, MovementDirection.Right },
+            { 15, MovementDirection.Left },
+            { 23, MovementDirection.Left },
+            { 31, MovementDirection.Left },
+            { 39, MovementDirection.Left },
+            { 47, MovementDirection.Left },
+            { 55, MovementDirection.Left },
+            { 57, MovementDirection.Up },
+            { 58, MovementDirection.Up },
+            { 59, MovementDirection.Up },
+            { 60, MovementDirection.Up },
+            { 61, MovementDirection.Up },
+            { 62, MovementDirection.Up }
+        };
+        unstoppableForceDirection = forceSpawnDirection[unstoppableForceIndex];
+
     }
 
     void GenerateVoidTiles()
@@ -144,10 +222,12 @@ public class FistPlate : PlateBase {
         {
             _attemptedVoidIndex = UnityEngine.Random.Range(0, 64);
 
-            // Do not allow Void to exist on the Immovable Object's position (27), the Unstoppable Force's starting position (59)
-            // Nor D5 / D7  (35 and 51) because they are in the straight path to the Immovable Object and that's boring
+            // Do not allow Void to exist on the Immovable Object's position, the Unstoppable Force's starting position
+            // Nor D5 / D7  (35 and 51) because they are in the straight path to the Immovable Object in RS 1 and that's boring
+            // Yes it's gonna ignore those two for other ruleseeds but I'm okay with that
             // Nor to have duplicates
-            if (_attemptedVoidIndex == 27 || _attemptedVoidIndex == 59 || _attemptedVoidIndex == 35 || _attemptedVoidIndex == 51 || voidedCellsIndices.Contains(_attemptedVoidIndex))
+            if (_attemptedVoidIndex == immovableObjectPosition || _attemptedVoidIndex == unstoppableForceIndex ||
+                _attemptedVoidIndex == 35 || _attemptedVoidIndex == 51 || voidedCellsIndices.Contains(_attemptedVoidIndex))
             { continue; }
 
             voidedCellsIndices.Add(_attemptedVoidIndex);
@@ -209,18 +289,18 @@ public class FistPlate : PlateBase {
 
         int _numberOfStationsWithDirections = 0;
 
-        for (int i = 0; i < 29; i ++)
+        foreach (int redirectionStation in redirectionStationIndices)
         {
             // Register to that dictionary every station with its associated integer direction
             // Ignore Voided Stations
-            if (voidedCellsIndices.Contains(redirectionStationIndices[i]))
+            if (voidedCellsIndices.Contains(redirectionStation))
             { continue; }
 
 
             // Cannot directly gather the i-th value from the redirection string, because i might not be
             // "The i-th station to receive a direction" due to Void!
             // Instead we use the number of stations added up until now
-            redirectionDirections.Add(redirectionStationIndices[i], ruleseedRedirectionModifier[CharToInt(RedirectionString[_numberOfStationsWithDirections])]);
+            redirectionDirections.Add(redirectionStation, ruleseedRedirectionModifier[CharToInt(RedirectionString[_numberOfStationsWithDirections])]);
 
             _numberOfStationsWithDirections++;
         }
@@ -242,9 +322,7 @@ public class FistPlate : PlateBase {
         // So we just keep track of which stations Actually redirected the Unstoppable Force, and if we successfully get redirected by
         // a Station that already redirected, then that means an infinite loop has been found
 
-        // Starting location & direction of the Unstoppable Force
-        unstoppableForceIndex = 59;
-        unstoppableForceDirection = MovementDirection.Up;
+        
 
         // Safety out counter since while loops are dangerous
         // This is the number of **movements** that is allowed, not redirections
@@ -275,12 +353,14 @@ public class FistPlate : PlateBase {
 
             // Move, using Void
             _forceMovementData = MoveAroundGridWithVoid(unstoppableForceDirection, 64, ref unstoppableForceIndex, 8, false);
-
+            
 
             // Hit the Immovable Object.
-            if (unstoppableForceIndex == 27)
+            if (unstoppableForceIndex == immovableObjectPosition)
             {
                 isMesagozaSafe = false;
+                summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells.",
+                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _forceMovementData.NumberOfPassedVoidCells);
                 summoningModule.ModuleLog(moduleId, "The Unstoppable Force has reached the Immovable Object! Mesagoza is not safe and the EVACUATE button must be pressed.");
                 return;
             }
@@ -290,8 +370,8 @@ public class FistPlate : PlateBase {
             if (_forceMovementData.ranIntoGridEdges)
             {
                 isMesagozaSafe = true;
-                summoningModule.ModuleLog(moduleId, "The Unstoppable Force left the board while moving {0}! Mesagoza is safe and the SAFE button must be pressed.",
-                    unstoppableForceDirection.ToString());
+                summoningModule.ModuleLog(moduleId, "The Unstoppable Force left the board while moving {0}, passing {1} Voided cells! Mesagoza is safe and the SAFE button must be pressed.",
+                    unstoppableForceDirection.ToString(), _forceMovementData.NumberOfPassedVoidCells);
                 return;
             }
 
@@ -309,15 +389,15 @@ public class FistPlate : PlateBase {
                 if (_stationDirection == unstoppableForceDirection)
                 {
                     // Ignore redirection station, do nothing
-                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, but didn't get redirected as its direction is aligned with the Redirection Station!",
-                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells, but didn't get redirected as its direction is aligned with the Redirection Station!",
+                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _forceMovementData.NumberOfPassedVoidCells);
                     continue;
                 }
                 else if (GetOppositeMovementDirection(_stationDirection) == unstoppableForceDirection)
                 {
                     // Ignore redirection station, do nothing
-                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, but didn't get redirected as its direction is exactly opposite to the Redirection Station!",
-                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells, but didn't get redirected as its direction is exactly opposite to the Redirection Station!",
+                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _forceMovementData.NumberOfPassedVoidCells);
                     continue;
                 }
 
@@ -327,16 +407,19 @@ public class FistPlate : PlateBase {
                 if (_redirectionStationInfiniteLoopTracker.Contains(unstoppableForceIndex))
                 {
                     isMesagozaSafe = true;
-                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force got redirected by the Redirection Station in {0} again! This is an Infinite Loop! Mesagoza is safe and the SAFE button must be pressed.",
-                        GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
+                    // Log that movement
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells.",
+                        unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _forceMovementData.NumberOfPassedVoidCells);
+                    summoningModule.ModuleLog(moduleId, "The Unstoppable Force entered an Infinite Loop! Mesagoza is safe and the SAFE button must be pressed.");
                     return;
                 }
 
 
 
                 // Get Redirected
-                summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1} and got redirected to {2}.",
-                    unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _stationDirection.ToString());
+                summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells, and got redirected to {3}.",
+                    unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8),
+                    _forceMovementData.NumberOfPassedVoidCells, _stationDirection.ToString());
 
                 unstoppableForceDirection = _stationDirection;
 
@@ -346,10 +429,10 @@ public class FistPlate : PlateBase {
                 continue;
             }
 
+            // Log that movement
+            summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}, passing {2} Voided cells.",
+                unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8), _forceMovementData.NumberOfPassedVoidCells);
 
-            // Just moved ^^
-            summoningModule.ModuleLog(moduleId, "The Unstoppable Force moved {0} into tile {1}.",
-                unstoppableForceDirection.ToString(), GetCoordinateFromCellIndex(unstoppableForceIndex, 8));
 
         }
     }
